@@ -1,0 +1,42 @@
+Any
+CYCLoPs: Bud
+CYCLoPs: Budneck
+CYCLoPs: Budsite
+CYCLoPs: Cell Periphery
+CYCLoPs: Cort. Patches
+CYCLoPs: Cytoplasm
+CYCLoPs: ER
+CYCLoPs: Endosome
+CYCLoPs: Golgi
+CYCLoPs: Mito
+CYCLoPs: Nuc Periphery
+CYCLoPs: Nucleolus
+CYCLoPs: Nucleus
+CYCLoPs: Peroxisome
+CYCLoPs: SpindlePole
+CYCLoPs: Vac/Vac Memb
+GFP: ER
+GFP: ER to Golgi
+GFP: Golgi
+GFP: actin
+GFP: ambiguous
+GFP: bud
+GFP: bud neck
+GFP: cell periphery
+GFP: cytoplasm
+GFP: early Golgi
+GFP: endosome
+GFP: late Golgi
+GFP: lipid particle
+GFP: microtubule
+GFP: mitochondrion
+GFP: no data
+GFP: nuclear periphery
+GFP: nucleolus
+GFP: nucleus
+GFP: peroxisome
+GFP: punctate composite
+GFP: spindle pole
+GFP: vacuolar membrane
+GFP: vacuole
+no data

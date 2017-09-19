@@ -1,0 +1,10 @@
+.vscode
+output
+cgi-bin/gemmer/db_backups
+
+cgi-bin/gemmer/data/export/SGD_proteinCodingGenes_interactome.csv
+
+cgi-bin/gemmer/DB_genes_and_interactions.db
+
+output/excel_files/interactome_test.xlsx
+*.pyc

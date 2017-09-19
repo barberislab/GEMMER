@@ -1,0 +1,9 @@
+Symbol	Name	Beginning	End
+G1(P)	Pre-replicative late G1	-10	38
+G1/S	G1/S	38	55
+S	S	55	89
+G2	G2	89	130
+G2/M	G2/M	130	145
+M	Mitosis	145	180
+M/G1	early G1	180	195
+G1	G1	195	290

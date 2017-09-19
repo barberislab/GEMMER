@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 14px;
+	padding: 0 12px;
+	line-height: 22px;
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	color: #4080D0;
+	text-decoration: none;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+	font-size: inherit;
+	line-height: auto;
+}
+
+a:hover {
+	color: #4080D0;
+	text-decoration: underline;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left: 5px solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 14px;
+	line-height: 19px;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+.mac code {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+/** Theming */
+
+.vscode-light,
+.vscode-light pre code {
+	color: rgb(30, 30, 30);
+}
+
+.vscode-dark,
+.vscode-dark pre code {
+	color: #DDD;
+}
+
+.vscode-high-contrast,
+.vscode-high-contrast pre code {
+	color: white;
+}
+
+.vscode-light code {
+	color: #A31515;
+}
+
+.vscode-dark code {
+	color: #D7BA7D;
+}
+
+.vscode-light pre:not(.hljs),
+.vscode-light code > div {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre:not(.hljs),
+.vscode-dark code > div {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre:not(.hljs),
+.vscode-high-contrast code > div {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+	background: transparent;
+	border-color: #fff;
+}
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #A31515;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+</style>
+
+</head>
+<body>
+<h1>GEMMER Documentation</h1>
+<h2>Dependencies</h2>
+<p>GEMMER would not be possible without the following open-source projects:</p>
+<ul>
+<li><a href="https://d3js.org/">D3.js</a></li>
+<li><a href="http://php.net/">PHP</a></li>
+<li><a href="https://www.apache.org/">APACHE</a></li>
+<li><a href="https://www.sqlite.org/">SQLite</a></li>
+<li><a href="http://python.org">Python</a>
+<ul>
+<li><a href="http://pandas.pydata.org/">Pandas</a></li>
+<li><a href="https://networkx.github.io/">NetworkX</a></li>
+</ul>
+</li>
+<li><a href="http://getbootstrap.com/">Bootstrap</a>
+<ul>
+<li><a href="https://silviomoreto.github.io/bootstrap-select/">Bootstrap-select</a></li>
+</ul>
+</li>
+<li><a href="https://jquery.com/">jQuery</a>
+<ul>
+<li><a href="https://datatables.net/">DataTables</a></li>
+</ul>
+</li>
+</ul>
+<h2>Introduction</h2>
+<p>GEMMER (<strong>GE</strong>nome-wide software for <strong>M</strong>ulti-scale <strong>M</strong>odeling data <strong>E</strong>xtraction and <strong>R</strong>epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in <a href="https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae">Saccharomyces cerevisiae</a> and serve as a data-integration hub. The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle expression and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence.</p>
+<p>GEMMER aids (modeling) research by providing:</p>
+<ul>
+<li>Effortless data integration from 3 databases
+<ul>
+<li>SGD (Saccharomyces Genome Database)</li>
+<li>CYCLoPs (Collection of Yeast Cells Localization Patterns)</li>
+<li>YeastGFP (Yeast GFP Fusion Localization Database)
+-Interaction networks with localization and expression information incorporated</li>
+<li>Centered around one or more proteins</li>
+</ul>
+</li>
+<li>Data visualization using interactive D3 (not 3D!) drawings
+<ul>
+<li>With various filtering possibilities</li>
+</ul>
+</li>
+<li>Data export for interaction networks to SVG and Excel</li>
+</ul>
+<h2>Data sources</h2>
+<p>GEMMER bases its visualizations on data from various sources.</p>
+<ul>
+<li><a href="">SGD</a></li>
+<li><a href="">CYCLoPs</a> Specifically, we use the peak cell cycle phase expression data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu &amp; Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007).</li>
+</ul>
+<p><img src="img/GEMMER_workflow.png" alt="Workflow"></p>
+<h2>The database</h2>
+<h3>Genome-wide search</h3>
+<p>Through the <a href="index.php?id=database">database page</a> users may inspect the data GEMMER collected from other databases on a per protein basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page.</p>
+<h3>Information for a specific gene</h3>
+<p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs expression data if available, GFP database expression data if available and the set of genes it interacts with. The table of interactions allows users to move on to pages specific for the interactors, search the interactors, and links directly to pubmed for publications where the interactions were found.</p>
+<h2>Visualizing a network</h2>
+<p>The central access hub for the tool is formed by the index.php webpage.
+The form on this page allows user input, e.g. which gene(s) to center the visualization around.
+A simple AJAX script submits the form for processing and displays a brief message to the user.
+Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a python script
+'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization.
+The user is then automatically forwarded to a new page with a &quot;box&quot; for the visualization with an embedded D3 visualization based on the JSON file.
+This page will also contain download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
+interactions. Furthermore various tables with this information are also displayed on the page.</p>
+<h3>The form (basic)</h3>
+<p><img src="img/input_form_basic.png" alt="Basic form input"></p>
+<h3>The form (advanced)</h3>
+<p><img src="img/input_form_advanced.png" alt="Advanced form input"></p>
+<h3>The visualization page and output</h3>
+<h3>Exporting the image</h3>
+<h3>Exporting the data in Excel format</h3>
+<h3>Visualizing multiple genes together</h3>
+<h2>Back-end details</h2>
+<h3>D3js</h3>
+<p>For drawing the visualization we make use of D3js.
+<a href="http://d3js.org">d3js</a> is a JavaScript library for manipulating documents based on data.
+The library enables stunning client-side visualization inside the webbrowser.
+Commonly in science-related websites (and possibly many others), users need to save the generated
+visualization in vectorized format (e.g. PDF), to be able to incorporate the graphics in presentation or publications.</p>
+<h3>SGD API Yeastmine</h3>
+<p>To write...</p>
+<h2>Methods</h2>
+<h3>Global overview</h3>
+
+</body>
+</html>

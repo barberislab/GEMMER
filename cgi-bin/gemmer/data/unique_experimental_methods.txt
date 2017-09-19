@@ -1,0 +1,33 @@
+microarray RNA expression level evidence
+computational combinatorial evidence
+chromatin immunoprecipitation-chip evidence
+chromatin immunoprecipitation evidence
+combinatorial evidence
+chromatin immunoprecipitation-seq evidence
+Co-fractionation
+Reconstituted Complex
+Co-crystal Structure
+Phenotypic Enhancement
+PCA
+Synthetic Rescue
+Synthetic Growth Defect
+Dosage Rescue
+Negative Genetic
+Protein-peptide
+Biochemical Activity
+Co-purification
+Positive Genetic
+Synthetic Lethality
+Affinity Capture-RNA
+Affinity Capture-Western
+Affinity Capture-MS
+Two-hybrid
+Phenotypic Suppression
+Co-localization
+Dosage Lethality
+Protein-RNA
+Dosage Growth Defect
+Far Western
+FRET
+Synthetic Haploinsufficiency
+Affinity Capture-Luminescence

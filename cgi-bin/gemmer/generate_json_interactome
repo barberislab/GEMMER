@@ -1,0 +1,397 @@
+# import modules
+import pandas as pd
+pd.set_option('display.max_colwidth', -1)
+import simplejson as js
+import os
+import sqlite3
+import ast
+import traceback
+import timeit
+
+from gemmer.update_interaction_database import create_connection
+
+
+script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
+
+def make_excel_file(df_nodes, df_interactome, filename):
+
+  df_nodes = df_nodes.drop('color',1)
+  df_nodes = df_nodes.drop('cluster', 1)
+  df_nodes = df_nodes.drop('CYCLoPs_html', 1)
+  df_nodes = df_nodes.drop('CYCLoPs_dict', 1)
+  df_nodes = df_nodes.drop('cnt', 1)
+
+  df_interactome = df_interactome[['Source','Target','Type','#Experiments','#Publications','#Methods','Evidence']]
+
+  writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+  workbook = writer.book
+
+  format_null = workbook.add_format({'text_wrap': True,'align':'left','font_size':10})
+
+# Standard name, Systematic name, Name description, description, GO term 1, GO term 2
+# CYCLoPs, GFP abundance, GFP loc
+  df_nodes.to_excel(writer,sheet_name='nodes', index=False)
+  worksheet = writer.sheets['nodes']
+  worksheet.set_column('A:B',15)
+  worksheet.set_column('C:C',40)
+  worksheet.set_column('D:D',75)
+  worksheet.set_column('E:F',13)
+  worksheet.set_column('G:H',15)
+  worksheet.set_column('I:I',75)
+
+  # format rows matching a condition
+  for row in range(len(df_nodes.index)):
+    worksheet.set_row(row + 1, None, format_null)
+
+  df_interactome.to_excel(writer,sheet_name='interactome',index=False)
+  worksheet = writer.sheets['interactome']
+  worksheet.set_column('A:C',10)
+  worksheet.set_column('D:D',100)
+  worksheet.set_column('E:G',15)
+
+  # format rows matching a condition
+  for row in range(len(df_interactome.index)):
+    worksheet.set_row(row + 1, None, format_null)
+
+  # SAVE
+  writer.save()
+
+  return
+
+def generate_json_interactome(arguments,output_filename):
+    ''' Generates a json file to be used by D3. 
+    '''
+    start_time = timeit.default_timer()
+    
+
+    # generate an input overview table
+    arg_names = ['Genes','Cluster by','Color by','Interaction Type','Minimal number of experiments',\
+                'Minimal number of publications', 'Minimal number of methods','Compartment']
+    input_dict = { arg_names[i]:arguments[i] for i in range(len(arg_names)) }
+
+    df_user_input = pd.DataFrame.from_dict(input_dict,orient='index')
+    df_user_input = df_user_input.reindex(index = arg_names)
+    df_user_input.columns = ['user input']
+    df_user_input_to_print = df_user_input.to_html()
+    df_user_input_to_print = df_user_input_to_print.replace('<table', '<table class="table table-condensed table-bordered"', 1)
+
+    ### process arguments 
+    pruning_ID,cluster_by,color_by,int_type,min_exp,min_pub,min_methods,compartment,unique_str = arguments
+
+    # make sure Types are correct
+    if '_' in pruning_ID:
+      pruning_ID = pruning_ID.split('_')
+    else:
+      pruning_ID = [pruning_ID]
+
+    min_exp = int(min_exp)
+    min_pub = int(min_pub)
+    min_methods = int(min_methods)
+
+    if int_type == 'all':
+      split_types = ['physical','genetic','regulation']
+    else:
+      split_types = int_type.split('_')
+    
+    #########
+    ### get all interactions related to the input IDs
+    #########
+    database = script_dir+"/DB_genes_and_interactions.db"
+    conn = create_connection(database)
+
+    # get all interactions in which the given genes takes part
+    placeholder = '?' # For SQLite. See DBAPI paramstyle.
+    placeholders = ', '.join(placeholder for unused in pruning_ID) # '?, ?, ?, ...'
+
+    # Multiple query options
+    if int_type == 'all':
+      query = "SELECT * FROM interactions WHERE ( (Source IN (%s) or Target IN (%s)) and num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s))" % (placeholders,placeholders,min_exp,min_pub,min_methods)
+      cursor = conn.execute(query,pruning_ID+pruning_ID)
+    else:
+      placeholders_type = ', '.join(placeholder for unused in split_types)
+      query = "SELECT * FROM interactions WHERE ( (Source IN (%s) or Target IN (%s)) AND Type IN (%s) AND num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s))" % (placeholders,placeholders,placeholders_type,min_exp,min_pub,min_methods)
+      cursor = conn.execute(query,pruning_ID+pruning_ID+split_types)
+
+    data = [l for l in cursor] # cursor itself is a generator
+
+    # turn list of lists into dataframe
+    interactome = pd.DataFrame(data,columns=['Source','Target','Type','Evidence','Evidence HTML','#Experiments','#Publications','#Methods'])
+
+     # strip whitespace
+    interactome.Source = pd.core.strings.str_strip(interactome['Source'])
+    interactome.Target = pd.core.strings.str_strip(interactome['Target'])
+
+    if len(interactome) == 0:
+      raise ValueError('No interactions matching these conditions.')
+
+
+    # construct dataframe of interacting genes: the nodes
+    # first find the nodes
+    node_list = list(set(list(interactome.Source.values) + list(interactome.Target.values)))
+
+    # get the info from the database for each node to make the 'nodes' dataframe
+    l_of_l = []
+    raw_CYCLoPs_dicts = []
+    for node in node_list:
+      cursor = conn.execute("SELECT standard_name,systematic_name,name_desc,desc,go_term_1,go_term_2,GFP_abundance,GFP_localization,CYCLoPs_Excel_string,CYCLoPs_html,CYCLoPs_dict FROM genes WHERE standard_name = ?",[node])
+      data = [list(l) for l in cursor] # cursor itself is a generator, make each row a list so that we can assign to it
+      # data is a list of lists so that each list become a row in the pandas dataframe
+      l_of_l.extend(data)
+
+    nodes = pd.DataFrame(l_of_l,columns=['Standard name','Systematic name','Name description','Description','GO_term_1','GO_term_2','GFP abundance','GFP localization','CYCLoPs_Excel_string','CYCLoPs_html','CYCLoPs_dict'])
+
+    # make actual dictionaries out of CYCLoPs_dict column
+    nodes['CYCLoPs_dict'] = nodes['CYCLoPs_dict'].apply(ast.literal_eval)
+
+    #########
+    ### BASED ON THE COMPARTMENT FILTER: DROP NODES
+    #########
+    if 'GFP:' in compartment:
+      comp_to_check = compartment.replace('GFP:','')
+      print 'Prior to compartment filtering:', len(nodes), 'nodes.'
+      nodes = nodes[ nodes['GFP localization'].str.contains(comp_to_check) ]
+      nodes = nodes.reset_index(drop=True)
+      print 'After compartment filtering:', len(nodes), 'nodes.'
+    elif 'CYCLoPs:' in compartment:
+      comp_to_check = compartment.replace('CYCLoPs:','')
+      print 'Prior to compartment filtering:', len(nodes), 'nodes.'
+      nodes = nodes[ comp_to_check in [nodes['CYCLoPs_dict'][x] for x in nodes['CYCLoPs_dict'] ] ]
+      nodes = nodes.reset_index(drop=True)
+      print 'After compartment filtering:', len(nodes), 'nodes.'
+    else: #it is 'Any'
+      pass
+
+    ### Reduce number of nodes by eliminating less proven interactions
+    # do not actually delete anything from the DF's yet
+    Target_cutoff_node = 25
+    if len(nodes) > Target_cutoff_node:
+      print '<font color="red">This query returns too many nodes: ', str(len(nodes))+'.', 
+      interactome_reduce = interactome.sort_values(by=['#Experiments','#Publications','#Methods'])
+      interactome_reduce = interactome_reduce.reset_index(drop=True)
+
+      nodes_highly_connected = list(set(list(interactome_reduce.Source.values) + list(interactome_reduce.Target.values))) # init
+      while len(nodes_highly_connected) > Target_cutoff_node:
+        new_len = int(round(len(interactome_reduce) * 0.95)) # reduce interactions by 5%
+        interactome_reduce = interactome_reduce.iloc[:new_len] # drop the least proven interactions
+        nodes_highly_connected = list(set(list(interactome_reduce.Source.values) + list(interactome_reduce.Target.values))) # recheck which nodes we have
+
+      print 'The Excel file will be generated for all of them but the visualization only contains the', len(nodes_highly_connected), 'nodes with the highest number of replications of interactions.</font>'
+
+    #########
+    # alphabetize
+    #########
+    nodes = nodes.sort_values(by='Standard name',ascending=True)
+    nodes = nodes.reset_index(drop=True)
+
+    # new alphabetized node list
+    node_list = list(nodes['Standard name'].values)
+
+    #########
+    ### NOW GET ALL INTERACTIONS BETWEEN ALL NODES: THE PREVIOUS INTERACTOME IS NOW OBSOLETE
+    #########
+    # there is a limit to the number of ? allowed in an sql query so loop if there are more than 99 
+    max_sql_args = 100
+    num_loops = (len(nodes) // max_sql_args) + 1
+    i = 1 # execute at least once
+    data = []
+    while i <= num_loops:
+      
+      query_node_list = node_list[((i-1)*max_sql_args):(i*max_sql_args)]
+
+      placeholder = '?' # For SQLite. See DBAPI paramstyle.
+      placeholders = ', '.join(placeholder for unused in query_node_list) # '?, ?, ?, ...'
+
+      # Multiple query options
+      if int_type == 'all':
+        query = "SELECT * FROM interactions WHERE ( (Source IN (%s) AND Target IN (%s)) and num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s))" % (placeholders,placeholders,min_exp,min_pub,min_methods)
+        cursor = conn.execute(query,query_node_list+query_node_list)
+      else:
+        placeholders_type = ', '.join(placeholder for unused in split_types)
+        query = "SELECT * FROM interactions WHERE ( (Source IN (%s) AND Target IN (%s)) AND Type IN (%s) AND num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s))" % (placeholders,placeholders,placeholders_type,min_exp,min_pub,min_methods)
+        cursor = conn.execute(query,query_node_list+query_node_list+split_types)
+        
+      i += 1 
+
+    data = [l for l in cursor] # cursor itself is a generator
+    interactome = pd.DataFrame(data,columns=['Source','Target','Type','Evidence','Evidence HTML','#Experiments','#Publications','#Methods'])
+
+    # strip whitespace
+    interactome.Source = pd.core.strings.str_strip(interactome['Source'])
+    interactome.Target = pd.core.strings.str_strip(interactome['Target'])
+
+    if len(interactome) == 0:
+      raise ValueError('No interactions matching these conditions.')
+
+    interactome = interactome.sort_values(by='Source')
+
+    #########
+    ### EXTEND NODES WITH CNT AND CLUSTER COLUMNS
+    #########
+    nodes['cnt'] = [len(interactome[(interactome['Source'] == node) | (interactome['Target'] == node)]) for node in nodes['Standard name'].values]
+
+    if cluster_by in ['GO_term_1','GO_term_2']:
+      nodes['cluster'] = nodes[cluster_by]
+    elif 'CYCLoPs_WT' in cluster_by:
+      WT_string = 'WT' + cluster_by[-1]
+
+      # loop over all nodes find their highest expression compartment for the WT given by WT_string 
+      # NOTE: SOMETIMES A DICTIONARY WITH EXPRESSION DATA FOR A GIVEN WT IS EMPTY WE NEED TO CHECK FOR THIS
+      # Example: GET1 in WT1
+      l = nodes['CYCLoPs_dict'].values
+      l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'no data' for i in range(len(nodes))]
+      nodes['cluster'] = pd.Series(l_max_comps).values
+    else:
+      print 'Unexpected value for cluster_by',cluster_by
+    
+    if color_by in ['GO_term_1','GO_term_2']:
+      # set the color based on the color_by variable in a new column of 'nodes' DF
+      nodes['color'] = nodes[color_by]
+
+    elif 'CYCLoPs_WT' in color_by:
+      WT_string = 'WT' + color_by[-1]
+      print 'Wild-Type string is: ' + WT_string
+
+      # loop over all nodes find their highest expression compartment for the WT given by WT_string 
+      # NOTE: SOMETIMES A DICTIONARY WITH EXPRESSION DATA FOR A GIVEN WT IS EMPTY WE NEED TO CHECK FOR THIS
+      # Example: GET1 in WT1
+      l = nodes['CYCLoPs_dict'].values
+      l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'no data' for i in range(len(nodes))]
+
+      # set the color based on the maximum compartment found above in a new column in the nodes DF          
+      nodes['color'] = pd.Series(l_max_comps).values
+    else:
+      print 'Unexpected value for color_by',color_by
+
+    #########
+    # WRITE TO EXCEL
+    #########
+    # THIS HAS TO HAPPEN BEFORE HTML REPLACEMENTS
+    make_excel_file(nodes, interactome, output_filename[1])
+
+    ### THROW AWAY NODES THAT ARE NOT HIGHLY CONNECTED
+    if len(nodes) > Target_cutoff_node:
+      interactome = interactome[(interactome['Source'].isin(nodes_highly_connected)) & (interactome['Target'].isin(nodes_highly_connected))]
+      nodes = nodes[nodes['Standard name'].isin(nodes_highly_connected)]
+      nodes['cnt'] = [len(interactome[(interactome['Source'] == node) | (interactome['Target'] == node)]) for node in nodes['Standard name'].values]
+      nodes = nodes.reset_index(drop=True)
+
+    # remove the Evidence column and keep the HTML column
+    interactome = interactome.drop('Evidence',1)
+    interactome = interactome.rename(columns={'Evidence HTML':'Evidence'})
+
+    #########
+    ### generate a D3 ready json file from the interactome
+    #########
+    # Remove unused columns for the JSON file
+    nodes = nodes.drop('CYCLoPs_Excel_string', 1)
+    nodes = nodes.drop('CYCLoPs_dict', 1)
+    nodes = nodes.drop('Description', 1)
+    interactome = interactome.drop('Evidence', 1)
+
+
+    # turn string Source and Target identifiers into numbers corresponding to nodes
+    nodes_dict = nodes['Standard name'].to_dict()
+    nodes_dict = {v: k for k, v in nodes_dict.items()}
+
+    # replace string labels with node numbers
+    interactome = interactome.replace({'Source':nodes_dict})
+    interactome = interactome.replace({'Target':nodes_dict})
+
+    # save the json strings
+    interactome_json = interactome.to_json(path_or_buf=None, orient="records")
+    nodes_json = nodes.to_json(path_or_buf=None, orient="records")
+    final_interactome = js.loads(interactome_json)
+    final_nodes = js.loads(nodes_json)
+
+    with open(output_filename[0], 'w') as outfile:
+        outfile.write("{\n\"nodes\":\n\n")
+        js.dump(final_nodes, outfile, sort_keys=True, indent=3 * ' ')
+        outfile.write(",\n\n\n\"links\":\n\n")
+        js.dump(final_interactome, outfile, sort_keys=True, indent=3 * ' ')
+        outfile.write("}")
+
+
+    #########
+    # Print the dataframes
+    #########
+    # rename the GO term columns: has to be after input usage because I can't send inputs with spaces over command line
+    nodes.rename(columns={'GO_term_1':'GO term 1', 'GO_term_2': 'GO term 2'}, inplace=True)
+
+    ## THIS PART PRINTS THE NODES FRAME
+    # Add HTML links to database/SGD to symbols and sec symbols
+    # escape makes the HTML links work
+    nodes_df_to_print = nodes.copy()
+    nodes_df_to_print['Standard name'] = ["<a href='index.php?id=database&gene=" + x + "' Target='blank'>" + x + "</a>" for x in nodes_df_to_print['Standard name'].values]
+    nodes_df_to_print['Systematic name'] = ["<a href='http://www.yeastgenome.org/locus/" + x + "/overview' Target='blank'>" + x + "</a>" for x in nodes_df_to_print['Systematic name'].values]
+
+    # change CYCLoPs column name and export html
+    nodes_df_to_print = nodes_df_to_print.rename(columns={'CYCLoPs_html':'CYCLoPs'})
+    nodes_df_to_print = nodes_df_to_print[['Standard name','Systematic name','Name description','GO term 1','GO term 2','GFP abundance','GFP localization','CYCLoPs']].to_html(escape=False,index=False)
+
+    # change table properties: full width
+    nodes_df_to_print = nodes_df_to_print.replace('<table', '<table class="table table-condensed table-bordered"', 1)
+
+    ## PRINT interactome
+    # Clean up interactome columns
+    interactome_to_print = interactome[['Source','Target','Type','Evidence','#Experiments','#Publications','#Methods']]
+
+    interactome_to_print['Source'] = ["<a href='index.php?id=database&gene=" + x + "' Target='blank'>" + x + "</a>" for x in interactome_to_print['Source'].values]
+    interactome_to_print['Target'] = ["<a href='index.php?id=database&gene=" + x + "' Target='blank'>" + x + "</a>" for x in interactome_to_print['Target'].values]
+
+    # escape makes the HTML links work
+    interactome_to_print = interactome_to_print.to_html(escape=False,index=False)
+    interactome_to_print = interactome_to_print.replace('<table', '<table class="table table-condensed table-bordered"') # bootstrap style
+    
+    #########
+    # PRINT COLLAPSABLE BOOTSTRAP HTML CODE WITH THE 3 DATAFRAMES
+    #########
+    # the 'in' class makes the collapse open by default: the interactions here
+    print """
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+              User input</a>
+            </h4>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <div class="panel-body">
+            """
+    print df_user_input_to_print
+    print """
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+              Proteins</a>
+            </h4>
+          </div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div class="panel-body">"""
+    print nodes_df_to_print
+    print """</div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+              Interactions</a>
+            </h4>
+          </div>
+          <div id="collapse3" class="panel-collapse collapse in">
+            <div class="panel-body">"""
+    print interactome_to_print
+    print """
+            </div>
+          </div>
+        </div>
+      </div>
+    """
+
+    elapsed = timeit.default_timer() - start_time
+    print 'Total time:', elapsed

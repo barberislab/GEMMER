@@ -1,0 +1,154 @@
+/*html { padding:0; margin:0;}*/
+body { background:#eee;}
+#page { background:#fff; }
+#header, #footer, #top-nav, #core, #core #corebar, #core { margin:0; padding:0;}
+
+/* Header */
+#header { border-style: solid; border-width: 1px; border-color: black; }
+#header-inner { margin:0 auto; padding:0 10px 0 15px;} /* padding was 10. Did this so that the image will align exactly */
+.row-m-b-0 {
+    marging-bottom : 0px;
+  }
+
+/* Logo */
+#logo { padding:0px; float:left; text-align: center}
+.col-fixed-height { height: 150px; /* image height */}
+.image-placeholder {
+    background-color: #fff;
+    display: flex;
+    height: 150px;
+    margin: 0px;
+    width: 391px;
+}
+#logo-desc {
+    display: flex;
+    height: 150px;
+    margin: 0px;
+}
+#logo-desc > h1 {
+    align-self: center;
+    text-align: center;
+    width: 100%;
+    border: 0px !important;
+}
+.big-letter {
+    font-size:1.4em;
+    font-style: italic;
+    color:darkred;
+}
+
+/* Feature horizontal bar */
+#feature { margin:auto; width:calc(100%-2); height:40px; padding:0; border-style: solid; border-width: 0 1px 0 1px; } 
+#feature a:hover {color:darkred; text-decoration:none;}
+#feature ul { margin:auto; list-style:none; padding:0; float:left;}
+#feature ul li { margin:0; padding:0; float:left;}
+#feature ul li a { display:block; margin:0; padding:8px 20px; }
+
+/* core */
+#core {border-style: solid; border-width: 1px; border-color: black;}
+#core-inner { margin:0 auto; padding:10px; }
+#core #corebar .article {margin:0 0 24px; padding:0 20px 0 15px; }
+#core a:hover {color:darkred; text-decoration:none;}
+
+/* Footer */
+#footer { background:#eee;}
+
+#footer-inner { margin:auto; text-align:center; padding:12px; }
+#footer a:hover {color:darkred; text-decoration:none;}
+
+/* Clear both sides to assist with div alignment  */
+.clr { clear:both; padding:0; margin:0; width:100%; font-size:0px; line-height:0px;}
+
+/* Borders for the alerts  */
+.alert-success {
+    border: 3px solid darkgreen;
+}
+.alert-danger {
+    border: 3px solid darkred;
+}
+
+/* CSS FOR THE TOOL INTERACTION FORM */
+.tool_form {margin-bottom: 0px } /* border:3px solid lightsteelblue; */
+/* .tool_form a, .tool_form a:hover, .tool_form span { color:black  } */
+.submit-btn { text-align: center; margin: 10px 0px; }
+#submit-message { text-align: center; }
+.btn { padding-bottom: 2px; padding-top: 2px; } /* to decrease size of bootstrap-select select tags */
+.bootstrap-select>.dropdown-toggle {z-index:0;} /* z-index 0 so that tooltips on d3 nodes don't disappear on them
+
+/* for the collapse panel in the tool form */
+.panel-heading span {
+    margin-top: -20px;
+    font-size: 15px;
+}
+
+/* CSS for the CYCLoPs tables  */
+#visualization .CYCLoPs-table {
+    font-size:10px;
+    padding:0;
+    margin:0;
+    border-spacing:0;
+    border-collapse: collapse; 
+}
+#visualization .CYCLoPs-table th {
+    padding:1px 1px 1px 1px;
+}
+#visualization .CYCLoPs-table td {
+    padding:1px 1px 1px 1px;
+}
+/* CSS FOR THE D3 TEMPLATE */
+.viz-container {
+    position: relative;
+}
+div.D3_drawing {
+    width: 100%; /* 980px; */
+    height: 750px;
+    border: 1px solid black;
+    overflow:hidden;
+    margin: 0;
+    position: relative;
+}
+.d3-tip {
+    font-size: 12px; /* Smaller than bootstrap default of 14 */
+    line-height: 1;
+    font-weight: bold;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+    border-radius: 2px;
+}
+.d3-tip table {
+    width: auto; /* make sure it just expands with content */
+    /* Set max width and word-wrapping */
+    word-wrap: break-word;
+    min-width: 150px;
+    max-width: 300px;
+    white-space:normal;
+    color: #ffffff;
+}
+.d3-tip #CYCLoPs_table {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.d3-tip a {
+    color:#ffffff;
+    z-index:99; /* should be on top; */
+}
+.d3-tip {
+    font-size: 10px;  
+}
+.d3-tip .bg-info {
+    background-color: darkblue;
+}
+.chart {
+    position: relative;
+}
+.moveGUI { 
+    position: absolute;
+    z-index:2; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */
+    right: 0;
+    top: 0;
+    /*margin: 0;*/
+}
+.moveGUI, .folder, .dg, .main, .close-button { 
+    width:200px; /* default width of gui is 245px*/
+}
+.property-name span { color:#ffffff; }

@@ -30,8 +30,7 @@ HOW THIS WORKS
 
     <div id="export_options">
         <h3>Export options</h3>
-        We provide the ability to download the image in SVG format by right-clicking "Download" and then clicking "Save link as". 
-        A formatted Excel workbook is also provided. <br/>
+        Download the image in SVG format (by right-clicking "Download SVG" and "Save as") or the formatted Excel workbook.  <br/>
         <a href="#" id="download">Download SVG</a> | 
         <?php 
             $excel_output_link = "output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
@@ -227,9 +226,11 @@ HOW THIS WORKS
                 num_nodes = nodes.length;
                 num_links = links.length;
         
-
-            var compartments = ["no data", "Cytoplasm","Nucleus","Mito","Vac/Vac Memb","Nucleolus"];
-            var functions = ["metabolism","cell cycle","cell division","signal transduction","DNA replication","None"];
+            // structured as a pyramid with "no data" added to the end
+            var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
+                                "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
+                                "no data"];
+            var functions = ["cell cycle","cell division","DNA replication","signal transduction","metabolism","None"];
             var in_compartments = compartments.indexOf(nodes[1].color);
             var in_functions = functions.indexOf(nodes[1].color);
 
@@ -237,15 +238,21 @@ HOW THIS WORKS
                 var clusters_list = functions;
                 var color = d3.scale.ordinal()
                     .domain(functions)
-                    // orange, green, yellow, purple, red, white
-                    .range(["#ff7f0e", "#2ca02c" , "#cccc33", "#cc33cc", "#d62728","#cccccc"]);
+                    // green, yellow, red, purple, orange, white, white
+                    .range(["#2ca02c" ,"#cccc33", "#d62728", "#cc33cc","#ff7f0e","#cccccc","#cccccc"]);
             }
             else if (in_compartments > -1) {
                 var clusters_list = compartments;
                 var color = d3.scale.ordinal()
                     .domain(compartments)
-                    // white, green, orange, yellow, purple, red
-                    .range(["#cccccc", "#009933" , "#ff7f0e", "cccc33", "#cc33cc","#d62728"]);
+                    // there are 16 compartments for CYCLoPs
+                    // color source: https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+                    // first 8: red, green, yellow, blue, orange, purple, cyan, magenta, 
+                    // second 8: lime, pink, teal, lavender, brown, beige, maroon, mint
+                    // grey
+                    .range(["#e6194b","#3cb44b","#ffe119","#0082c8","#f58231","#911eb4","#46f0f0","#f032e6",
+                            "#d2f53c","#fabebe","#008080","#e6beff","#aa6e28","#fffac8","#800000","#aaffc3",
+                            "#cccccc"]);
             }
             else {
                 console.log("Cannot identify which color scheme to use")
@@ -613,6 +620,7 @@ HOW THIS WORKS
                 .attr("y", 234) // note the extra 9 to align in the middle (18/2)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
+                .style("font-size", "18px")
                 .text(function(d) { return d; });
 
         });

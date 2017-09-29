@@ -337,6 +337,7 @@ def main(arguments,output_filename):
     interactome.columns = ['source','target','type','Evidence','Evidence HTML','#Experiments',\
         '#Publications','#Methods']
     timing['Interactome SQL + dataframe + processing'] = timeit.default_timer() - start_final_sql
+    
     if len(interactome) == 0:
       raise ValueError('No interactions matching these conditions.')
 
@@ -489,7 +490,7 @@ def main(arguments,output_filename):
           <div class="panel-heading">
             <h4 class="panel-title">
               <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-              Proteins</a>
+              Network nodes (proteins)</a>
             </h4>
           </div>
           <div id="collapse3" class="panel-collapse collapse">

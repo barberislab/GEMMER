@@ -25,7 +25,7 @@ $(document).on('click', '.text_data_toggle', function(e){
 </script>
 
 <p>
-Enter a gene ID corresponding with an SGD gene into the field below, e.g. FKH1, FBA1, ORC1. 
+Enter a gene ID corresponding with an SGD gene into the field below, e.g. SIC1, ORC1, NTH1. 
 After several seconds the page will reload with the network visualization.
 </p>
 
@@ -34,7 +34,7 @@ After several seconds the page will reload with the network visualization.
     if (isset($_GET['gene'])) {
         $gene = $_GET['gene'];
     }
-    else { $gene = 'SIC1, ORC1, MKK1';}
+    else { $gene = 'SIC1, ORC1, NTH1';}
     if (isset($_GET['cluster'])) {
         $cluster = $_GET['cluster'];
     }
@@ -292,10 +292,10 @@ After several seconds the page will reload with the network visualization.
 
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <label for="max_nodes" id="max_nodes">Max. number of nodes displayed</label>
+                                        <label for="max_nodes" id="max_nodes">Max. number of nodes visualized</label>
                                     </div>
                                     <div class="col-md-3">
-                                        <labelarray("metabolism", "cell cycle","cell division","DNA replication","None") for="selection_criteria" id="selection_criteria">Node selection criteria</label>
+                                        <label array("metabolism", "cell cycle","cell division","DNA replication","None") for="selection_criteria" id="selection_criteria">Node selection criteria</label>
                                     </div>
                                 </div>
                                 <div class="row">

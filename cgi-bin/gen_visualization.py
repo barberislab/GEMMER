@@ -91,7 +91,7 @@ try: # try, except such that on failure php can show us the error
             if datetime.datetime.now() - file_modified > datetime.timedelta(hours=24):
                 os.remove(curpath)
 
-except Exception: 
+except Exception:
     print(traceback.format_exc())
     # Redirect again the std output to screen
     sys.stdout = old_stdout

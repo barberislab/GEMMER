@@ -18,18 +18,67 @@ pd.set_option('display.max_colwidth', -1)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
 
-def save_csv_data(df_user_input, df_network, df_nodes, df_interactome, excel_file_base, file_id):
-  ''' Export nodes and interaction dataframes to csv for later use when generating Excel file.'''
-  df_nodes = df_nodes.drop(['CYCLoPs_html','CYCLoPs_dict','color','cluster'],1)
+# def save_csv_data(df_user_input, df_network, df_nodes, df_interactome, excel_file_base, file_id):
+#   ''' Export nodes and interaction dataframes to csv for later use when generating Excel file.'''
+#   df_nodes = df_nodes.drop(['CYCLoPs_html','CYCLoPs_dict','color','cluster'],1)
 
-  df_interactome = df_interactome.drop(['Evidence HTML'],1)
+#   df_interactome = df_interactome.drop(['Evidence HTML'],1)
 
-  df_user_input.to_csv(excel_file_base+'/user_input_'+file_id+'.csv',index=False)
-  df_network.to_csv(excel_file_base+'/network_'+file_id+'.csv',index=False)
-  df_nodes.to_csv(excel_file_base+'/nodes_'+file_id+'.csv',index=False)
-  df_interactome.to_csv(excel_file_base+'/interactome_'+file_id+'.csv',index=False)
+#   df_user_input.to_csv(excel_file_base+'/user_input_'+file_id+'.csv',index=True)
+#   df_network.to_csv(excel_file_base+'/network_'+file_id+'.csv',index=False)
+#   df_nodes.to_csv(excel_file_base+'/nodes_'+file_id+'.csv',index=False)
+#   df_interactome.to_csv(excel_file_base+'/interactome_'+file_id+'.csv',index=False)
 
-  return
+  # return
+
+def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
+
+    # # read the csv's
+    # df_user_input = pd.read_csv(filename_base+'/user_input_'+file_id+'.csv')
+    # df_network = pd.read_csv(filename_base+'/network_'+file_id+'.csv')
+    # df_nodes = pd.read_csv(filename_base+'/nodes_'+file_id+'.csv')
+    # df_interactome = pd.read_csv(filename_base+'/interactome_'+file_id+'.csv')
+
+    filename_base = os.path.abspath(script_dir+'../../../output/excel_files/')
+
+    writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
+    workbook = writer.book
+
+    format_null = workbook.add_format({'text_wrap': True,'align':'left','font_size':10})
+
+    ### User input
+    df_user_input.to_excel(writer,sheet_name='user input', index=True)
+    worksheet = writer.sheets['user input']
+    worksheet.set_column('A:B',30,format_null)
+
+    ### Network
+    df_network.transpose().to_excel(writer,sheet_name='network properties', index=True)
+    worksheet = writer.sheets['network properties']
+    worksheet.set_column('A:B',30,format_null)
+
+    ### Nodes
+    df_nodes.to_excel(writer,sheet_name='nodes', index=False)
+    worksheet = writer.sheets['nodes']
+    worksheet.set_column('A:B',15,format_null)
+    worksheet.set_column('C:C',40,format_null)
+    worksheet.set_column('D:D',75,format_null)
+    worksheet.set_column('E:H',15,format_null)
+    worksheet.set_column('I:I',40,format_null)
+    worksheet.set_column('J:L',15,format_null)
+
+    ### Interactome
+    df_interactome.to_excel(writer,sheet_name='interactome',index=False)
+    worksheet = writer.sheets['interactome']
+    worksheet.set_column('A:C',10,format_null)
+    worksheet.set_column('D:D',100,format_null)
+    worksheet.set_column('E:G',15,format_null)
+
+    worksheet.set_column('A:G',None,format_null)
+
+    # SAVE
+    writer.save()
+
+    print 'Completed generating the Excel file.'
 
 def calc_network_props(df_nodes, node_list, df_interactome, df_network, filter_condition):
   ''' Use NetworkX to calculate degree centrality etc. '''
@@ -126,23 +175,21 @@ def main(arguments,output_filename):
     ######################################################
     arg_names = ['Genes','Cluster by','Color by','Interaction type',\
                 'Minimal number of experiments','Minimal number of publications', 'Minimal number of methods','Method types',\
-                'Process','Compartment','Expression',\
-                'Max. number nodes','Filter condition']
-    input_dict = { arg_names[i]:arguments[i].replace("_"," ") for i in range(len(arg_names)) }
+                'Process','Compartment','Expression','Max. number nodes','Filter condition']
+    input_dict = { arg_names[i]:arguments[i].replace("_"," ") for i in range(len(arg_names)) } # does not include unique_str and excel_flag
     input_dict['Expression'] = input_dict['Expression'].replace('G1P','G1(P)') # brackets removed in PHP
 
     df_user_input = pd.DataFrame.from_dict(input_dict,orient='index')
     df_user_input = df_user_input.reindex(index = arg_names)
     df_user_input.columns = ['user input']
     df_user_input_to_print = df_user_input.to_html(classes=['table','table-condensed','table-bordered'])
-
+    
     ### process arguments 
     primary_nodes,cluster_by,color_by,int_type,\
     min_exp,min_pub,min_methods,method_types,\
     process,compartment,expression,\
     max_nodes,filter_condition,\
-    unique_str,\
-    = arguments
+    excel_flag,filter_flag,unique_str = arguments
 
     # make sure types are correct
     color_by = color_by.replace('_',' ')
@@ -157,6 +204,7 @@ def main(arguments,output_filename):
 
     process = [x.replace("_"," ") for x in process]
 
+    primary_nodes_str = primary_nodes
     if '_' in primary_nodes:
       primary_nodes = primary_nodes.split('_')  
     else:
@@ -166,6 +214,8 @@ def main(arguments,output_filename):
     min_pub = int(min_pub)
     min_methods = int(min_methods)
     max_nodes = int(max_nodes)
+    excel_flag = bool(int(excel_flag))
+    filter_flag = bool(int(filter_flag))
 
     split_types = int_type.split('_')
 
@@ -227,7 +277,7 @@ def main(arguments,output_filename):
     ### make actual dictionaries out of CYCLoPs_dict column
     nodes['CYCLoPs_dict'] = nodes['CYCLoPs_dict'].apply(ast.literal_eval)
 
-    start_len_nodes = len(nodes)
+    len_nodes_query = len(nodes)
 
     start_node_drop = timeit.default_timer()
 
@@ -311,6 +361,7 @@ def main(arguments,output_filename):
 
     timing['Setting node cluster and color attributes'] = timeit.default_timer() - start
 
+    len_nodes_filtered_comp = len(nodes)
 
     ######################################################
     ### GET ALL INTERACTIONS BETWEEN ALL NODES
@@ -342,7 +393,7 @@ def main(arguments,output_filename):
       raise ValueError('No interactions matching these conditions.')
 
     ######################################################
-    # Network properties with networkx
+    # Network properties with networkx: 1
     ######################################################
     start = timeit.default_timer()
     df_network = pd.Series()
@@ -357,36 +408,12 @@ def main(arguments,output_filename):
 
     timing['networkx properties calculation'] = timeit.default_timer() - start
 
-
-    ######################################################
-    # WRITE TO EXCEL
-    ######################################################
-    # THIS HAS TO HAPPEN BEFORE HTML REPLACEMENTS
-    start_excel = timeit.default_timer()
-    save_csv_data(df_user_input, df_network, nodes, interactome, output_filename[1],output_filename[2])
-    timing['excel'] = timeit.default_timer() - start_excel
-
-    # remove the Evidence HTML column
-    interactome = interactome.drop('Evidence',1)
-    interactome = interactome.rename(columns={'Evidence HTML':'Evidence'})
-
-
-    ######################################################
-    # WRITE "FULL" NETWORK TO JSON
-    # this will include a filtering step for really big networks
-    ######################################################
-    if len(nodes) > max_nodes:
-      start_json = timeit.default_timer()
-      write_network_to_json(nodes,interactome,output_filename[0],'full',primary_nodes)
-      timing['json_full'] = timeit.default_timer() - start_json
-
-
     ######################################################
     # FILTER NODES TO MANAGEABLE VISUALIZATION
     ######################################################
-    start_filter = timeit.default_timer()
 
-    if len(nodes) > max_nodes:
+    if (filter_flag) and (len(nodes) > max_nodes):
+      start_filter = timeit.default_timer()
       len_interactome = len(interactome)
 
       # reduce nodes
@@ -401,157 +428,196 @@ def main(arguments,output_filename):
 
       ### SHOW WARNING MESSAGE ABOUT FILTER STEP
       filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-                      All interactions and nodes are contained in the Excel file. ".format(start_len_nodes,len_interactome,max_nodes,filter_condition,len(interactome))
+                      All interactions and nodes are contained in the Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
       full_network_link = '<?php echo "Click <a href=\\\\\\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
       s = filter_message + full_network_link
       print "<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>"
 
-    timing['filter'] = timeit.default_timer() - start_filter
+      timing['filter'] = timeit.default_timer() - start_filter
 
+      ######################################################
+      # Network properties with networkx: 2
+      ######################################################
+      start = timeit.default_timer()
+      
+      # df_network = pd.Series()
+      df_network['Number of nodes'] = len(nodes)
+      df_network['Number of edges'] = len(interactome)
+
+      # use networkx
+      nodes, interactome, df_network = calc_network_props(nodes, node_list, interactome, df_network, filter_condition)
+
+      timing['networkx properties calculation'] += timeit.default_timer() - start
+
+    # ######################################################
+    # # WRITE "FULL" NETWORK TO JSON
+    # # this will include a filtering step for really big networks
+    # ######################################################
+    # if len(nodes) > max_nodes:
+    #   start_json = timeit.default_timer()
+    #   write_network_to_json(nodes,interactome,output_filename[0],'full',primary_nodes)
+    #   timing['json_full'] = timeit.default_timer() - start_json
 
     ######################################################
-    ### Write the visualized network to json
+    ### Write the network to json
     ######################################################
     start_json = timeit.default_timer()
     write_network_to_json(nodes,interactome,output_filename[0])
     timing['json'] = timeit.default_timer() - start_json
 
+    if excel_flag:
+      ######################################################
+      # WRITE TO EXCEL
+      ######################################################
+      # THIS HAS TO HAPPEN BEFORE HTML REPLACEMENTS
+      start_excel = timeit.default_timer()
 
-    ######################################################
-    ### End output text alert div
-    ######################################################
-    print "</div>"
+      write_excel_file(df_user_input, df_network, nodes, interactome, primary_nodes_str+'_'+unique_str)
 
-    ######################################################
-    # Generate strings for the nodes and interactome dataframes to print
-    ######################################################
-    start_print = timeit.default_timer()
+      # save_csv_data(df_user_input, df_network, nodes, interactome, output_filename[1],output_filename[2])
+      timing['excel'] = timeit.default_timer() - start_excel
 
-    # drop columns
-    nodes = nodes.drop(['Description','CYCLoPs_Excel_string','CYCLoPs_dict','cluster','color'],1)
+    # remove the Evidence HTML column
+    interactome = interactome.drop('Evidence',1)
+    interactome = interactome.rename(columns={'Evidence HTML':'Evidence'})
 
-    # Add HTML links to database/SGD to symbols
-    nodes['Standard name'] = nodes['Standard name'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>")
 
-    # change CYCLoPs column name and export html
-    # escape makes the HTML links work
-    nodes = nodes.rename(columns={'CYCLoPs_html':'CYCLoPs'})
-    nodes = nodes.to_html(escape=False,index=False,classes=['table','table-condensed','table-bordered'])
-    nodes = nodes.replace('<table','<table id=\"proteins_table\"',1)
+    if not excel_flag:
+      ######################################################
+      ### End output text alert div
+      ######################################################
+      print "</div>"
 
-    interactome['source'] = interactome['source'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>" )
-    interactome['target'] = interactome['target'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>")
+      ######################################################
+      # Generate strings for the nodes and interactome dataframes to print
+      ######################################################
+      start_print = timeit.default_timer()
 
-    # escape makes the HTML links work
-    interactome = interactome.to_html(escape=False,index=False,classes=['table','table-condensed','table-bordered'])
-    interactome = interactome.replace('<table','<table id=\"interactions_table\"',1)
+      # drop columns
+      nodes = nodes.drop(['Description','CYCLoPs_Excel_string','CYCLoPs_dict','cluster','color'],1)
 
-    ######################################################
-    # PRINT COLLAPSABLE BOOTSTRAP HTML CODE WITH THE DATAFRAMES
-    ######################################################
-    # the 'in' class makes the collapse open by default: the interactions here
-    print """
-      <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-              User input</a>
-            </h4>
-          </div>
-          <div id="collapse1" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="table-responsive">
-            """
-    print df_user_input_to_print
-    print """
-              </div>
+      # Add HTML links to database/SGD to symbols
+      nodes['Standard name'] = nodes['Standard name'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>")
+
+      # change CYCLoPs column name and export html
+      # escape makes the HTML links work
+      nodes = nodes.rename(columns={'CYCLoPs_html':'CYCLoPs'})
+      nodes = nodes.to_html(escape=False,index=False,classes=['table','table-condensed','table-bordered'])
+      nodes = nodes.replace('<table','<table id=\"proteins_table\"',1)
+
+      interactome['source'] = interactome['source'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>" )
+      interactome['target'] = interactome['target'].apply(lambda x: "<a href='index.php?id=database&gene=" + x + "' target='blank'>" + x + "</a>")
+
+      # escape makes the HTML links work
+      interactome = interactome.to_html(escape=False,index=False,classes=['table','table-condensed','table-bordered'])
+      interactome = interactome.replace('<table','<table id=\"interactions_table\"',1)
+
+      ######################################################
+      # PRINT COLLAPSABLE BOOTSTRAP HTML CODE WITH THE DATAFRAMES
+      ######################################################
+      # the 'in' class makes the collapse open by default: the interactions here
+      print """
+        <div class="panel-group" id="accordion">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                User input</a>
+              </h4>
             </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
-              Network properties</a>
-            </h4>
-          </div>
-          <div id="collapse2" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="table-responsive">
-            """
-    print df_network.to_html(classes=['table','table-condensed','table-bordered'],index=False)
-    print """
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-              Network nodes (proteins)</a>
-            </h4>
-          </div>
-          <div id="collapse3" class="panel-collapse collapse">
-            <div class="panel-body">
-              Use the search utility to find the gene you are looking for. The table scrolls horizontally and vertically. 
-              By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
-              Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
-              <div class="table-responsive">
+            <div id="collapse1" class="panel-collapse collapse">
+              <div class="panel-body">
+                <div class="table-responsive">
               """
-    print nodes
-    print """
+      print df_user_input_to_print
+      print """
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                Network properties</a>
+              </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+              <div class="panel-body">
+                <div class="table-responsive">
+              """
+      print df_network.to_html(classes=['table','table-condensed','table-bordered'],index=False)
+      print """
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                Network nodes (proteins)</a>
+              </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+              <div class="panel-body">
+                Use the search utility to find the gene you are looking for. The table scrolls horizontally and vertically. 
+                By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
+                Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
+                <div class="table-responsive">
+                """
+      print nodes
+      print """
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
+                Interactions</a>
+              </h4>
+            </div>
+            <div id="collapse4" class="panel-collapse collapse">
+              <div class="panel-body">
+                Use the search utility to find the gene you are looking for. 
+                By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
+                Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
+                <div class="table-responsive">
+              """
+      print interactome
+      print """
+                </div>
+              </div>
+            </div>
+          </div>
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
-              Interactions</a>
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
+              Diagnostics: calculation time</a>
             </h4>
           </div>
-          <div id="collapse4" class="panel-collapse collapse">
+          <div id="collapse5" class="panel-collapse collapse">
             <div class="panel-body">
-              Use the search utility to find the gene you are looking for. 
-              By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
-              Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
               <div class="table-responsive">
-            """
-    print interactome
-    print """
-              </div>
-            </div>
-          </div>
-        </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-            <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
-            Diagnostics: calculation time</a>
-          </h4>
-        </div>
-        <div id="collapse5" class="panel-collapse collapse">
-          <div class="panel-body">
-            <div class="table-responsive">
-    """
-    timing['print frames'] = timeit.default_timer() - start_print
-    timing['all'] = timeit.default_timer() - start_all
-    df_timing = pd.Series(timing)
-    df_timing = df_timing.to_frame()
-    df_timing.columns = ['Time']
-    df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
-    print df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered'])
-    print "Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python."
-    print """
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       """
+      timing['print frames'] = timeit.default_timer() - start_print
+      timing['all'] = timeit.default_timer() - start_all
+      df_timing = pd.Series(timing)
+      df_timing = df_timing.to_frame()
+      df_timing.columns = ['Time']
+      df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
+      print df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered'])
+      print "Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python."
+      print """
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        """
 
 if __name__ == "__main__":
   main()

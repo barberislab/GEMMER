@@ -34,7 +34,26 @@ HOW THIS WORKS
         <a href="#" id="download">Download SVG</a> | 
         <?php 
             $excel_output_link = "output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
-            echo "<a href=\"write_excel_file.php?excel_link=$excel_output_link&filename={$gene}_{$unique_str}\" target=\"blank\">Download Excel workbook</a>";
+
+            $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
+                    'process','compartment','expression','max_nodes','filter_condition',
+                    'unique_str','excel_flag'];
+            $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
+                    $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
+                    $max_nodes,$filter_condition,
+                    $unique_str,TRUE];
+
+            $php_args = "excel_link=$excel_output_link";
+            for($i = 0; $i < count($args); ++$i) {
+                $php_args = $php_args . "&" . $arg_names[$i] . "=" . $args[$i];
+            }
+
+            // Filtered network
+            echo "<a href=\"write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook</a>";
+            // Full network
+            $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
+            echo " | ";
+            echo "<a href=\"write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
         ?>
 
         <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
@@ -133,9 +152,7 @@ HOW THIS WORKS
     /*
         Generate the d3js drawing from the generated JSON file
     */
-    console.log(<?php 
-        echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
-    ?>);
+    
     function create_d3js_drawing() {
 
         var box_width = document.getElementById("D3_drawing").offsetWidth //980 // width of the bordered box (includes legend and controls)

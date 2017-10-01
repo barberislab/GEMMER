@@ -43,7 +43,7 @@
             if (!in_array($tmp_id, $disallowed_paths)) 
                 $id = $tmp_id; 
         } 
-        echo "<title>GEMMER: GEnome-wide software for Multi-scale Modeling data Extraction and Representation - " . $id . "</title>";
+        echo "<title>GEMMER: GEnome-wide tool for Multi-scale Modeling data Extraction and Representation - " . $id . "</title>";
     ?>
 </head>
 
@@ -63,7 +63,7 @@
                             </div>
                             </div>
                             <div id="logo-desc" class="col-md-9 col-fixed-height">
-                                <h1 class="text-primary text-center"><font class="big-letter">GE</font>nome-wide software 
+                                <h1 class="text-primary text-center"><font class="big-letter">GE</font>nome-wide tool 
                                 for <font class="big-letter">M</font>ulti-scale <font class="big-letter">M</font>odeling 
                                 <br />data <font class="big-letter">E</font>xtraction and
                                 <font class="big-letter">R</font>epresentation</h1>

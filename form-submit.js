@@ -82,7 +82,7 @@ $(function() {
             $("input#methods").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case
         }
-        if (max_nodes < 10 || max_nodes > 100) {
+        if (max_nodes < 1 || max_nodes > 100) {
             $("label#max_nodes_error").show();
             $("input#max_nodes").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case

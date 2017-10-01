@@ -67,6 +67,7 @@ After several seconds the page will reload with the network visualization.
     else {$method_types = '';}
     //row 3
     if (isset($_GET['process'])) {
+        $process_orig = $_GET['process'];
         $process = explode(",",str_replace("_"," ",$_GET['process']));
     }
     else {$process = array("metabolism", "cell cycle","cell division","DNA replication","None");} # we will auto-select all
@@ -75,6 +76,7 @@ After several seconds the page will reload with the network visualization.
     }
     else {$compartment = 'all';}
     if (isset($_GET['expression'])) {
+        $expression_orig = $_GET['expression']; // for the excel link
         $expression = explode(",",str_replace("_"," ",$_GET['expression']));
     }
     else {$expression = array("G1(P)", "G1/S","S","G2","G2/M","M","M/G1","G1","No data");}

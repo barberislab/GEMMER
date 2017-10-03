@@ -80,11 +80,12 @@ def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
     print 'Completed generating the Excel file.'
 
-def calc_network_props(df_nodes, node_list, df_interactome, df_network, filter_condition):
+def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   ''' Use NetworkX to calculate degree centrality etc. '''
 
-  G = nx.Graph()
+  node_list = df_nodes['Standard name'].values
   edge_list = df_interactome[['source','target']].values
+  G = nx.Graph()
   G.add_nodes_from(node_list)
   G.add_edges_from(edge_list)
 
@@ -112,7 +113,7 @@ def calc_network_props(df_nodes, node_list, df_interactome, df_network, filter_c
   return df_nodes, df_interactome, df_network
 
 
-def write_network_to_json(nodes, interactome, filename, case='', primary_nodes = []):
+def write_network_to_json(nodes, interactome, filter_condition, filename, case='', primary_nodes = []):
   ''' Write the network to be visualized to a JSON file for use with D3. '''
 
   # remove unneeded columns to speed up json writing
@@ -122,22 +123,39 @@ def write_network_to_json(nodes, interactome, filename, case='', primary_nodes =
 
   ### For reasonable performance we limit the number of nodes and edges
   # nodes: based on filter_condition and only non-primary nodes
-  max_nodes = 500
+  max_nodes = 250
 
-  # edges: remove interactions between non-primary nodes with 1 or 2 genetic experiments if needed also remove physical with 1 experiment
-  max_edges = 5000
+  # edges: remove interactions between non-primary nodes
+  # try to remove genetic ones first
+  max_edges = 1000
+
+  # reduce nodes
+  nodes = nodes.sort_values(by=['primary node',filter_condition],ascending=False)
+  nodes = nodes.iloc[:max_nodes]
+  nodes.reset_index(drop=True,inplace=True)
+
+  # reduce interactions 
+  n = nodes['Standard name'].values # list of remaining node IDs
+  interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
   if case != '' and len(interactome) > max_edges:
-    print 'Reducing interactions from', len(interactome), 'to',
-    interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] == 1)].index)
-    print len(interactome)
-  if case != '' and len(interactome) > max_edges:
-    print 'Reducing interactions from', len(interactome), 'to',
-    interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] < 3)].index)
-    print len(interactome)
-  if case != '' and len(interactome) > max_edges:
-    print 'Reducing interactions from', len(interactome), 'to',
-    interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'physical') & (interactome['#Experiments'] == 1)].index)
-    print len(interactome)
+    for i in range(5):
+      print 'Reducing interactions from', len(interactome), 'to',
+      interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] == i)].index)
+      print len(interactome)
+
+      if len(interactome) <= max_edges:
+        break
+
+    for i in range(3):
+      if case != '' and len(interactome) > max_edges:
+        print 'Reducing interactions from', len(interactome), 'to',
+        interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'physical') & (interactome['#Experiments'] == i)].index)
+        print len(interactome)
+      if len(interactome) <= max_edges:
+        break
+
+  interactome.reset_index(drop=True,inplace=True)
+
 
   # turn string source and target identifiers into numbers corresponding to nodes
   nodes_dict = nodes['Standard name'].to_dict()
@@ -335,7 +353,7 @@ def main(arguments,output_filename):
       # NOTE: SOMETIMES A DICTIONARY WITH EXPRESSION DATA FOR A GIVEN WT IS EMPTY WE NEED TO CHECK FOR THIS
       # Example: GET1 in WT1
       l = nodes['CYCLoPs_dict'].values
-      l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'no data' for i in range(len(nodes))]
+      l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'No data' for i in range(len(nodes))]
       nodes['cluster'] = pd.Series(l_max_comps).values
     else:
       print 'Unexpected value for cluster_by',cluster_by
@@ -352,7 +370,7 @@ def main(arguments,output_filename):
       # Example: GET1 in WT1
       l = nodes['CYCLoPs_dict'].values
       l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if \
-        (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'no data' for i in range(len(nodes))]
+        (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'No data' for i in range(len(nodes))]
 
       # set the color based on the maximum compartment found above in a new column in the nodes DF          
       nodes['color'] = pd.Series(l_max_comps).values
@@ -367,7 +385,7 @@ def main(arguments,output_filename):
     ### GET ALL INTERACTIONS BETWEEN ALL NODES
     ######################################################
     start_final_sql = timeit.default_timer()
-    max_interactions = 5000
+    max_interactions = 10000
     placeholders = ', '.join('?' for unused in node_list) # '?, ?, ?, ...'
 
     # Multiple query options
@@ -391,6 +409,7 @@ def main(arguments,output_filename):
     
     if len(interactome) == 0:
       raise ValueError('No interactions matching these conditions.')
+    
 
     ######################################################
     # Network properties with networkx: 1
@@ -401,12 +420,31 @@ def main(arguments,output_filename):
     df_network['Number of edges'] = len(interactome)
 
     # use networkx
-    nodes, interactome, df_network = calc_network_props(nodes, node_list, interactome, df_network, filter_condition)
+    nodes, interactome, df_network = calc_network_props(nodes, interactome, df_network, filter_condition)
 
     df_network = df_network.to_frame()
     df_network = df_network.transpose()
 
     timing['networkx properties calculation'] = timeit.default_timer() - start
+
+
+    ######################################################
+    # Save the full network information
+    ######################################################
+    start = timeit.default_timer()
+    nodes_full = nodes.copy()
+    interactome_full = interactome.copy()
+    timing['Save full network'] = timeit.default_timer() - start
+
+
+    # ######################################################
+    # # WRITE "FULL" NETWORK TO JSON
+    # # this will include a filtering step for really big networks
+    # ######################################################
+    start_json = timeit.default_timer()
+    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename[0],'full',primary_nodes)
+    timing['json_full'] = timeit.default_timer() - start_json
+
 
     ######################################################
     # FILTER NODES TO MANAGEABLE VISUALIZATION
@@ -429,8 +467,8 @@ def main(arguments,output_filename):
       ### SHOW WARNING MESSAGE ABOUT FILTER STEP
       filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
                       All interactions and nodes are contained in the Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      full_network_link = '<?php echo "Click <a href=\\\\\\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
-      s = filter_message + full_network_link
+      # full_network_link = '<?php echo "Click <a href=\\\\\\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
+      s = filter_message #+ full_network_link
       print "<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>"
 
       timing['filter'] = timeit.default_timer() - start_filter
@@ -445,24 +483,15 @@ def main(arguments,output_filename):
       df_network['Number of edges'] = len(interactome)
 
       # use networkx
-      nodes, interactome, df_network = calc_network_props(nodes, node_list, interactome, df_network, filter_condition)
+      nodes, interactome, df_network = calc_network_props(nodes, interactome, df_network, filter_condition)
 
       timing['networkx properties calculation'] += timeit.default_timer() - start
-
-    # ######################################################
-    # # WRITE "FULL" NETWORK TO JSON
-    # # this will include a filtering step for really big networks
-    # ######################################################
-    # if len(nodes) > max_nodes:
-    #   start_json = timeit.default_timer()
-    #   write_network_to_json(nodes,interactome,output_filename[0],'full',primary_nodes)
-    #   timing['json_full'] = timeit.default_timer() - start_json
 
     ######################################################
     ### Write the network to json
     ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes,interactome,output_filename[0])
+    write_network_to_json(nodes,interactome,filter_condition,output_filename[0])
     timing['json'] = timeit.default_timer() - start_json
 
     if excel_flag:

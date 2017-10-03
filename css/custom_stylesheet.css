@@ -101,7 +101,7 @@ body { background:#eee;}
 }
 div.D3_drawing {
     width: 100%; /* 980px; */
-    height: 750px;
+    height: 700px;
     border: 1px solid black;
     overflow:hidden;
     margin: 0;

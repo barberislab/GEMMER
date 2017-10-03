@@ -29,6 +29,11 @@ HOW THIS WORKS
     </div>
 
     <div id="export_options">
+        <h3>Visualize a larger network</h3>
+        <?php 
+            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\">here</a> to visualize a more complete network of up to 250 nodes.";
+        ?> 
+        
         <h3>Export options</h3>
         Download the image in SVG format (by right-clicking "Download SVG" and "Save as") or the formatted Excel workbook.  <br/>
         <a href="#" id="download">Download SVG</a> | 
@@ -114,12 +119,12 @@ HOW THIS WORKS
     </div>
 
     <div id="python_output">
-        <h3>Algorithm output warnings</h3>
-        <p>
         <?php 
-            include(DOCUMENT_PATH . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php'); 
+            if ($full == '') {
+                echo "<h3>Algorithm output warnings</h3>";
+                include(DOCUMENT_PATH . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php'); 
+            }
         ?>
-        </p>
     </div>
 
 </div>
@@ -171,6 +176,8 @@ HOW THIS WORKS
             .direction('s')
 
         svg.call(tip);
+
+        <?php echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; ?>
 
         d3.json(<?php 
                     echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
@@ -246,10 +253,10 @@ HOW THIS WORKS
             // structured as a pyramid with "no data" added to the end
             var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
                                 "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
-                                "no data"];
+                                "No data"];
             var functions = ["cell cycle","cell division","DNA replication","signal transduction","metabolism","None"];
-            var in_compartments = compartments.indexOf(nodes[1].color);
-            var in_functions = functions.indexOf(nodes[1].color);
+            var in_compartments = compartments.indexOf(nodes[0].color);
+            var in_functions = functions.indexOf(nodes[0].color);
 
             if (in_functions > -1) {
                 var clusters_list = functions;
@@ -265,11 +272,11 @@ HOW THIS WORKS
                     // there are 16 compartments for CYCLoPs
                     // color source: https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
                     // first 8: red, green, yellow, blue, orange, purple, cyan, magenta, 
-                    // second 8: lime, pink, teal, lavender, brown, beige, maroon, mint
-                    // grey
+                    // second 8: lime, pink, teal, lavender, brown, beige, grey, mint
+                    // snow
                     .range(["#e6194b","#3cb44b","#ffe119","#0082c8","#f58231","#911eb4","#46f0f0","#f032e6",
-                            "#d2f53c","#fabebe","#008080","#e6beff","#aa6e28","#fffac8","#800000","#aaffc3",
-                            "#cccccc"]);
+                            "#d2f53c","#fabebe","#008080","#e6beff","#aa6e28","#fffac8","#cccccc","#aaffc3",
+                            "#F8F8FF"]);
             }
             else {
                 console.log("Cannot identify which color scheme to use")
@@ -292,10 +299,14 @@ HOW THIS WORKS
             console.log("Minimal radius: ", minimal_radius)
 
             // normalize the dc's so that the minimum maps to zero and the maxium to 1
+            // when all dc's are equal the max_norm_dc = 0: problem! 
             console.log(nodes);
             var min_dc = Math.min.apply(Math,nodes.map(function(o){return o['Degree centrality'];}))
             console.log("Minimum degree centrality: ", min_dc)
             var max_norm_dc = Math.max.apply(Math,nodes.map(function(o){return o['Degree centrality'] - min_dc;}))
+            if (max_norm_dc == 0) {
+                max_norm_dc = 1; // to avoid division by zero. 
+            }
             console.log("Maximum normalized degree centrality: ", max_norm_dc)
 
             // loop over nodes
@@ -315,14 +326,15 @@ HOW THIS WORKS
                 nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
 
                 if (nodes.length > 200) {
-                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc);
+                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); // percentage of the maximum distance to the min. dc in the network
                     var n = 4;
                     var K_d = 0.8;
                     var r = minimal_radius + (max_r - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
                 }
                 else {
                     var c = nodes[i].cluster; // cluster of this node
-                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc);
+                    // percentage of the maximum distance to the min. dc in the network
+                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
                     var r = minimal_radius + (max_r - minimal_radius) * perc; // linear
                 }
 
@@ -387,9 +399,9 @@ HOW THIS WORKS
                 .style("fill","none")
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) {
-                    if (d.type == "regulation") { console.log('regulation',d); return "blue" }
-                    else if (d.type == "physical") { return "red"}
-                    else { return "#666666" }
+                    if (d.type == "regulation") { console.log('regulation',d); return "blue" } // blue
+                    else if (d.type == "physical") { return "#000000"} // black
+                    else { return "red" } // red
                     })
                 .attr("marker-end", function (d) {
                     if (d.type == "regulation") { return "url(#blue_arrow)" }

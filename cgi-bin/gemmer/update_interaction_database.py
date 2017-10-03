@@ -213,21 +213,31 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         html_string = html_string.replace('\n','')
         html_string = html_string.replace('<table','<table id=\"CYCLoPs_table\"')
 
-        # color the highest comp in each WT
+        # color the highest compartment in each WT
         for WT_string in ['WT1','WT2','WT3']:
             if not_only_no_data and len(d[WT_string]) > 0:
                 max_key = max(d[WT_string].iteritems(), key=operator.itemgetter(1))[0]
                 s = str(d[WT_string][max_key]) 
-                if s in html_string:
-                    html_string = html_string.replace('<td>'+s+'</td>', '<td class="bg-info">'+s+'</td>')
-                elif s+'0' in html_string:
+
+                # insert blue background in the correct table cell 
+                if s+'0' in html_string:
                     s = s+'0' # cases like 0.91 to 0.910
+                    html_string = html_string.replace('<td>'+s+'</td>', '<td class="bg-info">'+s+'</td>')
+                elif s in html_string:
                     html_string = html_string.replace('<td>'+s+'</td>', '<td class="bg-info">'+s+'</td>')
                 else:
                     print 'missing:', s 
                     print 'dict:', d
                     print d_df
                     raise SystemExit
+
+        # if gene == 'CLB4' or gene == 'Clb4':
+        #     print gene
+        #     print max_key
+        #     print s
+        #     print s in html_string, s+'0' in html_string
+        #     print html_string
+        #     raise SystemExit
 
         # change table properties: full width within column
         # # set first column width

@@ -29,9 +29,9 @@ HOW THIS WORKS
     </div>
 
     <div id="export_options">
-        <h3>Visualize a larger network</h3>
+        <h3>Network visualization</h3>
         <?php 
-            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a more complete network of up to 250 nodes.";
+            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
         ?> 
         
         <h3>Export options</h3>
@@ -254,7 +254,7 @@ HOW THIS WORKS
             var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
                                 "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
                                 "No data"];
-            var functions = ["cell cycle","cell division","DNA replication","signal transduction","metabolism","None"];
+            var functions = ["Cell cycle","Cell division","DNA replication","Signal transduction","Metabolism","None"];
             var in_compartments = compartments.indexOf(nodes[0].color);
             var in_functions = functions.indexOf(nodes[0].color);
 
@@ -262,8 +262,8 @@ HOW THIS WORKS
                 var clusters_list = functions;
                 var color = d3.scale.ordinal()
                     .domain(functions)
-                    // green, yellow, red, purple, orange, white, white
-                    .range(["#2ca02c" ,"#cccc33", "#d62728", "#cc33cc","#ff7f0e","#cccccc","#cccccc"]);
+                    // green, yellow, blue, purple, orange, snow
+                    .range(["#2ca02c" ,"#ffe119", "#0080ff", "#cc33cc","#ff7f0e","#F8F8FF"]);
             }
             else if (in_compartments > -1) {
                 var clusters_list = compartments;
@@ -293,9 +293,9 @@ HOW THIS WORKS
 
             // based on number of nodes set minimal node radius
             // min = 1, max = for 1 node: 21. every 25 nodes the minimum decreases by 5px
-            // at 40 nodes nametags might disappear
-            // at 160 nodes the minimum is 1
-            var minimal_radius = Math.max(1,20 - 5*((num_nodes)/40))
+            // at 25 nodes nametags might disappear
+            // at 100 nodes the minimum is 1
+            var minimal_radius = Math.max(1,20 - 5*((num_nodes)/25))
             console.log("Minimal radius: ", minimal_radius)
 
             // normalize the dc's so that the minimum maps to zero and the maxium to 1
@@ -400,8 +400,8 @@ HOW THIS WORKS
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) {
                     if (d.type == "regulation") { console.log('regulation',d); return "blue" } // blue
-                    else if (d.type == "physical") { return "#000000"} // black
-                    else { return "red" } // red
+                    else if (d.type == "physical") { return "#8f0000"} // black
+                    else { return "grey" } // red
                     })
                 .attr("marker-end", function (d) {
                     if (d.type == "regulation") { return "url(#blue_arrow)" }

@@ -54,7 +54,7 @@ foreach ($array_of_vars as $var) {
     $command = $command . $var . " ";
 }
 $command = $command . " 2>&1";
-echo "<br/><br/>We will execute this command:<br/>" . $command;
+echo "<br/><br/>Executing Excel file generation...";
 
 
 exec($command, $out, $status);

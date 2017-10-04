@@ -384,7 +384,7 @@ def main(arguments,output_filename):
     ### GET ALL INTERACTIONS BETWEEN ALL NODES
     ######################################################
     start_final_sql = timeit.default_timer()
-    max_interactions = 10000
+    max_interactions = 25000
     placeholders = ', '.join('?' for unused in node_list) # '?, ?, ?, ...'
 
     # Multiple query options
@@ -465,7 +465,7 @@ def main(arguments,output_filename):
 
       ### SHOW WARNING MESSAGE ABOUT FILTER STEP
       filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-                      All interactions and nodes are contained in the Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
       # full_network_link = '<?php echo "Click <a href=\\\\\\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
       s = filter_message #+ full_network_link
       print "<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>"

@@ -1,4 +1,4 @@
-<script src="form-submit.js" async></script>
+<script src="form-submit.js"></script>
 
 <!-- Advanced options menu panel collapse -->
 <script>
@@ -46,7 +46,7 @@ After several seconds the page will reload with the network visualization.
     if (isset($_GET['int_type'])) {
         $int_type = $_GET['int_type'];
     }
-    else {$int_type = 'physical, genetic, regulation';}
+    else {$int_type = 'physical_genetic_regulation';}
     if (isset($_GET['experiments'])) {
         $experiments = $_GET['experiments'];
     }
@@ -70,7 +70,7 @@ After several seconds the page will reload with the network visualization.
         $process_orig = $_GET['process'];
         $process = explode(",",str_replace("_"," ",$_GET['process']));
     }
-    else {$process = array("metabolism", "cell cycle","cell division","DNA replication","None");} # we will auto-select all
+    else {$process = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");} # we will auto-select all
     if (isset($_GET['compartment'])) {
         $compartment = $_GET['compartment'];
     }
@@ -157,7 +157,7 @@ After several seconds the page will reload with the network visualization.
                             <div class="col-md-3">
                                 <select name="int_type" id="int_type" class="selectpicker" data-width="100%">
                                     <?php 
-                                        $types = array("physical, genetic, regulation", "genetic", "genetic, regulation", "physical", "physical, genetic", "physical, regulation", "regulation");
+                                        $types = array("physical", "physical, genetic", "physical, genetic, regulation", "physical, regulation", "genetic", "genetic, regulation", "regulation");
                                         foreach ($types as $value) {
                                             $value_proc = str_replace(', ','_',$value);
                                             echo "<option value=\"" . $value_proc . "\"" . (($value_proc==$int_type)?' selected="selected"':"") . ">$value</option>";
@@ -188,23 +188,19 @@ After several seconds the page will reload with the network visualization.
                                         <label for="experiments" id="experiments_label">Number of experiments</label>
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="publications" id="publications_label">Number of publications</label>
-                                    </div>
-                                    <div class="col-md-3">
                                         <label for="methods" id="methods_label">Number of methods</label>
                                     </div>
                                     <div class="col-md-3">
                                         <label for="method_types" id="method_types">Method types</label>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="publications" id="publications_label">Number of publications</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <input type="number" name="experiments" id="experiments" style='width:100%;' value="<?php echo $experiments; ?>" class="text-input" />
                                         <label class="error" for="experiments" id="experiments_error">Cannot be lower than 1</label>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="number" name="publications" id="publications" style='width:100%;' value="<?php echo $publications; ?>" class="text-input" />
-                                        <label class="error" for="publications" id="publications_error">Cannot be lower than 1</label>
                                     </div>
                                     <div class="col-md-3">
                                         <input type="number" name="methods" id="methods" style='width:100%;' value="<?php echo $methods; ?>" class="text-input" />
@@ -232,6 +228,10 @@ After several seconds the page will reload with the network visualization.
                                             ?>
                                             </select>
                                     </div>
+                                    <div class="col-md-3">
+                                        <input type="number" name="publications" id="publications" style='width:100%;' value="<?php echo $publications; ?>" class="text-input" />
+                                        <label class="error" for="publications" id="publications_error">Cannot be lower than 1</label>
+                                    </div>
                                 </div>
                                 
                                 <div class="row">
@@ -252,7 +252,7 @@ After several seconds the page will reload with the network visualization.
                                     <div class="col-md-3">
                                     <select name="process" id="process" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
                                         <?php 
-                                            $types = array("metabolism", "cell cycle","cell division","DNA replication","None");
+                                            $types = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");
                                             foreach ($types as $value) {
                                                 echo "<option value=\"" . $value . "\"" . ((in_array($value,$process))?' selected="selected"':"") . ">$value</option>";
                                             }

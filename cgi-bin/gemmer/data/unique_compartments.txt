@@ -5,8 +5,8 @@ CYCLoPs: Budsite
 CYCLoPs: Cell Periphery
 CYCLoPs: Cort. Patches
 CYCLoPs: Cytoplasm
-CYCLoPs: ER
 CYCLoPs: Endosome
+CYCLoPs: ER
 CYCLoPs: Golgi
 CYCLoPs: Mito
 CYCLoPs: Nuc Periphery
@@ -15,9 +15,6 @@ CYCLoPs: Nucleus
 CYCLoPs: Peroxisome
 CYCLoPs: SpindlePole
 CYCLoPs: Vac/Vac Memb
-GFP: ER
-GFP: ER to Golgi
-GFP: Golgi
 GFP: actin
 GFP: ambiguous
 GFP: bud
@@ -26,6 +23,9 @@ GFP: cell periphery
 GFP: cytoplasm
 GFP: early Golgi
 GFP: endosome
+GFP: ER
+GFP: ER to Golgi
+GFP: Golgi
 GFP: late Golgi
 GFP: lipid particle
 GFP: microtubule

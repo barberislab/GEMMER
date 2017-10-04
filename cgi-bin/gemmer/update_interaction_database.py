@@ -253,10 +253,10 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     return CYCLoPs_dict
 
 def find_go_annotations(conn,gene_symbols):
-    go_terms = {'metabolism':'GO:0044237', # cellular metabolic process. previously #'GO:0008152' metabolic process
-                'cell cycle':'GO:0007049',
-                'cell division':'GO:0051301',
-                'signal transduction':'GO:0007165',
+    go_terms = {'Metabolism':'GO:0044237', # cellular metabolic process. previously #'GO:0008152' metabolic process
+                'Cell cycle':'GO:0007049',
+                'Cell division':'GO:0051301',
+                'Signal transduction':'GO:0007165',
                 'DNA replication':'GO:0006260', # DNA replication falls under metabolic process
                 }
     service = Service("https://yeastmine.yeastgenome.org:443/yeastmine/service")
@@ -294,10 +294,10 @@ def find_go_annotations(conn,gene_symbols):
         # rows is a list of dictionaries, each key is a symbol, systematic name or GO term id
         for row in rows:
             combo = { # map each GO term to a 0 or 1 value
-                'metabolism':row in query_results["metabolism"],
-                'cell cycle':row in query_results["cell cycle"],
-                'cell division':row in query_results["cell division"],
-                'signal transduction':row in query_results["signal transduction"],
+                'Metabolism':row in query_results["Metabolism"],
+                'Cell cycle':row in query_results["Cell cycle"],
+                'Cell division':row in query_results["Cell division"],
+                'Signal transduction':row in query_results["Signal transduction"],
                 'DNA replication':row in query_results["DNA replication"]
             }
 
@@ -305,14 +305,14 @@ def find_go_annotations(conn,gene_symbols):
             # Otherwise, leading terms: DNA rep, division and signal transduction, cell cycle, metabolism, in that order
             if combo['DNA replication']:
                 query_results2['DNA replication'].append(row)
-            elif combo['cell division']:
-                query_results2['cell division'].append(row)
-            elif combo['signal transduction']:
-                query_results2['signal transduction'].append(row)
-            elif combo['cell cycle']:
-                query_results2['cell cycle'].append(row)
-            elif combo['metabolism']:
-                query_results2['metabolism'].append(row)
+            elif combo['Cell division']:
+                query_results2['Cell division'].append(row)
+            elif combo['Signal transduction']:
+                query_results2['Signal transduction'].append(row)
+            elif combo['Cell cycle']:
+                query_results2['Cell cycle'].append(row)
+            elif combo['Metabolism']:
+                query_results2['Metabolism'].append(row)
             else:
                 print "None of the categories match..."
                 return
@@ -674,6 +674,8 @@ def find_all_interactions(conn,gene_symbols):
 
     # write comps to file
     thefile = open('data/unique_experimental_methods.txt', 'w')
+    unique_methods = [str(x) for x in unique_methods] # unicode to string
+    unique_methods = sorted(unique_methods, key=str.lower)
     for item in unique_methods:
         thefile.write("%s\n" % item)
     thefile.close()
@@ -843,7 +845,8 @@ def main():
     if ' ' in unique_comps:
         unique_comps.remove(' ')
 
-    unique_comps.sort()
+    unique_comps = [str(x) for x in unique_comps] # unicode to string
+    unique_comps = sorted(unique_comps, key=str.lower) # sort alphabetically regardless of capitalization
 
     print 'Done storing a list of compartments in GFP and CYCLoPs.'
     print unique_comps

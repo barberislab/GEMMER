@@ -33,12 +33,6 @@ script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the s
 
 def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
-    # # read the csv's
-    # df_user_input = pd.read_csv(filename_base+'/user_input_'+file_id+'.csv')
-    # df_network = pd.read_csv(filename_base+'/network_'+file_id+'.csv')
-    # df_nodes = pd.read_csv(filename_base+'/nodes_'+file_id+'.csv')
-    # df_interactome = pd.read_csv(filename_base+'/interactome_'+file_id+'.csv')
-
     filename_base = os.path.abspath(script_dir+'../../../output/excel_files/')
 
     writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
@@ -46,10 +40,14 @@ def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
     format_null = workbook.add_format({'text_wrap': True,'align':'left','font_size':10})
 
+    df_nodes = df_nodes.drop(['CYCLoPs_html',	'CYCLoPs_dict'],1)
+    df_interactome = df_interactome.drop(['Evidence HTML'],1)
+
     ### User input
     df_user_input.to_excel(writer,sheet_name='user input', index=True)
     worksheet = writer.sheets['user input']
-    worksheet.set_column('A:B',30,format_null)
+    worksheet.set_column('A:A',30,format_null)
+    worksheet.set_column('B:B',200,format_null)
 
     ### Network
     df_network.transpose().to_excel(writer,sheet_name='network properties', index=True)
@@ -64,7 +62,8 @@ def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
     worksheet.set_column('D:D',75,format_null)
     worksheet.set_column('E:H',15,format_null)
     worksheet.set_column('I:I',40,format_null)
-    worksheet.set_column('J:L',15,format_null)
+    worksheet.set_column('J:M',15,format_null)
+    worksheet.set_column('N:O',30,format_null)
 
     ### Interactome
     df_interactome.to_excel(writer,sheet_name='interactome',index=False)

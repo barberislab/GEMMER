@@ -31,7 +31,7 @@ HOW THIS WORKS
     <div id="export_options">
         <h3>Visualize a larger network</h3>
         <?php 
-            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\">here</a> to visualize a more complete network of up to 250 nodes.";
+            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a more complete network of up to 250 nodes.";
         ?> 
         
         <h3>Export options</h3>

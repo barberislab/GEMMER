@@ -84,7 +84,7 @@ After several seconds the page will reload with the network visualization.
     if (isset($_GET['max_nodes'])) {
         $max_nodes = $_GET['max_nodes'];
     }
-    else {$max_nodes = 40;}
+    else {$max_nodes = 25;}
     if (isset($_GET['filter_condition'])) {
         $filter_condition = str_replace("_"," ",$_GET['filter_condition']);
     }

@@ -298,11 +298,11 @@ def main(arguments,output_filename):
 
     len_nodes_query = len(nodes)
 
-    start_node_drop = timeit.default_timer()
-
     ######################################################
     ### BASED ON THE COMPARTMENT FILTER: DROP NODES
     ######################################################
+    start_node_drop = timeit.default_timer()
+
     if 'GFP:' in compartment:
       comp_to_check = compartment.replace('GFP:','')
       print 'Prior to compartment filtering:', len(nodes), 'nodes. Filtering on', comp_to_check
@@ -345,6 +345,7 @@ def main(arguments,output_filename):
     ######################################################
     start = timeit.default_timer()
 
+    ### Clustering part
     if cluster_by in ['GO term 1','GO term 2']:
       nodes['cluster'] = nodes[cluster_by]
     elif 'CYCLoPs WT' in cluster_by:
@@ -356,8 +357,10 @@ def main(arguments,output_filename):
       l = nodes['CYCLoPs_dict'].values
       l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'No data' for i in range(len(nodes))]
       nodes['cluster'] = pd.Series(l_max_comps).values
+    elif cluster_by == 'No clustering':
+      nodes['cluster'] = ['No clustering' for i in range(len(nodes))]
     else:
-      print 'Unexpected value for cluster_by',cluster_by
+      raise SystemExit(cluster_by,"Unexpected value for clustering variable.")
     
     if color_by in ['GO term 1','GO term 2']:
       # set the color based on the color_by variable in a new column of 'nodes' DF
@@ -375,6 +378,8 @@ def main(arguments,output_filename):
 
       # set the color based on the maximum compartment found above in a new column in the nodes DF          
       nodes['color'] = pd.Series(l_max_comps).values
+    elif color_by == 'No coloring':
+      nodes['color'] = ["No data" for i in range(len(nodes))]
     else:
       print 'Unexpected value for color_by',color_by
 

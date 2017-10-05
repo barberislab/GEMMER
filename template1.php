@@ -358,17 +358,17 @@ HOW THIS WORKS
 
             // less padding for lots of nodes
             if (num_nodes > 100) {
-                var padding = 5;
-            }
-            else if (num_nodes > 500) {
                 var padding = 2;
             }
             else {
-                var padding = 10;
+                var padding = 15;
             }
 
             // less padding for many clusters
-            if (num_clusters > 5) {
+            if (num_clusters == 1) {
+                var padding = 60 - 0.3*num_nodes; // note that in this case we increase general padding
+            }
+            else if (num_clusters > 5) {
                 var clusterPadding = 150;
             }
             else if (num_clusters > 10) {
@@ -520,8 +520,11 @@ HOW THIS WORKS
 
             function tick(e) {
                 // e is an object of type 'tick'
+                
+                if (num_clusters > 1){
+                    circle.each(cluster(10 * e.alpha * e.alpha))
+                }
                 circle
-                    .each(cluster(10 * e.alpha * e.alpha))
                     .each(collide(.5))
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; })

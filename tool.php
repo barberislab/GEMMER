@@ -135,7 +135,7 @@ After several seconds the page will reload with the network visualization.
                             <div class="col-md-3">
                                 <select name="cluster" id="cluster" class="selectpicker" data-width="100%">
                                     <?php 
-                                        $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2");
+                                        $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No clustering");
                                         foreach ($clusters as $value) {
                                             $value_proc = str_replace(' ','_',$value);
                                             echo '<option value=' . $value_proc . " " . (($value_proc==$cluster)?'selected="selected"':"") . ">$value</option>";
@@ -146,7 +146,7 @@ After several seconds the page will reload with the network visualization.
                             <div class="col-md-3">
                                 <select name="color" id="color" class="selectpicker" data-width="100%">
                                     <?php 
-                                        $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2");
+                                        $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No coloring");
                                         foreach ($colors as $value) {
                                             $value_proc = str_replace(' ','_',$value);
                                             echo '<option value=' . $value_proc . " " . (($value_proc==$color)?'selected="selected"':"") . ">$value</option>";

@@ -38,7 +38,7 @@ if (isset($_POST['gene'])) {
         $filter_flag = 1;
     }
 
-    echo "Querying for " . $gene . "<br/>";
+    echo "<p>Submitting query...</p>";
 
     if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {
 
@@ -56,17 +56,18 @@ if (isset($_POST['gene'])) {
             $command = $command . $var . " ";
         }
         $command = $command . " 2>&1";
-        echo $command;
 
         exec($command, $out, $status);
 
         // print output
+        echo "<p><h4>Output messages:</h4>";
         foreach($out as $result) {
             if (strlen($result) > 1) {
                 // if traceback in $result add bootstrap alert around the coming text until end of loop
                 echo $result . "<br/>";
             }
         }
+        echo "</p>";
 
         if ($status == 0) {
             $filename  = $_SERVER["DOCUMENT_ROOT"] . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php';
@@ -82,11 +83,11 @@ if (isset($_POST['gene'])) {
         }
     } 
     else {
-        echo "Gene ID entered contains invalid characters.";
+        echo "<h4>Warning:</h4>Gene ID entered contains invalid characters.";
     }
 }
 else{
-    echo "No gene input given...";
+    echo "<h4>Warning:</h4>No gene input given...";
 }
 
 ?>

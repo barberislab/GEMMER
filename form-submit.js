@@ -49,7 +49,7 @@ $(function() {
         var experiments = $("input#experiments").val();
         var publications = $("input#publications").val();
         var methods = $("input#methods").val();
-        var method_types = $("select#method_types").val();
+        var method_types = $("select#method_types").val().join();
         // row 3
         var process = replaceAll($("select#process").val().join(),' ','_');
         var compartment = replaceAll($("select#compartment").val(),': ',':');
@@ -60,6 +60,7 @@ $(function() {
         // additional
         var unique_str = randomString(7, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
+        console.log(process,method_types)
 
         // ### HIGHLIGHT INPUT ERRORS IN THE FORM ###
         if (gene == "") {

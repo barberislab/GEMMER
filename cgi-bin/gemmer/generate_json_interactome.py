@@ -214,6 +214,8 @@ def main(arguments,output_filename):
     filter_condition = filter_condition.replace('_',' ')
 
     process = process.split(',')
+    method_types = method_types.split(',')
+    method_types = [x.replace('_',' ') for x in method_types]
     expression = expression.split(',')
     if 'G1P' in expression: # brackets removed in php
       ind = expression.index('G1P')
@@ -405,9 +407,27 @@ def main(arguments,output_filename):
     interactome.columns = ['source','target','type','Evidence','Evidence HTML','#Experiments',\
         '#Publications','#Methods']
     timing['Interactome SQL + dataframe + processing'] = timeit.default_timer() - start_final_sql
-    
+
+
+    ######################################################
+    ### BASED ON THE METHOD TYPES FILTER: DROP INTERACTIONS
+    ######################################################
+    start = timeit.default_timer()
+
+    to_drop = []
+    with open(script_dir+'/data/unique_experimental_methods.txt') as f:
+      read_methods = f.read().splitlines()
+    total_methods = len(read_methods)
+    if len(method_types) < total_methods: # some have been deselected
+      print 'We have on file:', total_methods, 'methods. User queried for:', len(method_types)
+      len_before = len(interactome)
+      interactome = interactome[interactome.apply(lambda x: any([m in x['Evidence'] for m in method_types]),1)]
+      print '<br/>We dropped', len_before - len(interactome), 'interactions based on the methods.<br/>'
+
     if len(interactome) == 0:
       raise ValueError('No interactions matching these conditions.')
+    
+    timing['Filter based on methods'] = timeit.default_timer() - start
     
 
     ######################################################

@@ -46,7 +46,6 @@ if (isset($_POST['gene'])) {
         $db = new SQLite3($dir);
 
         // build the command to execute the python script
-        echo str_replace(str_replace($expression,"(",""),")","");
         $array_of_vars = [$gene,$cluster,$color,$int_type,
                         $experiments,$publications,$methods,$method_types,
                         $process,$compartment,str_replace(array("(",")"),"",$expression), // Note we remove brackets here due to errors

@@ -1,9 +1,27 @@
 ## News on GEMMER development
 ---
 
-#### October XXth 2017: v1 alpha III
-We separated the visualization from excel file generation in the Python code. 
-As a consequence we now provide export of an Excel file for the filtered and unfiltered networks. 
+#### October 6th 2017: v1 beta I
+This beta version introduces some new features, bug fixes and UI improvements. All critical bugs are now fixed. 
+- New features: 
+    - we introduced the option to not cluster or color the visualization. 
+    - Gene pages in the database now contain a button to immediately visualize that gene's interactome. 
+- Bug fixes: 
+    - method types filter should now work correctly
+    - most missing blue highlighting of the highest expression compartment are now fixed.
+    - menu items are now alphabetical where appropriate.
+    - Firefox/Safari Bootstrap alert issues where solved. 
+- UI improvements: 
+    - Excel file output has been cleaned up
+    - We cleaned up the error messages that are reported to the user when something goes wrong.
+
+---
+
+#### October 3rd 2017: v1 alpha III
+- New features:
+    - We separated the visualization from excel file generation in the Python code. As a consequence we now provide export of an Excel file for the filtered and unfiltered networks.
+- Bug fixes: 
+    - The visualization of the network up to 250 nodes is now working. 
 
 ---
 

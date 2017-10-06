@@ -18,19 +18,6 @@ pd.set_option('display.max_colwidth', -1)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
 
-# def save_csv_data(df_user_input, df_network, df_nodes, df_interactome, excel_file_base, file_id):
-#   ''' Export nodes and interaction dataframes to csv for later use when generating Excel file.'''
-#   df_nodes = df_nodes.drop(['CYCLoPs_html','CYCLoPs_dict','color','cluster'],1)
-
-#   df_interactome = df_interactome.drop(['Evidence HTML'],1)
-
-#   df_user_input.to_csv(excel_file_base+'/user_input_'+file_id+'.csv',index=True)
-#   df_network.to_csv(excel_file_base+'/network_'+file_id+'.csv',index=False)
-#   df_nodes.to_csv(excel_file_base+'/nodes_'+file_id+'.csv',index=False)
-#   df_interactome.to_csv(excel_file_base+'/interactome_'+file_id+'.csv',index=False)
-
-  # return
-
 def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
     filename_base = os.path.abspath(script_dir+'../../../output/excel_files/')
@@ -133,23 +120,22 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
   nodes = nodes.iloc[:max_nodes]
   nodes.reset_index(drop=True,inplace=True)
 
-  # reduce interactions 
+  # reduce interactions based on remaining nodes
   n = nodes['Standard name'].values # list of remaining node IDs
   interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
+
+  # remove genetic interactions first (<5 experiments)
   if case != '' and len(interactome) > max_edges:
     for i in range(5):
-      print 'Reducing interactions from', len(interactome), 'to',
       interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] == i)].index)
-      print len(interactome)
 
       if len(interactome) <= max_edges:
         break
 
+    # remove physical interactions (<3 experiments)
     for i in range(3):
       if case != '' and len(interactome) > max_edges:
-        print 'Reducing interactions from', len(interactome), 'to',
         interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'physical') & (interactome['#Experiments'] == i)].index)
-        print len(interactome)
       if len(interactome) <= max_edges:
         break
 
@@ -322,7 +308,7 @@ def main(arguments,output_filename):
       pass
 
     ### Combine the expression columns
-    nodes['Expression peak'] = nodes['Expression peak phase'] + " (" + nodes['Expression peak time'].map(str) + " min )"
+    nodes['Expression peak'] = nodes['Expression peak phase'] + " (" + nodes['Expression peak time'].map(str) + " min)"
     nodes['Expression peak'] = nodes['Expression peak'].mask(nodes['Expression peak'].isnull(), "No data")
     nodes = nodes.drop('Expression peak phase',1)
     nodes = nodes.drop('Expression peak time',1)

@@ -27,15 +27,83 @@ $(document).ready(function() {
 });
 </script>
 
+<script src="form-submit.js"></script>
+
+<!-- hidden inputs for visualisation -->
+<!-- row1 -->
+<input type="hidden" id="gene" value="<?php echo $_GET['gene']; ?>" />
+<select id="cluster" style="display:none">
+    <option value="No clustering">empty</option>
+</select>
+<select id="color" style="display:none" />
+    <option value="No coloring">empty</option>
+</select>
+<select id="int_type" style="display:none" />
+    <option value="physical_genetic_regulation">empty</option>
+</select>
+<!-- row 2 -->
+<input type="hidden" id="experiments" value="1" />
+<input type="hidden" id="publications" value="1" />
+<input type="hidden" id="methods" value="1" />
+<select id="method_types" multiple="multiple" style="display:none" />
+<?php 
+    $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/data/unique_experimental_methods.txt';
+    $compartments = file($file_loc);
+    $myfile = fopen($file_loc, "r") or die("Unable to open file!");
+
+    while(!feof($myfile)) {
+        $value = trim(fgets($myfile));
+        $value_proc = str_replace(': ',':',$value);
+        $value_proc = str_replace(' ','_',$value_proc);
+        echo '<option value=' . $value_proc . " selected=\"selected\">$value</option>";
+    }
+    fclose($myfile);
+?>
+</select>
+<!-- row 3 -->
+<select id="process"  multiple="multiple" style="display:none" />
+<?php 
+    $types = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");
+    foreach ($types as $value) {
+        echo "<option value=\"" . $value . "\"" . " selected=\"selected\")" . ">$value</option>";
+    }
+?>
+</select>
+<select id="compartment" style="display:none" />
+    <option value="Any">empty</option>
+</select>
+<select id="expression" multiple="multiple" style="display:none" />
+<?php 
+    $phases = array("G1(P)", "G1/S","S","G2","G2/M","M","M/G1","G1","No data");
+    foreach ($phases as $value) {
+        echo "<option value=\"" . $value . "\"" . " selected=\"selected\")" . ">$value</option>";
+    }
+?>
+</select>
+<!-- row 4 -->
+<input type="hidden" id="max_nodes" value="25" />
+<select id="filter_condition" style="display:none" />
+    <option value="Eigenvector centrality">empty</option>
+</select>
+
 <?php
 
 $dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/DB_genes_and_interactions.db';
 $db = new SQLite3($dir);
 
+
 // If gene argument is set from ?gene=, open gene specific page, otherwise database overview
 if (isset($_GET['gene'])) {
     $gene = $_GET['gene'];
     echo "<h4>Information for " . $gene . '</h4>';
+    echo <<<EOT
+    <form id="form-id">
+        <div class="submit-btn">
+            <button id="default_visualization" class="button btn btn-primary">Click here to visualize this gene's interactome</button>
+        </div>
+    </form>
+    <div id="script-text"></div>
+EOT;
 
     $results = $db->query("SELECT * from genes WHERE standard_name = '$gene'");
 
@@ -126,7 +194,7 @@ EOT;
     //class="table table-bordered table-condensed table-striped"
     $interactor_table = <<<EOT
         <h4>List of interactors</h4>
-        Use the search utility to find the gene you are looking for. 
+        Use the search utility to find the interactor you are looking for. 
         By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
         Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
         <table id="interactor_table" class="table table-bordered table-condensed table-striped">

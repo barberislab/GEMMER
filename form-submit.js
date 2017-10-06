@@ -27,7 +27,8 @@ function create_alert(data,alert_type) {
 
 $(function() {
     $('.error').hide(); // hides the required field text in error class
-    $(".button").click(function() {
+
+    $(".submit-btn").click(function() {
         // Get the form values DO NOT process them for PHP/Python use
         // To get memory to work we process them in PHP
         // replace spaces with underscores and get rid of commas
@@ -59,8 +60,6 @@ $(function() {
         var filter_condition = replaceAll($("select#filter_condition").val(),' ','_');
         // additional
         var unique_str = randomString(7, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-
-        console.log(process,method_types)
 
         // ### HIGHLIGHT INPUT ERRORS IN THE FORM ###
         if (gene == "") {
@@ -105,14 +104,13 @@ $(function() {
             filter_condition    : filter_condition,
             unique_str          : unique_str, 
         }
-        console.log("Input from the form:",data)
+
+        // console.log("Input from the form:",data)
         var link_to_open = "index.php?";
         for (var key in data) {
-            console.log(key)
             link_to_open += key + "=" + data[key] + "&";
         }
         link_to_open = link_to_open.slice(0, -1);
-        console.log(link_to_open)
 
         $.ajax({
             type: "POST",

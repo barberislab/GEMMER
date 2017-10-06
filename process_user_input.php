@@ -38,6 +38,8 @@ if (isset($_POST['gene'])) {
         $filter_flag = 1;
     }
 
+
+
     echo "<p>Submitting query...</p>";
 
     if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {
@@ -51,6 +53,7 @@ if (isset($_POST['gene'])) {
                         $process,$compartment,str_replace(array("(",")"),"",$expression), // Note we remove brackets here due to errors
                         $max_nodes,$filter_condition,
                         $excel_flag,$filter_flag,$unique_str];
+        
         $command = 'python ' . $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gen_visualization.py ';
         foreach ($array_of_vars as $var) {
             $command = $command . $var . " ";

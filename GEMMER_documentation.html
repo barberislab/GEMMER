@@ -376,6 +376,67 @@ blockquote {
 </head>
 <body>
 <h1>GEMMER Documentation</h1>
+<h2>Introduction</h2>
+<p>GEMMER (<strong>GE</strong>nome-wide tool for <strong>M</strong>ulti-scale <strong>M</strong>odeling data <strong>E</strong>xtraction and <strong>R</strong>epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in <a href="https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae">Saccharomyces cerevisiae</a> and serve as a data-integration hub. The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle transcription and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence.</p>
+<p>GEMMER aids (modeling) research by providing:</p>
+<ul>
+<li>Effortless data integration from 3 databases
+<ul>
+<li><a href="">SGD</a> (Saccharomyces Genome Database)</li>
+<li><a href="">CYCLoPs</a> (Collection of Yeast Cells Localization Patterns)</li>
+<li><a href="">YeastGFP</a> (Yeast GFP Fusion Localization Database)</li>
+<li><a href="">SCEPTRANS</a> ()
+<ul>
+<li>Specifically, we use the peak cell cycle phase transcription data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu &amp; Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Interaction networks with localization, abundance and transcription timing information incorporated
+<ul>
+<li>Centered around one or more genes</li>
+</ul>
+</li>
+<li>Data visualization using interactive D3 (not 3D!) drawings
+<ul>
+<li>With various filtering possibilities</li>
+</ul>
+</li>
+<li>Data export for interaction networks to SVG and Excel</li>
+</ul>
+<h2>GEMMER Workflow</h2>
+<p><img src="img/GEMMER_workflow.png" alt="Workflow"></p>
+<h2>The database</h2>
+<h3>Genome-wide search</h3>
+<p>Through the <a href="index.php?id=database">database page</a> users may inspect the data GEMMER collected from SGD, CYCLoPs, YeastGFP and SCEPTRANS on a per gene basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page.</p>
+<h3>Information for a specific gene</h3>
+<p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown.</p>
+<h2>Visualizing a network</h2>
+<p>The central access hub for the tool is formed by the index.php webpage. The form on this page allows user input, e.g. which gene(s) to center the visualization around. An AJAX script submits the form for processing and displays a brief message to the user. Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a Python script 'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization. The user is then automatically forwarded to a new page with a &quot;box&quot; for the visualization with an embedded D3 visualization based on the JSON file. This page also contains download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
+interactions. Furthermore various tables with this information are also displayed on the page.</p>
+<!-- ### The form (basic)
+![Basic form input](img/input_form_basic.png)
+
+### The form (advanced)
+![Advanced form input](img/input_form_advanced.png)
+
+### The visualization page and output
+
+
+### Exporting the image
+
+
+### Exporting the data in Excel format
+
+### Visualizing multiple genes together -->
+<!-- 
+## Back-end details
+### D3js
+For drawing the visualization we make use of D3js. 
+[d3js](http://d3js.org) is a JavaScript library for manipulating documents based on data.
+The library enables stunning client-side visualization inside the webbrowser.
+Commonly in science-related websites (and possibly many others), users need to save the generated 
+visualization in vectorized format (e.g. PDF), to be able to incorporate the graphics in presentation or publications. -->
 <h2>Dependencies</h2>
 <p>GEMMER would not be possible without the following open-source projects:</p>
 <ul>
@@ -400,63 +461,6 @@ blockquote {
 </ul>
 </li>
 </ul>
-<h2>Introduction</h2>
-<p>GEMMER (<strong>GE</strong>nome-wide tool for <strong>M</strong>ulti-scale <strong>M</strong>odeling data <strong>E</strong>xtraction and <strong>R</strong>epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in <a href="https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae">Saccharomyces cerevisiae</a> and serve as a data-integration hub. The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle expression and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence.</p>
-<p>GEMMER aids (modeling) research by providing:</p>
-<ul>
-<li>Effortless data integration from 3 databases
-<ul>
-<li>SGD (Saccharomyces Genome Database)</li>
-<li>CYCLoPs (Collection of Yeast Cells Localization Patterns)</li>
-<li>YeastGFP (Yeast GFP Fusion Localization Database)
--Interaction networks with localization and expression information incorporated</li>
-<li>Centered around one or more proteins</li>
-</ul>
-</li>
-<li>Data visualization using interactive D3 (not 3D!) drawings
-<ul>
-<li>With various filtering possibilities</li>
-</ul>
-</li>
-<li>Data export for interaction networks to SVG and Excel</li>
-</ul>
-<h2>Data sources</h2>
-<p>GEMMER bases its visualizations on data from various sources.</p>
-<ul>
-<li><a href="">SGD</a></li>
-<li><a href="">CYCLoPs</a> Specifically, we use the peak cell cycle phase expression data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu &amp; Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007).</li>
-</ul>
-<p><img src="img/GEMMER_workflow.png" alt="Workflow"></p>
-<h2>The database</h2>
-<h3>Genome-wide search</h3>
-<p>Through the <a href="index.php?id=database">database page</a> users may inspect the data GEMMER collected from other databases on a per protein basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page.</p>
-<h3>Information for a specific gene</h3>
-<p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs expression data if available, GFP database expression data if available and the set of genes it interacts with. The table of interactions allows users to move on to pages specific for the interactors, search the interactors, and links directly to pubmed for publications where the interactions were found.</p>
-<h2>Visualizing a network</h2>
-<p>The central access hub for the tool is formed by the index.php webpage.
-The form on this page allows user input, e.g. which gene(s) to center the visualization around.
-A simple AJAX script submits the form for processing and displays a brief message to the user.
-Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a python script
-'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization.
-The user is then automatically forwarded to a new page with a &quot;box&quot; for the visualization with an embedded D3 visualization based on the JSON file.
-This page will also contain download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
-interactions. Furthermore various tables with this information are also displayed on the page.</p>
-<h3>The form (basic)</h3>
-<p><img src="img/input_form_basic.png" alt="Basic form input"></p>
-<h3>The form (advanced)</h3>
-<p><img src="img/input_form_advanced.png" alt="Advanced form input"></p>
-<h3>The visualization page and output</h3>
-<h3>Exporting the image</h3>
-<h3>Exporting the data in Excel format</h3>
-<h3>Visualizing multiple genes together</h3>
-<h2>Back-end details</h2>
-<h3>D3js</h3>
-<p>For drawing the visualization we make use of D3js.
-<a href="http://d3js.org">d3js</a> is a JavaScript library for manipulating documents based on data.
-The library enables stunning client-side visualization inside the webbrowser.
-Commonly in science-related websites (and possibly many others), users need to save the generated
-visualization in vectorized format (e.g. PDF), to be able to incorporate the graphics in presentation or publications.</p>
-<h3>SGD API Yeastmine</h3>
 
 </body>
 </html>

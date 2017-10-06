@@ -144,10 +144,10 @@ EOT;
         $CC_table = <<<EOT
             <div class="row">
                 <div class="table-responsive col-xs-6">
-                    <h4>Timing and cell cycle phase of expression peak</h4>
+                    <h4>Cell cycle phase and timing of transcription peak</h4>
                     <table class="table table-bordered table-condensed table-striped">
                         <thead>
-                            <th>Cell Cycle Phase</th>
+                            <th>Cell cycle phase</th>
                             <th>Time (min)</th>
                         </thead>
                         <tbody>
@@ -166,20 +166,20 @@ EOT;
         $CYCLoPs_table = <<<EOT
             <div class="row">
                 <div class="table-responsive col-xs-6">
-                    <h4>CYCLoPs abundance & localization</h4>
+                    <h4>CYCLoPs localization & abundance</h4>
                     {$row['CYCLoPs_html']}
                 </div>
                 <div class=" table-responsive col-xs-6">
-                    <h4>GFP abundance & localization</h4>
+                    <h4>GFP localization & abundance</h4>
                     <table id="GFP_table" class="table table-bordered table-condensed table-striped">
                         <thead>
-                            <th>GFP abundance</th>
                             <th>GFP localization</th>
+                            <th>GFP abundance</th>  
                         </thead>
                         <tbody>
                             <tr>
-                            <td>{$row['GFP_abundance']}</td>
                             <td>{$row['GFP_localization']}</td>
+                            <td>{$row['GFP_abundance']}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -196,7 +196,7 @@ EOT;
         <h4>List of interactors</h4>
         Use the search utility to find the interactor you are looking for. 
         By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
-        Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
+        Default sorting is on number of experiments, number of unique methods and the number of publications, and alphabetical on standard name, in that order.
         <table id="interactor_table" class="table table-bordered table-condensed table-striped">
             <thead>
                 <th>Standard name</th>
@@ -204,8 +204,8 @@ EOT;
                 <th>Name description</th>
                 <th>Type</th>
                 <th>#Experiments</th>
-                <th>#Publications</th>
                 <th>#Methods</th>
+                <th>#Publications</th>
                 <th>Evidence</th>
             </thead>
             <tbody>
@@ -229,8 +229,8 @@ EOT;
                 <td> {$row_interactor['name_desc']} </td>
                 <td> {$row['type']}</td>
                 <td> {$row['num_experiments']} </td>
-                <td> {$row['num_publications']} </td>
                 <td> {$row['num_methods']} </td>
+                <td> {$row['num_publications']} </td>
                 <td> {$row['evidence_html']} </td>
             </tr>
 EOT;

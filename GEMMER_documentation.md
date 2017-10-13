@@ -5,11 +5,11 @@ GEMMER (**GE**nome-wide tool for **M**ulti-scale **M**odeling data **E**xtractio
 
 GEMMER aids (modeling) research by providing:
 - Effortless data integration from 3 databases
-    - [SGD]() (Saccharomyces Genome Database)
-    - [CYCLoPs]() (Collection of Yeast Cells Localization Patterns)
-    - [YeastGFP]() (Yeast GFP Fusion Localization Database)
-    - [SCEPTRANS]() ()
-        - Specifically, we use the peak cell cycle phase transcription data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu & Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007).
+    - <a href="https://www.yeastgenome.org/" target="blank">SGD</a> (Saccharomyces Genome Database)
+    - <a href="http://cyclops.ccbr.utoronto.ca/" target="blank">CYCLoPs</a> (Collection of Yeast Cells Localization Patterns)
+    - <a href="https://yeastgfp.yeastgenome.org/" target="blank">YeastGFP</a> (Yeast GFP Fusion Localization Database)
+    - <a href="http://www.sceptrans.org" target="blank">SCEPTRANS</a> (Saccharomyces Cerevisiae Periodic Transcription Server)
+        - Specifically, we use the peak cell cycle phase transcription data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu & Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007). <a href="http://doi.org/10.1073/pnas.0706022104" target="blank">doi: 10.1073/pnas.0706022104</a>
 - Interaction networks with localization, abundance and transcription timing information incorporated 
     - Centered around one or more genes
 - Data visualization using interactive D3 (not 3D!) drawings

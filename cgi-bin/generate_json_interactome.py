@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import simplejson as js
 
-from gemmer.update_interaction_database import create_connection
+from update_interaction_database import create_connection
 
 pd.set_option('display.max_colwidth', -1)
 
@@ -20,7 +20,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the s
 
 def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
-    filename_base = os.path.abspath(script_dir+'../../../output/excel_files/')
+    filename_base = os.path.abspath(script_dir+'/../output/excel_files/')
 
     writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
     workbook = writer.book
@@ -452,7 +452,7 @@ def main(arguments,output_filename):
     # # this will include a filtering step for really big networks
     # ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename[0],'full',primary_nodes)
+    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,'full',primary_nodes)
     timing['json_full'] = timeit.default_timer() - start_json
 
 
@@ -501,7 +501,7 @@ def main(arguments,output_filename):
     ### Write the network to json
     ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes,interactome,filter_condition,output_filename[0])
+    write_network_to_json(nodes,interactome,filter_condition,output_filename)
     timing['json'] = timeit.default_timer() - start_json
 
     if excel_flag:
@@ -513,7 +513,6 @@ def main(arguments,output_filename):
 
       write_excel_file(df_user_input, df_network, nodes, interactome, primary_nodes_str+'_'+unique_str)
 
-      # save_csv_data(df_user_input, df_network, nodes, interactome, output_filename[1],output_filename[2])
       timing['excel'] = timeit.default_timer() - start_excel
 
     # remove the Evidence HTML column

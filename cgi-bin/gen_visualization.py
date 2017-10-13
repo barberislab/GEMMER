@@ -4,8 +4,8 @@ import sys
 import traceback
 from StringIO import StringIO  # Python2
 
-import gemmer
-from gemmer.update_interaction_database import create_connection
+from update_interaction_database import create_connection
+import generate_json_interactome
 
 # from io import StringIO  # Python3
 
@@ -28,7 +28,7 @@ if len(arguments) > 1:
 
 unique_str = arguments[-1]
 
-database = script_dir+"/gemmer/DB_genes_and_interactions.db"
+database = script_dir+"/DB_genes_and_interactions.db"
 conn = create_connection(database)
 cursor = conn.execute("SELECT * from genes")
 gene_record = [x[0] for x in cursor]
@@ -64,12 +64,9 @@ if not gene_exists:
 
 
 json_output_filename = os.path.abspath(script_dir+'/../output/json_files/interactome_'+gene_string+'_'+unique_str+'.json') # where to save the interactome
-excel_file_base = os.path.abspath(script_dir+'../../output/excel_files/')
-file_id = gene_string+'_'+unique_str
-output_filenames = [json_output_filename,excel_file_base,file_id]
 
 try: # try, except such that on failure php can show us the error
-    gemmer.generate_json_interactome.main(arguments[1:len(arguments)],output_filenames)
+    generate_json_interactome.main(arguments[1:len(arguments)],json_output_filename)
 
     # Redirect again the std output to screen
     sys.stdout = old_stdout

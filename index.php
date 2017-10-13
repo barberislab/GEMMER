@@ -108,7 +108,7 @@
                             <p>&copy; Copyright <a href="http://www.barberislab.com">Barberislab.com</a> | 
                             <?php 
                             date_default_timezone_set("Europe/Amsterdam");
-                            $dbdir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/DB_genes_and_interactions.db';
+                            $dbdir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/DB_genes_and_interactions.db';
                             if (file_exists($dbdir)) { 
                                 echo "Database was last updated: " . date ("F d Y H:i:s.", filemtime($dbdir)); 
                             } 

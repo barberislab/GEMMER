@@ -209,7 +209,7 @@ After several seconds the page will reload with the network visualization.
                                     <div class="col-md-3">
                                         <select name="method_types" id="method_types" class="selectpicker" data-live-search="true" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
                                             <?php 
-                                                $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/data/unique_experimental_methods.txt';
+                                                $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_experimental_methods.txt';
                                                 $compartments = file($file_loc);
                                                 $myfile = fopen($file_loc, "r") or die("Unable to open file!");
 
@@ -262,7 +262,7 @@ After several seconds the page will reload with the network visualization.
                                     <div class="col-md-3">
                                         <select name="compartment" id="compartment" class="selectpicker" data-live-search="true" data-width="100%">
                                             <?php 
-                                                $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/data/unique_compartments.txt';
+                                                $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_compartments.txt';
                                                 $compartments = file($file_loc);
                                                 $myfile = fopen($file_loc, "r") or die("Unable to open file!");
 

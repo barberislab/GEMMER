@@ -47,7 +47,7 @@ $(document).ready(function() {
 <input type="hidden" id="methods" value="1" />
 <select id="method_types" multiple="multiple" style="display:none" />
 <?php 
-    $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/data/unique_experimental_methods.txt';
+    $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_experimental_methods.txt';
     $compartments = file($file_loc);
     $myfile = fopen($file_loc, "r") or die("Unable to open file!");
 
@@ -88,7 +88,7 @@ $(document).ready(function() {
 
 <?php
 
-$dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gemmer/DB_genes_and_interactions.db';
+$dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/DB_genes_and_interactions.db';
 $db = new SQLite3($dir);
 
 

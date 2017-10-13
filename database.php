@@ -95,21 +95,13 @@ $db = new SQLite3($dir);
 // If gene argument is set from ?gene=, open gene specific page, otherwise database overview
 if (isset($_GET['gene'])) {
     $gene = $_GET['gene'];
-    echo "<h4>Information for " . $gene . '</h4>';
-    echo <<<EOT
-    <form id="form-id">
-        <div class="submit-btn">
-            <button id="default_visualization" class="button btn btn-primary">Click here to visualize this gene's interactome</button>
-        </div>
-    </form>
-    <div id="script-text"></div>
-EOT;
 
     $results = $db->query("SELECT * from genes WHERE standard_name = '$gene'");
+    $row=$results->fetchArray();
 
-    while($row=$results->fetchArray()){
-        $description_table = <<<EOT
-        <p>
+    echo <<<EOT
+    <div class="row">
+    <div class=" table-responsive col-xs-12">
         <table class="table table-bordered table-condensed table-striped">
             <thead>
                 <th>Standard name</th>
@@ -119,75 +111,134 @@ EOT;
             </thead>
             <tbody>
                 <tr>
-                    <td><a href="index.php?id=database&gene={$row['standard_name']}">{$row['standard_name']}</a></td>
-                    <td><a href="http://www.yeastgenome.org/locus/{$row['systematic_name']}/overview" target="blank">{$row['systematic_name']}</a></td>
+                    <td>{$row['standard_name']}</td>
+                    <td>{$row['systematic_name']}</td>
                     <td>{$row['name_desc']}</td>
                     <td>{$row['desc']}</td>
                 </tr>
             </tbody>
         </table>
-        </p>
+    </div>
+    </div>
 EOT;
 
-        echo $description_table;
+    echo <<<EOT
+    <div class="row">
+        <div class=" table-responsive col-xs-6">
+            <table class="table table-bordered table-condensed table-striped">
+                <thead>
+                    <th>Visualize the interactome of {$gene}</th>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td>
+                        <form id="form-id">
+                            <div class="submit-btn">
+                                <button id="default_visualization" class="button btn btn-primary" style="margin:0px;">Click here</button>
+                            </div>
+                        </form>
+                        <div id="script-text"></div>
+                    </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        $GO_table = <<<EOT
-            <div class="row">
-                <div class="table-responsive col-xs-12">
-                    <h4>Detailed parent GO term count</h4>
-                    {$row['go_terms']}
-                </div>
+        <div class=" table-responsive col-xs-6">
+            <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <th>Links to external databases:</th> 
+            </thead>
+            <tbody>
+                <tr>
+                <td> 
+                    &emsp; 
+                    <a href="http://www.yeastgenome.org/locus/{$row['systematic_name']}/overview" target="blank">SGD</a> 
+                    &emsp; | &emsp;
+                    <a href="http://www.genome.jp/dbget-bin/www_bget?sce:{$row['systematic_name']}" target="blank">KEGG</a>
+                    &emsp; | &emsp;
+                </td>
+                </tr>
+            </tobdy>
+        </table>
+        </div>
+    </div>
+EOT;
+
+    echo <<<EOT
+        <div class="row">
+            <div class="table-responsive col-xs-6">
+                <h4>Cell cycle phase and timing of transcription peak</h4>
+                <table class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <th>Cell cycle phase</th>
+                        <th>Time (min)</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>{$row['expression_peak_phase']}</td>
+                        <td>{$row['expression_peak_time']}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 EOT;
-        echo $GO_table;
 
-        $CC_table = <<<EOT
-            <div class="row">
-                <div class="table-responsive col-xs-6">
-                    <h4>Cell cycle phase and timing of transcription peak</h4>
-                    <table class="table table-bordered table-condensed table-striped">
-                        <thead>
-                            <th>Cell cycle phase</th>
-                            <th>Time (min)</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <td>{$row['expression_peak_phase']}</td>
-                            <td>{$row['expression_peak_time']}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    echo <<<EOT
+        <div class="row">
+            <div class="table-responsive col-xs-6">
+                <h4>CYCLoPs localization & abundance</h4>
+                {$row['CYCLoPs_html']}
             </div>
-EOT;
-        echo $CC_table;
-
-
-        $CYCLoPs_table = <<<EOT
-            <div class="row">
-                <div class="table-responsive col-xs-6">
-                    <h4>CYCLoPs localization & abundance</h4>
-                    {$row['CYCLoPs_html']}
-                </div>
-                <div class=" table-responsive col-xs-6">
-                    <h4>GFP localization & abundance</h4>
-                    <table id="GFP_table" class="table table-bordered table-condensed table-striped">
-                        <thead>
-                            <th>GFP localization</th>
-                            <th>GFP abundance</th>  
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <td>{$row['GFP_localization']}</td>
-                            <td>{$row['GFP_abundance']}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive col-xs-6">
+                <h4>GFP localization & abundance</h4>
+                <table id="GFP_table" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <th>GFP localization</th>
+                        <th>GFP abundance</th>  
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>{$row['GFP_localization']}</td>
+                        <td>{$row['GFP_abundance']}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 EOT;
-        echo $CYCLoPs_table;
+
+    echo <<<EOT
+    <div class="row">
+        <div class="table-responsive col-xs-12">
+            <h4>GO term count</h4>
+            {$row['go_terms']}
+        </div>
+    </div>
+EOT;
+
+    // Metabolic enzyme info: only print this for enzymes
+    if ($row['is_enzyme'] == 1) {
+        echo <<<EOT
+        <div class="row">
+            <div class=" table-responsive col-xs-12">
+                <h4>Enzyme information</h4>
+                <table id="enzyme_table" class="table table-bordered table-condensed table-striped">
+                    <thead>
+                        <th>Catalyzed reactions in Yeast 7.6</th>  
+                    </thead>
+                    <tbody>
+                        <tr>
+                        <td>{$row['catalyzed_reactions']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+EOT;
     }
+
     // List of interactors
     $results = $db->query("SELECT * from interactions WHERE (source = '$gene' or target = '$gene') ORDER BY num_experiments DESC, num_publications DESC, num_methods DESC");
 

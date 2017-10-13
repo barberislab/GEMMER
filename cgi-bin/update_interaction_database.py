@@ -14,7 +14,6 @@ from collections import Counter
 from orderedset import OrderedSet
 from json_load import *
 
-
 def create_connection(db_file):
     """ create a database connection to the SQLite database
         specified by db_file
@@ -40,6 +39,26 @@ def create_table(conn, create_table_sql):
         c.execute(create_table_sql)
     except Exception as e:
         print "ERROR: ",e.message, e.args
+
+def find_metabolic_enzymes(conn,gene_names):
+    import cobra
+
+
+    model = cobra.io.read_sbml_model('./data/yeast_GEMM/yeast_7.6_recon.xml')
+
+
+    matches = [g for g in gene_names if g in model.genes ]
+    print 'Found', len(matches), 'metabolic enzymes in the yeast metabolic reconstruction.'
+
+    print "### Storing whether gene is a metabolic enzyme"
+    for g in matches:
+        model_gene = model.genes.get_by_id(g)
+        catalyzed_rxns = ', '.join([r.id+' ('+r.name+')' for r in model_gene.reactions])
+
+        conn.execute('UPDATE genes SET is_enzyme = ?, catalyzed_reactions = ?  WHERE systematic_name = ?',(1,catalyzed_rxns,g))
+    
+    conn.commit()
+
 
 def store_sceptrans_data(conn):
 
@@ -413,9 +432,9 @@ def find_all_genes(conn):
         dict_id_to_sysname[symbol] = secondary
 
         # INSERT GENE INTO DATABASE IF IT DOES NOT EXIST YET
-        list_data_tuples.append((symbol,secondary,name_desc,desc))
+        list_data_tuples.append((symbol,secondary,name_desc,desc,0))
     
-    conn.executemany('INSERT into genes(standard_name, systematic_name, name_desc, desc) VALUES (?,?,?,?)',list_data_tuples)
+    conn.executemany('INSERT into genes(standard_name, systematic_name, name_desc, desc, is_enzyme) VALUES (?,?,?,?,?)',list_data_tuples)
 
     df = pd.DataFrame(dict_id_to_sysname.items(), columns = ['Standard name','Systematic name'])
     df.to_excel("SGD_standard_name_to_systematic_name.xlsx")
@@ -706,7 +725,9 @@ def main():
                                         GFP_abundance INT,
                                         GFP_localization TEXT,
                                         expression_peak_phase TEXT,
-                                        expression_peak_time INT
+                                        expression_peak_time INT,
+                                        is_enzyme INT NOT NULL,
+                                        catalyzed_reactions TEXT
                                     ); """
  
     sql_create_interactions_table = """CREATE TABLE IF NOT EXISTS interactions (
@@ -746,8 +767,11 @@ def main():
     cursor = conn.execute("SELECT * from genes")
     gene_record = [x for x in cursor]
     gene_symbols = [str(x[0]) for x in gene_record]
+    gene_names = [str(x[1]) for x in gene_record]
     print 'We have records for',len(gene_symbols),'genes'
     print gene_symbols[:10]
+
+    find_metabolic_enzymes(conn, gene_names)
 
     # store sceptrans data
     store_sceptrans_data(conn)

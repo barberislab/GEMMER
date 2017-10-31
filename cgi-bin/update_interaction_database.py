@@ -250,14 +250,6 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
                     print d_df
                     raise SystemExit
 
-        # if gene == 'CLB4' or gene == 'Clb4':
-        #     print gene
-        #     print max_key
-        #     print s
-        #     print s in html_string, s+'0' in html_string
-        #     print html_string
-        #     raise SystemExit
-
         # change table properties: full width within column
         # # set first column width
         html_string = html_string.replace('<th></th>', '<th style=\"width:100px;\"></th>',1)
@@ -272,77 +264,76 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     return CYCLoPs_dict
 
 def find_go_annotations(conn,gene_symbols):
-    go_terms = {'Metabolism':'GO:0044237', # cellular metabolic process. previously #'GO:0008152' metabolic process
+    # The GO term tree: http://amigo.geneontology.org/amigo/dd_browse
+    # We have selected certain "high level" GO terms to classify genes 
+    # This selection seems to provide complete coverage in the sense that each gene has a "primary" GO term
+    # i.e. each gene has a GO term annotation that may be traced back to at least one of these parents.
+
+    # the GO tree splits first into biological_process, cellular_component and molecular_function
+    # we focus on biological_process
+    # > cellular process: contains "cellular metabolic process","cell cycle", "cell division", "Signal transduction"
+    # DNA replication falls under cellular metabolic process a couple levels down.
+    # the cellular metabolic process term comprises roughly 80% of the genome. But is difficult to split up. 
+
+    go_terms = {'Metabolism':'GO:0044237', # cellular metabolic process
                 'Cell cycle':'GO:0007049',
                 'Cell division':'GO:0051301',
                 'Signal transduction':'GO:0007165',
                 'DNA replication':'GO:0006260', # DNA replication falls under metabolic process
                 }
+
     service = Service("https://yeastmine.yeastgenome.org:443/yeastmine/service")
 
     query_results = {k:None for k in go_terms.keys()}
     go_dict = {k:{} for k in go_terms.keys()}
-    assigned_interactions = [] #
+
+    # NEW APPROACH
+    # reproduce the numbers from the SGD pages for manually curated annotations
+    # query for all genes, constrain for a given parent go term and ask for publication to get multiple hits per sub go term
+    # Exclude already checked parents
+
+    # for each of our "high level GO terms" ask SGD for all protein coding genes with a GO annotation with this as a parent
+    # generates 'query_results' which is a dictionary where the keys are our parent go terms
+    # the values are lists of (gene, go term) pairs where the go term falls under this parent
+    # these may contain multiple hits for each gene
+    # make sure to assign each hit to only one category
     print 'Querying SGD this may take a while...'
-    for term in go_terms: # for each of our categories ask SGD for all protein coding genes with a GO annotation with this as a parent
+
+    for term in go_terms: 
         query = service.new_query("ProteinCodingGene")
 
         query.add_view(
             "symbol", "secondaryIdentifier",
-            #"goAnnotation.ontologyTerm.parents.identifier",
-            "goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.identifier")
-        query.add_constraint("goAnnotation.ontologyTerm.parents.identifier", "=", go_terms[term], code = "A")
+            "goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.identifier", # unique GO terms
+            "goAnnotation.evidence.publications.pubMedId", # each publication
+            "goAnnotation.evidence.code.code" # each method within a publication
+        )
+        # query.add_constraint("goAnnotation.evidence.code.annotType", "=", "manually curated", code = "A")
+        query.add_constraint("goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.parents.identifier", "=", go_terms[term], code = "B")
 
         # The query.rows() will contain all genes with such a parent go term but one entry for each actual go term with that parent
-        rows = [ {k:row[k] for k in ['symbol','secondaryIdentifier',"goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.identifier"] } for row in query.rows() ] # each row is a dictionary
+        rows = [ {k:row[k] for k in ['symbol','secondaryIdentifier',"goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.identifier",
+                "goAnnotation.evidence.publications.pubMedId","goAnnotation.evidence.code.code"] } for row in query.rows() ] # each row is a dictionary
 
-        query_results[term] = rows
         print term,'query returned',len(rows),'results'
 
-    # Each parent go term query can contain similar go term entries as the others. There is bound to be some overlap
-    # i.e. a go term falling under dna replication also shows up at metabolism
-    # One go term in the query should belong to one of our sought-after parent go terms
-    # filter based on hyrarchy of GO terms
-    print "Filtering the duplicate terms and assigning them to one unique parent"
+        query_results[term] = rows
 
-    query_results2 = {k:[] for k in go_terms.keys()} # this will hold filtered rows
-    for term in query_results: # loop over our categories
-        rows = query_results[term]
-        print 'CHECK:',term,'query returned',len(rows),'results'
 
-        # rows is a list of dictionaries, each key is a symbol, systematic name or GO term id
-        for row in rows:
-            combo = { # map each GO term to a 0 or 1 value
-                'Metabolism':row in query_results["Metabolism"],
-                'Cell cycle':row in query_results["Cell cycle"],
-                'Cell division':row in query_results["Cell division"],
-                'Signal transduction':row in query_results["Signal transduction"],
-                'DNA replication':row in query_results["DNA replication"]
-            }
-
-            # unique rows belong to their unique term
-            # Otherwise, leading terms: DNA rep, division and signal transduction, cell cycle, metabolism, in that order
-            if combo['DNA replication']:
-                query_results2['DNA replication'].append(row)
-            elif combo['Cell division']:
-                query_results2['Cell division'].append(row)
-            elif combo['Signal transduction']:
-                query_results2['Signal transduction'].append(row)
-            elif combo['Cell cycle']:
-                query_results2['Cell cycle'].append(row)
-            elif combo['Metabolism']:
-                query_results2['Metabolism'].append(row)
-            else:
-                print "None of the categories match..."
-                return
-    
-
-    # query_results2 is now a dictionary where each go term maps to a list of "rows" which I have changed into dictionaries.
-    # So dict -> list -> dictionaries with (standard_name, systematic_name, go term) as keys
-    query_results = query_results2
+    # unique identification: ordering from least to greatest number of hits in the loop above
+    query_results['DNA replication'] = [x for x in query_results['DNA replication'] if x not in query_results['Cell division']]
+    query_results['Signal transduction'] = [x for x in query_results['Signal transduction'] if x not in query_results['Cell division'] 
+                                            and x not in query_results['DNA replication']]
+    query_results['Cell cycle'] = [x for x in query_results['Cell cycle'] if x not in query_results['Cell division'] 
+                                    and x not in query_results['DNA replication']
+                                    and x not in query_results['Signal transduction']]
+    query_results['Metabolism'] = [x for x in query_results['Metabolism'] if x not in query_results['Cell division']
+                                    and x not in query_results['DNA replication']
+                                    and x not in query_results['Signal transduction']
+                                    and x not in query_results['Cell cycle']]
 
     for term in go_terms:
-        print term,'has',len(query_results[term]),'results post-filtering'
+        print term,'query returned',len(query_results[term]),'results after filtering'
 
     # Store list of unique genes for each go_term (post-filter) in 'go_dict' and count the results
     for term in go_terms:
@@ -771,6 +762,10 @@ def main():
     print 'We have records for',len(gene_symbols),'genes'
     print gene_symbols[:10]
 
+    # assign categories based on GO terms
+    go_dict = find_go_annotations(conn,gene_symbols)
+    conn.commit()
+
     find_metabolic_enzymes(conn, gene_names)
 
     # store sceptrans data
@@ -905,10 +900,6 @@ def main():
             df_yeast_interactome.loc[str(interaction[1])][str(interaction[0])] = 1
 
     df_yeast_interactome.to_csv('data/export/SGD_proteinCodingGenes_interactome.csv')
-
-    # assign categories based on GO terms
-    go_dict = find_go_annotations(conn,gene_symbols)
-    conn.commit()
 
     conn.commit()
     print "Records created successfully"

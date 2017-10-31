@@ -1,8 +1,16 @@
 ## News on GEMMER development
 ---
 
+
+#### October 31st 2017: v1 beta III
+Improved the part of the database update script that handles GO term assignment. Previously, GEMMER should now consider all GO annotations listed in SGD. 
+
+--
+
 #### October 13th 2017: v1 beta II
-We reorganized the cgi-bin and added some new data to the database. The database pages for metabolic enzymes contained in the Yeast 7.6 metabolic reconstruction will now display the reactions in that model that the enzyme catalyzes. Additionally we included direct links to SGD and KEGG for all genes.  
+We reorganized the cgi-bin and added some new data to the database. The database pages for metabolic enzymes contained in the Yeast 7.6 metabolic reconstruction will now display the reactions in that model that the enzyme catalyzes. Additionally we included direct links to SGD and KEGG for all genes. 
+
+--- 
 
 #### October 6th 2017: v1 beta I
 This beta version introduces some new features, bug fixes and UI improvements. All critical bugs are now fixed. 

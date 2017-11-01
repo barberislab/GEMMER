@@ -20,10 +20,28 @@ GEMMER aids (modeling) research by providing:
 ![Workflow](img/GEMMER_workflow.png)
 
 ## The database
-### Genome-wide search
+All of the data GEMMER uses to visualize interaction networks is stored in an SQLite database. 
+
+### Building the database
+#### Assignment of primary and secondary function through GO terms
+GEMMER predicts functions for protein-coding genes using GO term annotations in SGD. Using YeastMine we collect all GO term annotations for each protein-coding gene in SGD that trace back to one of the following "high-level" GO terms:
+* Cellular metabolic process GO:0044237
+* Cell cycle GO:0007049
+* Cell division GO:0051301
+* Signal transduction GO:0007165
+* DNA replication GO:0006260
+
+All these terms fall under the GO term cellular process and DNA replication falls under cellular metabolic process. 
+
+We assign each such go term annotation to one of the high-level terms listed above. For each gene we add up how many annotations fall under each high-level GO term. The one with the highest count is then assigned as the gene's primary function, the second-highest count gets assigned as the secondary function. The pie chart below displays the distribution of the primary and secondary functions/GO terms across the genome-wide collection of ~6800 protein-coding genes.
+
+![Pie chart of GO term distribution in the genome.](img/pie_chart_go_term_genome.png)
+
+### Interacting with the database
+#### Genome-wide search
 Through the [database page](index.php?id=database) users may inspect the data GEMMER collected from SGD, CYCLoPs, YeastGFP and SCEPTRANS on a per gene basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page. 
 
-### Information for a specific gene
+#### Information for a specific gene
 On the page for a specific gene, i.e. [SIC1](index.php?id=database&gene=SIC1), users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown. 
 
 ## Visualizing a network
@@ -59,6 +77,7 @@ visualization in vectorized format (e.g. PDF), to be able to incorporate the gra
 
 ## Dependencies
 GEMMER would not be possible without the following open-source projects:
+* [YeastMine](https://yeastmine.yeastgenome.org/yeastmine/begin.do)
 * [D3.js](https://d3js.org/)
 * [PHP](http://php.net/)
 * [APACHE](https://www.apache.org/)

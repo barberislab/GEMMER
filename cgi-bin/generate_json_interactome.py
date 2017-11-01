@@ -12,6 +12,7 @@ import pandas as pd
 import simplejson as js
 
 from update_interaction_database import create_connection
+from make_hiveplot import make_hiveplot
 
 pd.set_option('display.max_colwidth', -1)
 
@@ -96,7 +97,7 @@ def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   # clustering coefficient
   # df_network['Average clustering coefficient'] = nx.average_clustering(G) # this takes siginficant time
 
-  return df_nodes, df_interactome, df_network
+  return df_nodes, df_interactome, df_network, G
 
 
 def write_network_to_json(nodes, interactome, filter_condition, filename, case='', primary_nodes = []):
@@ -430,7 +431,7 @@ def main(arguments,output_filename):
     df_network['Number of edges'] = len(interactome)
 
     # use networkx
-    nodes, interactome, df_network = calc_network_props(nodes, interactome, df_network, filter_condition)
+    nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
 
     df_network = df_network.to_frame()
     df_network = df_network.transpose()
@@ -493,7 +494,7 @@ def main(arguments,output_filename):
       df_network['Number of edges'] = len(interactome)
 
       # use networkx
-      nodes, interactome, df_network = calc_network_props(nodes, interactome, df_network, filter_condition)
+      nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
 
       timing['networkx properties calculation'] += timeit.default_timer() - start
 

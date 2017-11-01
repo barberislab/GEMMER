@@ -62,10 +62,10 @@ if not gene_exists:
     print result_string
     raise SystemExit
 
-
 json_output_filename = os.path.abspath(script_dir+'/../output/json_files/interactome_'+gene_string+'_'+unique_str+'.json') # where to save the interactome
 
 try: # try, except such that on failure php can show us the error
+
     generate_json_interactome.main(arguments[1:len(arguments)],json_output_filename)
 
     # Redirect again the std output to screen

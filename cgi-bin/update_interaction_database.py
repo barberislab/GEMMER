@@ -62,7 +62,7 @@ def find_metabolic_enzymes(conn,gene_names):
 
 def store_sceptrans_data(conn):
 
-    sceptrans_data = pd.read_csv('./data/expression_time_phase_primary.csv',sep="\t",index_col=False)
+    sceptrans_data = pd.read_excel('./data/expression_time_phase_primary.xlsx',index_col=False)
     sceptrans_data.columns = ['Systematic name', 'Standard name', 'Phase', 'Time']
     sceptrans_data = sceptrans_data.sort_values(['Time'])
     print sceptrans_data.iloc[:5]

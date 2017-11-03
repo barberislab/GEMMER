@@ -12,7 +12,6 @@ import pandas as pd
 import simplejson as js
 
 from update_interaction_database import create_connection
-from make_hiveplot import make_hiveplot
 
 pd.set_option('display.max_colwidth', -1)
 

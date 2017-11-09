@@ -32,7 +32,7 @@ HOW THIS WORKS
         <?php 
         if ($full == '') {
             echo "<h3>Network visualization</h3>";
-            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
+            echo "Click <a href=\"index_full.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
         }
         ?> 
         
@@ -47,7 +47,7 @@ HOW THIS WORKS
                     'process','compartment','expression','max_nodes','filter_condition',
                     'unique_str','excel_flag'];
             $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
-                    $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
+                    $process,$compartment,$expression, // Note we remove brackets here due to errors
                     $max_nodes,$filter_condition,
                     $unique_str,TRUE];
 

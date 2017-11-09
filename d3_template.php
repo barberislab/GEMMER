@@ -43,28 +43,29 @@ HOW THIS WORKS
             // relative to the pages/php_includes folder
             $excel_output_link = "../../output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
 
-            $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
-                    'process','compartment','expression','max_nodes','filter_condition',
-                    'unique_str','excel_flag'];
-            // note the use of _orig fr process and expression. The non _orig variables are arrays, these are strings.
-            $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
-                    $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
-                    $max_nodes,$filter_condition,
-                    $unique_str,TRUE];
-
-            $php_args = "excel_link=$excel_output_link";
-            for($i = 0; $i < count($args); ++$i) {
-                $php_args = $php_args . "&" . $arg_names[$i] . "=" . $args[$i];
-            }
-
-            // Excel for filtered network
             if ($full == '') {
+                $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
+                        'process','compartment','expression','max_nodes','filter_condition',
+                        'unique_str','excel_flag'];
+                // note the use of _orig fr process and expression. The non _orig variables are arrays, these are strings.
+                $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
+                        $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
+                        $max_nodes,$filter_condition,
+                        $unique_str,TRUE];
+
+                $php_args = "excel_link=$excel_output_link";
+                for($i = 0; $i < count($args); ++$i) {
+                    $php_args = $php_args . "&" . $arg_names[$i] . "=" . $args[$i];
+                }
+
+                // Excel for filtered network
                 echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook</a>";
+            
+                // Excel for full network
+                $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
+                echo " | ";
+                echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
             }
-            // Excel for full network
-            $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
-            echo " | ";
-            echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
         ?>
 
         <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.

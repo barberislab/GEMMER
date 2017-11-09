@@ -32,7 +32,7 @@ HOW THIS WORKS
         <?php 
         if ($full == '') {
             echo "<h3>Network visualization</h3>";
-            echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
+            echo "Click <a href=\"pages/full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
         }
         ?> 
         

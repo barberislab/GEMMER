@@ -29,16 +29,19 @@ HOW THIS WORKS
     </div>
 
     <div id="export_options">
-        <h3>Network visualization</h3>
         <?php 
+        if ($full == '') {
+            echo "<h3>Network visualization</h3>";
             echo "Click <a href=\"full_viz.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
+        }
         ?> 
         
         <h3>Export options</h3>
         Download the image in SVG format (by right-clicking "Download SVG" and "Save as") or the formatted Excel workbook.  <br/>
         <a href="#" id="download">Download SVG</a> | 
         <?php 
-            $excel_output_link = "output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
+            // relative to the pages/php_includes folder
+            $excel_output_link = "../../output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
 
             $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
                     'process','compartment','expression','max_nodes','filter_condition',
@@ -53,12 +56,14 @@ HOW THIS WORKS
                 $php_args = $php_args . "&" . $arg_names[$i] . "=" . $args[$i];
             }
 
-            // Filtered network
-            echo "<a href=\"write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook</a>";
-            // Full network
+            // Excel for filtered network
+            if ($full == '') {
+                echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook</a>";
+            }
+            // Excel for full network
             $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
             echo " | ";
-            echo "<a href=\"write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
+            echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
         ?>
 
         <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
@@ -176,8 +181,6 @@ HOW THIS WORKS
             .direction('s')
 
         svg.call(tip);
-
-        <?php echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; ?>
 
         d3.json(<?php 
                     echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 

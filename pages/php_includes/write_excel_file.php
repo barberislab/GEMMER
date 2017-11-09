@@ -61,13 +61,15 @@ exec($command, $out, $status);
 
 echo "<br/><br/>Done executing command.<br/><br/>";
 
-// print output
-echo "Python returned the following output.<br/>";
+// print output if any
+$count = 0;
 foreach($out as $result) {
     if (strlen($result) > 1) {
-        // if traceback in $result add bootstrap alert around the coming text until end of loop
+        if ($count == 0) { echo "Python returned the following output.<br/>";}
+
         echo $result . "<br/>";
     }
+    $count += 1;
 }
 
 if($status == 0) {

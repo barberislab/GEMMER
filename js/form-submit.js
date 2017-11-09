@@ -114,15 +114,13 @@ $(function() {
 
         $.ajax({
             type: "POST",
-            url: "process_user_input.php",
+            url: "pages/php_includes/process_user_input.php",
             data: data,
             beforeSend: function() {
                 data = "<h4>Request submitted!</h4><p>Your visualization will be ready soon.</p>";
                 create_alert(data,"alert-info");
             },
             success: function(data) {
-                // Save python/PHP output to console
-
                 // Only open viz if PHP process script says everything is okay
                 // Surround PHP/Python output in green or red alert box based on success or failure
                 if (data.indexOf("Everything went A-OK.") != -1) { // this string has to exist in data

@@ -46,20 +46,11 @@ div.D3_drawing {
 }
 </style>
 
-<script src="form-submit.js"></script>
 </head>
 <body>
 
-<?php // Set default form values or repopulate form with submitted data
-    // default values need to take on the processed form!!
-    $gene = $_GET['gene'];
-    $unique_str = $_GET['unique_str'];
-    if (isset($_GET['full'])) {
-        $full = '_' . $_GET['full'];
-    }
-    else {
-        $full = '';
-    }
+<?php 
+    include_once "pages/php_includes/get_form_entries.php";
 ?>
 
 <div class="alert-warning">
@@ -73,7 +64,7 @@ div.D3_drawing {
 <div id="visualization">
     <?php // load the visualization by including the php page
         define("DOCUMENT_PATH", $_SERVER['DOCUMENT_ROOT']);
-        include(DOCUMENT_PATH . '/template1.php');
+        include(DOCUMENT_PATH . '/d3_template.php');
     ?>
 </div>
 

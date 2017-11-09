@@ -45,6 +45,9 @@
         } 
         echo "<title>GEMMER: GEnome-wide tool for Multi-scale Modeling data Extraction and Representation - " . $id . "</title>";
     ?>
+
+    <script src="js/form-submit.js"></script>
+
 </head>
 
 <body>
@@ -90,11 +93,11 @@
                                 <div class="article">
                                     <?php   
                                         // Include ID from ?id=
-                                        if (file_exists("{$id}.php")) {
-                                            include("$id.php"); 
+                                        if (file_exists("pages/{$id}.php")) {
+                                            include("pages/$id.php"); 
                                         }
-                                        if (file_exists("{$id}.html")) {
-                                            include("$id.html"); 
+                                        if (file_exists("pages/{$id}.html")) {
+                                            include("pages/$id.html"); 
                                         }
                                     ?>
                                 </div>

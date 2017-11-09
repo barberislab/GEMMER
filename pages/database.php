@@ -27,8 +27,6 @@ $(document).ready(function() {
 });
 </script>
 
-<script src="form-submit.js"></script>
-
 <!-- hidden inputs for visualisation -->
 <!-- row1 -->
 <input type="hidden" id="gene" value="<?php echo $_GET['gene']; ?>" />
@@ -312,7 +310,7 @@ EOT;
 $(document).ready(function() {
     $('#database_content').DataTable( {
         "bProcessing": true,
-        "sAjaxSource": "return_database_content_json.php",
+        "sAjaxSource": "pages/php_includes/return_database_content_json.php",
         "deferRender": true
     });
     } );

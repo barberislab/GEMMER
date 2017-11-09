@@ -46,8 +46,9 @@ HOW THIS WORKS
             $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
                     'process','compartment','expression','max_nodes','filter_condition',
                     'unique_str','excel_flag'];
+            // note the use of _orig fr process and expression. The non _orig variables are arrays, these are strings.
             $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
-                    $process,$compartment,$expression, // Note we remove brackets here due to errors
+                    $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
                     $max_nodes,$filter_condition,
                     $unique_str,TRUE];
 

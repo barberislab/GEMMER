@@ -69,7 +69,8 @@
                                 <h1 class="text-primary text-center"><font class="big-letter">GE</font>nome-wide tool 
                                 for <font class="big-letter">M</font>ulti-scale <font class="big-letter">M</font>odeling 
                                 <br />data <font class="big-letter">E</font>xtraction and
-                                <font class="big-letter">R</font>epresentation</h1>
+                                <font class="big-letter">R</font>epresentation <br/>
+                                <font class="small-letter">for <i>Saccharomyces cerevisiae</i></font></h1>
                             </div>
                             </div>
                             <div class="clr"></div>

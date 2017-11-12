@@ -11,12 +11,25 @@ import numpy as np
 import pandas as pd
 import simplejson as js
 
+import collections
+import json
+
 from update_interaction_database import create_connection
 
 pd.set_option('display.max_colwidth', -1)
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
+
+def convert(data):
+    if isinstance(data, basestring):
+        return str(data)
+    elif isinstance(data, collections.Mapping):
+        return dict(map(convert, data.iteritems()))
+    elif isinstance(data, collections.Iterable):
+        return type(data)(map(convert, data))
+    else:
+        return data
 
 def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 
@@ -141,7 +154,40 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
 
   interactome.reset_index(drop=True,inplace=True)
 
+  ##########################
+  # export cytoscape json
+  ##########################
+  filename_cs = filename[:-5]+'_csjs'+filename[-5:]
 
+  if case != '': 
+    filename_cs = filename_cs[:-5]+'_full'+filename_cs[-5:]
+
+  nodes_cs = nodes.copy()
+  nodes_cs = nodes_cs.rename(columns={'Standard name':'id'}) # cytoscape requires an ID attribute
+
+  with open(filename_cs, 'w') as outfile:
+    # generate [ {"data": {"id":bla,...} }, {"data": {...}}, ...  ]
+
+    json_str_cs = '['
+
+    d_nodes = nodes_cs.to_dict('records')
+    d_nodes = convert(d_nodes)
+
+    json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_nodes])
+
+    json_str_cs += ','
+    
+    d_interactome = interactome.to_dict("records")
+    json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_interactome])
+
+    json_str_cs += ']'
+    json_d = ast.literal_eval(json_str_cs)
+
+    json.dump(json_d, outfile)
+
+  ##########################
+  # export D3 json
+  ##########################
   # turn string source and target identifiers into numbers corresponding to nodes
   nodes_dict = nodes['Standard name'].to_dict()
   nodes_dict = {v: k for k, v in nodes_dict.items()}
@@ -150,7 +196,9 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
   interactome['source'] = interactome['source'].map(nodes_dict.get)
   interactome['target'] = interactome['target'].map(nodes_dict.get)
 
-  if case != '': filename = filename[:-5]+'_full'+filename[-5:] # append to the output filename for the non-filtered network
+  # append to the output filename for the non-filtered network
+  if case != '': 
+    filename = filename[:-5]+'_full'+filename[-5:]
 
   with open(filename, 'w') as outfile:
       outfile.write("{\n\"nodes\":\n\n")
@@ -158,7 +206,7 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
       outfile.write(",\n\n\n\"links\":\n\n")
       interactome.to_json(outfile, orient="records")
       outfile.write("}")
-
+  
   return
 
 
@@ -636,33 +684,33 @@ def main(arguments,output_filename):
       ######################################################
       # Optional diagnostics
       ######################################################
-      # print """
-      #   <div class="panel panel-default">
-      #     <div class="panel-heading">
-      #       <h4 class="panel-title">
-      #         <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
-      #         Diagnostics: calculation time</a>
-      #       </h4>
-      #     </div>
-      #     <div id="collapse5" class="panel-collapse collapse">
-      #       <div class="panel-body">
-      #         <div class="table-responsive">
-      # """
-      # timing['print frames'] = timeit.default_timer() - start_print
-      # timing['all'] = timeit.default_timer() - start_all
-      # df_timing = pd.Series(timing)
-      # df_timing = df_timing.to_frame()
-      # df_timing.columns = ['Time']
-      # df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
-      # print df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered'])
-      # print "Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python."
-      # print """
-      #           </div>
-      #         </div>
-      #       </div>
-      #     </div>
-      #   </div>
-      #   """
+      print """
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
+              Diagnostics: calculation time</a>
+            </h4>
+          </div>
+          <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="table-responsive">
+      """
+      timing['print frames'] = timeit.default_timer() - start_print
+      timing['all'] = timeit.default_timer() - start_all
+      df_timing = pd.Series(timing)
+      df_timing = df_timing.to_frame()
+      df_timing.columns = ['Time']
+      df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
+      print df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered'])
+      print "Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python."
+      print """
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        """
 
 if __name__ == "__main__":
   main()

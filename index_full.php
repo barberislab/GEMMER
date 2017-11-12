@@ -22,7 +22,7 @@
 <link rel="stylesheet" type="text/css" href="css/custom_stylesheet.css" />
 
 <style>
-div.D3_drawing {
+div.vis_inner {
     width: 99%; /* 980px; */
     height: 1200px;
 }
@@ -64,7 +64,7 @@ div.D3_drawing {
 <div id="visualization">
     <?php // load the visualization by including the php page
         define("DOCUMENT_PATH", $_SERVER['DOCUMENT_ROOT']);
-        include(DOCUMENT_PATH . '/d3_template.php');
+        include(DOCUMENT_PATH . '/visualization/d3_template.php');
     ?>
 </div>
 

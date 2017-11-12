@@ -5,13 +5,13 @@ HOW THIS WORKS
     - div class chart: the container for the visualization.
 - BODY: a div of class container hold everything
     - container: 3 sub-divs 
-        - "D3_drawing"" the D3 chart,
+        - "vis_inner"" the D3 chart,
         - "export_options" export options for SVG and Excel
             - Excel button that simply links to the file (link supplied with Python)
             - SVG download button with id "download"
             - a hidden form "svgform" that on submission executes a perl script
             - javascript/D3 function writeDownloadLink that shows user to right click the link
-            - javascript that takes the D3 drawing (#ex1), serializes it and sends it to the "svgform" and submits it
+            - javascript that takes the D3 vis_inner (#ex1), serializes it and sends it to the "svgform" and submits it
         - "python_output" placeholder for python stdout
     - D3 code
         - initializer, that runs create_d3js_drawing and seems to do something with 
@@ -19,124 +19,6 @@ HOW THIS WORKS
             - Starts with variable definitions
             - D3.json function which loads a json data file (supplied with Python) and draws the network
 -->
-
-<div class="viz-container">
-    <div class="D3_drawing" id="D3_drawing" tabindex="1">
-        <!-- container div for the AJAX gui -->
-        <div class='moveGUI' id="moveGUI"></div>
-        <div class='chart' id='ex1'>
-        </div>
-    </div>
-
-    <div id="export_options">
-        <?php 
-        if ($full == '') {
-            echo "<h3>Network visualization</h3>";
-            echo "Click <a href=\"index_full.php?gene=$gene&unique_str=$unique_str&full=full\" class=\"alert-link\" target=\"blank\">here</a> to visualize a network of up to 250 nodes.";
-        
-            echo "<h3>Export options</h3>";
-            echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") or the formatted Excel workbook. <br/>";
-            echo '<a href="#" id="download">Download SVG</a> |'; 
-
-            // relative to the pages/php_includes folder
-            $excel_output_link = "../../output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
-
-            $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
-                    'process','compartment','expression','max_nodes','filter_condition',
-                    'unique_str','excel_flag'];
-            // note the use of _orig fr process and expression. The non _orig variables are arrays, these are strings.
-            $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
-                    $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
-                    $max_nodes,$filter_condition,
-                    $unique_str,TRUE];
-
-            $php_args = "excel_link=$excel_output_link";
-            for($i = 0; $i < count($args); ++$i) {
-                $php_args = $php_args . "&" . $arg_names[$i] . "=" . $args[$i];
-            }
-
-            // Excel for filtered network
-            echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook</a>";
-        
-            // Excel for full network
-            $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
-            echo " | ";
-            echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args}\" target=\"blank\">Download Excel workbook for full network</a>";
-        }
-        else {
-            echo "<h3>Export options</h3>";
-            echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") <br/>";
-            echo '<a href="#" id="download">Download SVG</a>';
-        }
-        ?>
-
-        <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.
-        The form is populated and submitted by the JavaScript below. -->
-        <form id="svgform" method="post" action="../cgi-bin/download_svg.pl">
-            <input type="hidden" id="output_format" name="output_format" value="">
-            <input type="hidden" id="data" name="data" value="">
-        </form>
-        
-        <!--Javascript for downloading the SVG. The hidden form "svgform"" submits to a perl script -->
-        <script>
-            d3.select("#download")
-                .on("mouseover", writeDownloadLink);
-
-            function writeDownloadLink() {
-                var html = d3.select("svg")
-                    .attr("title", "svg_title")
-                    .attr("version", 1.1)
-                    .attr("xmlns", "http://www.w3.org/2000/svg")
-                    .node().parentNode.innerHTML; // this line is essential
-
-                d3.select(this)
-                    .attr("href-lang", "image/svg+xml")
-                    .attr("href", "data:image/svg+xml;base64,\n" + btoa(html))
-                    .on("mousedown", function() {
-                        if (event.button != 2) {
-                            d3.select(this)
-                                .attr("href", null)
-                                .html("Use right click");
-                        }
-                    })
-                    .on("mouseout", function() {
-                        d3.select(this)
-                            .html("Download SVG");
-                    });
-            };
-        </script>
-        <script type="text/javascript">
-            /*
-            Utility function: populates the <FORM> with the SVG data
-            and the requested output format, and submits the form.
-            */
-            function submit_download_form(output_format) {
-                // Get the d3js SVG element
-                var tmp = document.getElementById("ex1");
-                var svg = tmp.getElementsByTagName("svg")[0];
-                // Extract the data as SVG text string
-                var svg_xml = (new XMLSerializer).serializeToString(svg);
-
-                // Submit the <FORM> to the server.
-                // The result will be an attachment file to download.
-                var form = document.getElementById("svgform");
-                form['output_format'].value = output_format;
-                form['data'].value = svg_xml;
-                form.submit();
-            }
-        </script>
-    </div>
-
-    <div id="python_output">
-        <?php 
-            if ($full == '') {
-                echo "<h3>Algorithm output warnings</h3>";
-                include(DOCUMENT_PATH . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php'); 
-            }
-        ?>
-    </div>
-
-</div>
 
 <svg>
     <defs>
@@ -169,9 +51,9 @@ HOW THIS WORKS
     
     function create_d3js_drawing() {
 
-        var box_width = document.getElementById("D3_drawing").offsetWidth //980 // width of the bordered box (includes legend and controls)
-            width = document.getElementById("D3_drawing").offsetWidth - document.getElementById("moveGUI").offsetWidth -1, // the actual d3 visualization's width - width of the GUI -1
-            height = document.getElementById("D3_drawing").offsetHeight,
+        var box_width = document.getElementById("vis_inner").offsetWidth //980 // width of the bordered box (includes legend and controls)
+            width = document.getElementById("vis_inner").offsetWidth - document.getElementById("moveGUI").offsetWidth -1, // the actual d3 visualization's width - width of the GUI -1
+            height = document.getElementById("vis_inner").offsetHeight,
             base_link_opacity = 0.4,
             base_node_opacity = 0.9;
 
@@ -258,32 +140,39 @@ HOW THIS WORKS
                 num_links = links.length;
         
             // structured as a pyramid with "no data" added to the end
-            var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
-                                "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
-                                "No data"];
-            var functions = ["Cell cycle","Cell division","DNA replication","Signal transduction","Metabolism","None"];
-            var in_compartments = compartments.indexOf(nodes[0].color);
-            var in_functions = functions.indexOf(nodes[0].color);
+            // var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
+            //                     "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
+            //                     "No data"];
+            // var functions = ["Cell cycle","Cell division","DNA replication","Signal transduction","Metabolism","None"];
 
-            if (in_functions > -1) {
-                var clusters_list = functions;
+            // there are 16 compartments for CYCLoPs
+            // color source: https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+            // first 8: red, green, yellow, blue, orange, purple, cyan, magenta, 
+            // second 8: lime, pink, teal, lavender, brown, beige, grey, mint
+            // snow
+            var d_compartments = {"Bud":"#e6194b","Budsite":"#3cb44b","Nucleus":"#ffe119","Cytoplasm":"#0082c8",
+                                "Peroxisome":"#f58231","SpindlePole":"#911eb4","Cell Periphery":"#46f0f0",
+                                "Vac/Vac Memb":"#f032e6","Nuc Periphery":"#d2f53c","Cort. Patches":"#fabebe",
+                                "Endosome":"#008080","Nucleolus":"#e6beff","Budneck":"#aa6e28","Golgi":"#fffac8",
+                                "Mito":"#cccccc","ER":"#aaffc3","No data":"#F8F8FF"};
+            // green, yellow, blue, purple, orange, snow
+            var d_functions = {"Cell cycle":"#2ca02c","Cell division":"#ffe119","DNA replication":"#0080ff",
+                            "Signal transduction":"#cc33cc","Metabolism":"#ff7f0e","None":"#F8F8FF"};
+            
+            // var in_compartments = compartments.indexOf(nodes[0].color);
+            // var in_functions = functions.indexOf(nodes[0].color);
+
+            if (nodes[0].color in d_functions) {
+                var clusters_list = Object.keys(d_functions);
                 var color = d3.scale.ordinal()
-                    .domain(functions)
-                    // green, yellow, blue, purple, orange, snow
-                    .range(["#2ca02c" ,"#ffe119", "#0080ff", "#cc33cc","#ff7f0e","#F8F8FF"]);
+                    .domain(Object.keys(d_functions))
+                    .range(Object.values(d_functions));
             }
-            else if (in_compartments > -1) {
-                var clusters_list = compartments;
+            else if (nodes[0].color in d_compartments) {
+                var clusters_list = Object.keys(d_compartments);
                 var color = d3.scale.ordinal()
-                    .domain(compartments)
-                    // there are 16 compartments for CYCLoPs
-                    // color source: https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
-                    // first 8: red, green, yellow, blue, orange, purple, cyan, magenta, 
-                    // second 8: lime, pink, teal, lavender, brown, beige, grey, mint
-                    // snow
-                    .range(["#e6194b","#3cb44b","#ffe119","#0082c8","#f58231","#911eb4","#46f0f0","#f032e6",
-                            "#d2f53c","#fabebe","#008080","#e6beff","#aa6e28","#fffac8","#cccccc","#aaffc3",
-                            "#F8F8FF"]);
+                    .domain(Object.keys(d_compartments))
+                    .range(Object.values(d_compartments));
             }
             else {
                 console.log("Cannot identify which color scheme to use")
@@ -407,7 +296,7 @@ HOW THIS WORKS
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) {
                     if (d.type == "regulation") { console.log('regulation',d); return "blue" } // blue
-                    else if (d.type == "physical") { return "#8f0000"} // black
+                    else if (d.type == "physical") { return "#8f0000"} // red
                     else { return "grey" } // red
                     })
                 .attr("marker-end", function (d) {

@@ -1,7 +1,11 @@
 # GEMMER Documentation
 
 ## Introduction
-GEMMER (**GE**nome-wide tool for **M**ulti-scale **M**odeling data **E**xtraction and **R**epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in [Saccharomyces cerevisiae](https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae) and serve as a data-integration hub. The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle transcription and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence. 
+GEMMER (**GE**nome-wide tool for **M**ulti-scale **M**odeling data **E**xtraction and **R**epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in [Saccharomyces cerevisiae](https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae) and serve as a data-integration hub. 
+
+In addition to being an acronym as described above, the word "gemmer" refers to mining of gems ([see the Merriam-webster definition](https://www.merriam-webster.com/dictionary/gemmer)), e.g. precious stones, which we thought apt to the process of discovering new biological insights which we hope GEMMER facilitates. 
+
+The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle transcription and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence. After generating datasets and visualizations using GEMMER, the user may download the data and readily import it into for example [Cytoscape](http://cytoscape.org) for further analysis and ultimately model building. 
 
 GEMMER aids (modeling) research by providing:
 - Effortless data integration from 3 databases

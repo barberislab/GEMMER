@@ -73,5 +73,10 @@
     else {
         $full = '';
     }
-
+    if (isset($_GET['layout'])) {
+        $layout = $_GET['layout'];
+    }
+    else {
+        // do nothing layout should not exist without submitting a query
+    }
 ?>

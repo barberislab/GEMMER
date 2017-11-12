@@ -262,24 +262,51 @@ After several seconds the page will reload with the network visualization.
     <!-- Captures alerts  -->
 </div>
 
-<div id="visualization">
-    <?php // load the visualization by including the php page
-        if (isset($_GET['gene'])) {
-            define("DOCUMENT_PATH", $_SERVER['DOCUMENT_ROOT']); 
-            include(DOCUMENT_PATH . '/d3_template.php');
+<?php // load the visualization by including the php page
+    if (isset($layout)) {
+        define("DOCUMENT_PATH", $_SERVER['DOCUMENT_ROOT']);
 
-            $js_focus = <<<EOT
-            <script>
-                document.getElementById('D3_drawing').focus();
-            </script>
-EOT;
-            echo $js_focus;
-        } 
-        else {
-            // Do nothing
+        // Set up the visualization div
+        echo <<<HTML
+        <div id="visualization">
+            <div class="viz-container">
+                <div class="vis_inner" id="vis_inner" tabindex="1">
+                    <!-- container div for the AJAX gui -->
+                    <div class='moveGUI' id="moveGUI"></div>
+                    <div class='chart' id='ex1'></div>
+                </div>
+HTML;
+
+        // Export options and tables with detailed info on nodes and edges
+        include(DOCUMENT_PATH . '/pages/php_includes/export_options.php');
+        include(DOCUMENT_PATH . '/pages/php_includes/python_output.php');
+
+        // Load the visualization
+        switch ($layout) {
+            case 'D3js': 
+                include(DOCUMENT_PATH . '/visualization/d3_template.php');
+                break;
+            case 'circular': 
+                include(DOCUMENT_PATH . '/visualization/circular/index.php');
+                break;
+            default:
+                echo 'Layout variable has unexpected value: $layout';
         }
-    ?>
-</div>
+
+        // Focus on the div containing the visualisation
+        echo <<<HTML
+        <script>
+            document.getElementById('vis_inner').focus();
+        </script>
+HTML;
+
+    } 
+    else {
+        // do nothing: show just the tool's input form
+    }
+?>
+            </div>
+        </div>
 
 <script>
 $(document).ready(function() {

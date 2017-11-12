@@ -32,10 +32,14 @@ body { background:#eee;}
     border: 0px !important;
 }
 .big-letter {
-    font-size:1.4em;
+    font-size:1.2em;
     font-style: italic;
     color:darkred;
 }
+.small-letter {
+    font-size:0.8em;
+}
+
 
 /* Feature horizontal bar */
 #feature { margin:auto; width:calc(100%-2); height:40px; padding:0; border-style: solid; border-width: 0 1px 0 1px; } 
@@ -99,7 +103,7 @@ body { background:#eee;}
 .viz-container {
     position: relative;
 }
-div.D3_drawing {
+div.vis_inner {
     width: 100%; /* 980px; */
     height: 700px;
     border: 1px solid black;

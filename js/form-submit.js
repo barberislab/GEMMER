@@ -60,6 +60,7 @@ $(function() {
         var filter_condition = replaceAll($("select#filter_condition").val(),' ','_');
         // additional
         var unique_str = randomString(7, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+        var layout = 'D3js';
 
         // ### HIGHLIGHT INPUT ERRORS IN THE FORM ###
         if (gene == "") {
@@ -102,7 +103,8 @@ $(function() {
             expression          : expression,
             max_nodes           : max_nodes,
             filter_condition    : filter_condition,
-            unique_str          : unique_str, 
+            unique_str          : unique_str,
+            layout              : layout, 
         }
 
         // console.log("Input from the form:",data)

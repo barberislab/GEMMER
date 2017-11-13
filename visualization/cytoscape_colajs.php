@@ -1,12 +1,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
-<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=Promise,fetch"></script>
 
-<script>
-// css
-</script>
+<!-- Cola CDN -->
+<script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+
+<!-- Cytoscale Cola extension -->
+<script src="visualization/cytoscape-cola.js"></script>
+
 
 <?php
-  $link_to_json = '../../output/json_files/interactome_' . $gene . '_' . $unique_str . '_csjs.json';
+    $link_to_json = '../../output/json_files/interactome_' . $gene . '_' . $unique_str . '_csjs.json';
 ?>
 
 <!-- Load appplication code at the end to ensure DOM is loaded -->
@@ -41,7 +43,7 @@ fetch(<?php echo "'$link_to_json'"; ?>, {mode: 'no-cors'})
     autounselectify: true,
 
     layout: {
-      name: 'circle'
+      name: 'cola'
     },
 
     style: [

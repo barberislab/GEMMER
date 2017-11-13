@@ -2,11 +2,11 @@
 *.DS_Store
 
 output
-cgi-bin/db_backups
+cgi-bin/data/db_backups
 
 cgi-bin/data/export/SGD_proteinCodingGenes_interactome.csv
 
-cgi-bin/DB_genes_and_interactions.db
+cgi-bin/data/DB_genes_and_interactions.db
 
 output/excel_files/interactome_test.xlsx
 *.pyc

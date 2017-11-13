@@ -14,12 +14,24 @@ import simplejson as js
 import collections
 import json
 
-from update_interaction_database import create_connection
-
 pd.set_option('display.max_colwidth', -1)
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
+
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Exception as e:
+        print e.message, e.args
+ 
+    return None
 
 def convert(data):
     if isinstance(data, basestring):
@@ -281,7 +293,7 @@ def main(arguments,output_filename):
     ######################################################
     start_initial = timeit.default_timer()
 
-    database = script_dir+"/DB_genes_and_interactions.db"
+    database = script_dir+"/data/DB_genes_and_interactions.db"
     conn = create_connection(database)
 
     # get all interactions in which the given genes takes part

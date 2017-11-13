@@ -96,7 +96,7 @@ def generate_json_interactome(arguments,output_filename):
     #########
     ### get all interactions related to the input IDs
     #########
-    database = script_dir+"/DB_genes_and_interactions.db"
+    database = script_dir+"/data/DB_genes_and_interactions.db"
     conn = create_connection(database)
 
     # get all interactions in which the given genes takes part

@@ -1,16 +1,27 @@
 import datetime
 import os
+import sqlite3
 import sys
 import traceback
 from StringIO import StringIO  # Python2
 
-from update_interaction_database import create_connection
 import generate_json_interactome
 
-# from io import StringIO  # Python3
-
-
 script_dir = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
+
+def create_connection(db_file):
+    """ create a database connection to the SQLite database
+        specified by db_file
+    :param db_file: database file
+    :return: Connection object or None
+    """
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except Exception as e:
+        print e.message, e.args
+ 
+    return None
 
 # Store the reference, in case you want to show things again in standard output
 old_stdout = sys.stdout
@@ -28,7 +39,7 @@ if len(arguments) > 1:
 
 unique_str = arguments[-1]
 
-database = script_dir+"/DB_genes_and_interactions.db"
+database = script_dir+"/data/DB_genes_and_interactions.db"
 conn = create_connection(database)
 cursor = conn.execute("SELECT * from genes")
 gene_record = [x[0] for x in cursor]

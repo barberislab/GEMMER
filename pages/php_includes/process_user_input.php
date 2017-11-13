@@ -44,7 +44,7 @@ if (isset($_POST['gene'])) {
 
     if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {
 
-        $dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/DB_genes_and_interactions.db';
+        $dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/DB_genes_and_interactions.db';
         $db = new SQLite3($dir);
 
         // build the command to execute the python script

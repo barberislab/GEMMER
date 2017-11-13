@@ -23,7 +23,11 @@ if ($full == '') {
     echo "<h3>Alternative network visualizations</h3>";
     echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3 max. 250 nodes</a>";
     echo " | ";
-    echo "<a href=\"index.php?$php_args&layout=circular\" class=\"alert-link\" target=\"blank\">Circular layout (cytoscapeJS)</a>";
+    echo "<a href=\"index.php?$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
+    echo " | ";
+    echo "<a href=\"index.php?$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
+    echo " | ";
+    echo "<a href=\"index.php?$php_args&layout=d3_cola\" class=\"alert-link\">D3 with cola</a>";
 
 
     echo "<h3>Export options</h3>";

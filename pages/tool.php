@@ -287,7 +287,13 @@ HTML;
                 include(DOCUMENT_PATH . '/visualization/d3_template.php');
                 break;
             case 'circular': 
-                include(DOCUMENT_PATH . '/visualization/circular/index.php');
+                include(DOCUMENT_PATH . '/visualization/circular.php');
+                break;
+            case 'cytoscape_colajs': 
+                include(DOCUMENT_PATH . '/visualization/cytoscape_colajs.php');
+                break;
+            case 'd3_cola': 
+                include(DOCUMENT_PATH . '/visualization/d3_cola.php');
                 break;
             default:
                 echo 'Layout variable has unexpected value: $layout';

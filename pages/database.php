@@ -86,7 +86,7 @@ $(document).ready(function() {
 
 <?php
 
-$dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/DB_genes_and_interactions.db';
+$dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/DB_genes_and_interactions.db';
 $db = new SQLite3($dir);
 
 

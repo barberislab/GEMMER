@@ -1,18 +1,23 @@
+import ast
+import datetime
 import glob
-import os,os.path
-import shutil
 import operator
+import os
+import os.path
+import shutil
 import sqlite3
 import time
-import datetime
-from intermine.webservice import Service
-import pandas as pd
-import numpy as np
-import ast
 import timeit
 from collections import Counter
+
+import numpy as np
+import pandas as pd
+from bioservices import KEGG
+from intermine.webservice import Service
 from orderedset import OrderedSet
+
 from json_load import *
+
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -44,7 +49,7 @@ def find_metabolic_enzymes(conn,gene_names):
     import cobra
 
 
-    model = cobra.io.read_sbml_model('./data/yeast_GEMM/yeast_7.6_recon.xml')
+    model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml')
 
 
     matches = [g for g in gene_names if g in model.genes ]
@@ -62,7 +67,7 @@ def find_metabolic_enzymes(conn,gene_names):
 
 def store_sceptrans_data(conn):
 
-    sceptrans_data = pd.read_excel('./data/expression_time_phase_primary.xlsx',index_col=False)
+    sceptrans_data = pd.read_excel('./expression_time_phase_primary.xlsx',index_col=False)
     sceptrans_data.columns = ['Systematic name', 'Standard name', 'Phase', 'Time']
     sceptrans_data = sceptrans_data.sort_values(['Time'])
     print sceptrans_data.iloc[:5]
@@ -86,7 +91,7 @@ def store_gfp_data(conn,gene_symbols,d={}):
     Pickle the dictionary. If it exists do not redo the computation.'''
 
     if d == {}:
-        gfp_data = pd.read_csv('./data/GFP_database.txt',sep="\t",index_col=False)
+        gfp_data = pd.read_csv('./GFP_database.txt',sep="\t",index_col=False)
 
         # Set index to ORF name
         gfp_data = gfp_data.set_index('yORF')
@@ -142,9 +147,9 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     '''
     if CYCLoPs_dict == {}: # no old data given
         CYCLoPs_data = [0,0,0]
-        CYCLoPs_data[0] = pd.read_excel("./data/CYCLoPs_WT1.xls",header=0)
-        CYCLoPs_data[1] = pd.read_excel("./data/CYCLoPs_WT2.xls",header=0)
-        CYCLoPs_data[2] = pd.read_excel("./data/CYCLoPs_WT3.xls",header=0)
+        CYCLoPs_data[0] = pd.read_excel("./CYCLoPs_WT1.xls",header=0)
+        CYCLoPs_data[1] = pd.read_excel("./CYCLoPs_WT2.xls",header=0)
+        CYCLoPs_data[2] = pd.read_excel("./CYCLoPs_WT3.xls",header=0)
         cols = list(CYCLoPs_data[0]) # or: my_dataframe.columns.values.tolist()
 
         print 'Original columns:',cols
@@ -680,10 +685,10 @@ def find_all_interactions(conn,gene_symbols):
     print 'Storing:',len(list_data_tuples),'regulatory interactions'
     conn.executemany('insert or ignore into interactions values(?,?,?,?,?,?,?,?)',list_data_tuples)
 
-    # save a list of expiermental methods
+    # save a list of experimental methods
 
     # write comps to file
-    thefile = open('data/unique_experimental_methods.txt', 'w')
+    thefile = open('unique_experimental_methods.txt', 'w')
     unique_methods = [str(x) for x in unique_methods] # unicode to string
     unique_methods = sorted(unique_methods, key=str.lower)
     for item in unique_methods:
@@ -693,7 +698,105 @@ def find_all_interactions(conn,gene_symbols):
     # That's all folks!
     print "done!"
 
+def query_kegg(kegg_gene):
+    ''' query kegg with gene identifier and return the parsed result. '''
+    res = KEGG().get(kegg_gene)
+    parsed_res = KEGG().parse(res)
+    return parsed_res
+
+def get_KEGG_info_genes(conn):    
+    print """
+    #########################################
+    # Part I: Get the data from KEGG. Store as JSON. 
+    # Don't redo this unless files are emptied. 
+    #########################################
+    """
+    # get any data we already saved
+    # to reset this: make kegg_gene_dict an empty file with '{}'
+    # and gene_not_found_list: '[]'
+    kegg_dict = json.load(open('kegg_gene_dict.json'))
+    kegg_not_found_list = json.load(open('kegg_gene_not_found_list.json'))
+
+    print('We loaded', len(kegg_dict), 'previously checked kegg pathways and', len(kegg_not_found_list),
+        'genes that do not exist in KEGG' )
+
+    cursor = conn.execute('SELECT systematic_name FROM genes')
+    data = [list(x) for x in cursor]
+
+    # dataframe of all genes in GEMMER
+    df = pd.DataFrame(data,columns=['Systematic name'])
+
+    l = list(df['Systematic name'].values) # list of systematic names
+    l = [gene for gene in l if gene not in kegg_not_found_list and gene not in kegg_dict]
+
+    num = len(l)
+    nmax = min(1e6,len(l)) # limit number of genes to lookup each time the script is run
+
+    print('Attempting to add', nmax,
+        'genes to the KEGG gene dictionary. Could take a while...')
+
+    count = 0.
+    for gene in l[:nmax]:
+        if ((count / nmax) * 100) % 10 == 0.:  # multiple of 10%
+            print((count / nmax) * 100, 'percent done.')
+
+        parsed_res = query_kegg('sce:' + gene) # a dictionary
+
+        if isinstance(parsed_res, dict):  # otherwise it was not found
+            kegg_dict[gene] = {} # init
+
+            if 'NAME' in parsed_res:
+                name = parsed_res['NAME'] # a dictionary: key is the KO, value is a description
+                kegg_dict[gene]['KEGG gene names'] = ', '.join(name) # I assume there is 1
+            else:
+                kegg_dict[gene]['KEGG gene names'] = None
+            if 'ORTHOLOGY' in parsed_res:
+                orth = parsed_res['ORTHOLOGY'] # a dictionary: key is the KO, value is a description
+                kegg_dict[gene]['KO'] = orth.keys()[0] # I assume there is 1
+                kegg_dict[gene]['KEGG description'] = orth.values()[0] # I assume there is 1
+            else:
+                kegg_dict[gene]['KO'] = None
+                kegg_dict[gene]['KEGG description'] = None
+            if 'PATHWAY' in parsed_res:
+                p = parsed_res['PATHWAY'] # a dictionary where the values are the pathway names
+                p = [p[k] for k in p]
+                kegg_dict[gene]['KEGG pathway'] = ', '.join(p)
+            else:
+                kegg_dict[gene]['KEGG pathway'] = None
+        else:
+            print(gene, 'was not found in kegg')
+            kegg_not_found_list.append(gene)
+            kegg_dict[gene] = None
+
+        count += 1
+
+    # save updated dictionary and list
+    with open('kegg_gene_dict.json', 'w') as fp:
+        json.dump(kegg_dict, fp)
+    with open('kegg_gene_not_found_list.json', 'w') as fp:
+        json.dump(kegg_not_found_list, fp)
+
+    print """
+    #########################################
+    # Part II: Store data in SQL 
+    #########################################
+    """
+    kegg_dict = json.load(open('kegg_gene_dict.json'))
+    kegg_not_found_list = json.load(open('kegg_gene_not_found_list.json'))
+
+    # build tuples of data to store
+    list_data_tuples = []
+    for gene in kegg_dict:
+        d = kegg_dict[gene]
+        list_data_tuples.append((d['KEGG gene names'],d['KO'],d['KEGG description'],d['KEGG pathway'],gene))
+
+    conn.executemany('UPDATE genes SET KEGG_name = ?, KEGG_KO = ?, KEGG_description = ?, KEGG_pathway = ? WHERE systematic_name = ?',list_data_tuples)
+
+    return
+
+
 def main():
+
     script_dir = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
     database = "DB_genes_and_interactions.db"
 
@@ -718,7 +821,11 @@ def main():
                                         expression_peak_phase TEXT,
                                         expression_peak_time INT,
                                         is_enzyme INT NOT NULL,
-                                        catalyzed_reactions TEXT
+                                        catalyzed_reactions TEXT,
+                                        KEGG_name TEXT, 
+                                        KEGG_KO TEXT, 
+                                        KEGG_description TEXT, 
+                                        KEGG_pathway TEXT
                                     ); """
  
     sql_create_interactions_table = """CREATE TABLE IF NOT EXISTS interactions (
@@ -762,6 +869,9 @@ def main():
     print 'We have records for',len(gene_symbols),'genes'
     print gene_symbols[:10]
 
+    # Incorporate KEGG info: KO, description, gene names, pathway maps they are a part
+    get_KEGG_info_genes(conn)
+
     # assign categories based on GO terms
     go_dict = find_go_annotations(conn,gene_symbols)
     conn.commit()
@@ -773,26 +883,26 @@ def main():
 
 
     # incorporate GFP data for all genes in the database
-    if os.path.isfile('./data/gfp_dict.json'):
+    if os.path.isfile('./gfp_dict.json'):
         print 'Loading pre-existing GFP dataset'
-        gfp_dict = json_load_byteified(open(script_dir+'/data/gfp_dict.json'))
+        gfp_dict = json_load_byteified(open(script_dir+'/gfp_dict.json'))
         store_gfp_data(conn,gene_symbols,d=gfp_dict)
     else:
         gfp_dict = store_gfp_data(conn,gene_symbols)
-        with open(script_dir+'/data/gfp_dict.json', 'w') as fp:
+        with open(script_dir+'/gfp_dict.json', 'w') as fp:
             json.dump(gfp_dict, fp)
     conn.commit()
 
 
     # incorporate CYCLoPs data for all genes in the database
     # don't always regenerate CYCLoPs data because it is slow
-    if os.path.isfile('./data/CYCLoPs_dict.json'):
+    if os.path.isfile('./CYCLoPs_dict.json'):
         print 'Loading pre-existing CYCLoPs dataset'
-        CYCLoPs_dict = json_load_byteified(open(script_dir+'/data/CYCLoPs_dict.json'))
+        CYCLoPs_dict = json_load_byteified(open(script_dir+'/CYCLoPs_dict.json'))
         store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict)
     else:
         CYCLoPs_dict = store_CYCLoPs_data(conn,gene_symbols)
-        with open(script_dir+'/data/CYCLoPs_dict.json', 'w') as fp:
+        with open(script_dir+'/CYCLoPs_dict.json', 'w') as fp:
             json.dump(CYCLoPs_dict, fp)
     conn.commit()
 
@@ -871,7 +981,7 @@ def main():
     print unique_comps
 
     # write comps to file
-    thefile = open('data/unique_compartments.txt', 'w')
+    thefile = open('unique_compartments.txt', 'w')
     for item in unique_comps:
         thefile.write("%s\n" % item)
     thefile.close()
@@ -899,7 +1009,7 @@ def main():
             df_yeast_interactome.loc[str(interaction[0])][str(interaction[1])] = 1
             df_yeast_interactome.loc[str(interaction[1])][str(interaction[0])] = 1
 
-    df_yeast_interactome.to_csv('data/export/SGD_proteinCodingGenes_interactome.csv')
+    df_yeast_interactome.to_csv('export/SGD_proteinCodingGenes_interactome.csv')
 
     conn.commit()
     print "Records created successfully"

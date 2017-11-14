@@ -1,25 +1,3 @@
-<!-- 
-HOW THIS WORKS
-- WE INCLUDE EXTERNAL D3 AND JQUERY LIBRARIES ABOVE THROUGH FREELY PROVIDED CDNS.
-- CSS: define the chart div and the node class
-    - div class chart: the container for the visualization.
-- BODY: a div of class container hold everything
-    - container: 3 sub-divs 
-        - "vis_inner"" the D3 chart,
-        - "export_options" export options for SVG and Excel
-            - Excel button that simply links to the file (link supplied with Python)
-            - SVG download button with id "download"
-            - a hidden form "svgform" that on submission executes a perl script
-            - javascript/D3 function writeDownloadLink that shows user to right click the link
-            - javascript that takes the D3 vis_inner (#ex1), serializes it and sends it to the "svgform" and submits it
-        - "python_output" placeholder for python stdout
-    - D3 code
-        - initializer, that runs create_d3js_drawing and seems to do something with 
-        - create_d3js_drawing
-            - Starts with variable definitions
-            - D3.json function which loads a json data file (supplied with Python) and draws the network
--->
-
 <svg>
     <defs>
         <marker id="blue_arrow" viewbox="0 -5 10 10" refX="28" refY="0"
@@ -333,15 +311,18 @@ HOW THIS WORKS
                 });
             
             function mouseovered(d) {
-                tip.html(
-                    "<table class=\"table table-condensed table-bordered\"><tbody>" +
+                // Build a table of properties
+                var table = "<table class=\"table table-condensed table-bordered\"><tbody>" +
                     "<tr><th>Gene</th><td>" + d['Standard name'] + " (" + d['Systematic name'] + ")</td></tr>" +
                     "<tr><th>Name description</th><td>" + d['Name description'] + "</td></tr>" + 
                     "<tr><th>Cluster</th><td>" + d.cluster + "</td></tr>" +
                     "<tr><th>Cell cycle phase of peak expression</th><td>" + d['Expression peak'] + "</td></tr>" +
                     "<tr><th>GFP abundance (localization)</th><td>" + d['GFP abundance'] + " (" + d['GFP localization'] + ")</tr></th>" +
                     "<tr><th>CYCLoPs localization:</th><td>" + d.CYCLoPs_html + "</tr></td>" +
-                    "</tbody></table>");
+                    "</tbody></table>";
+                // Send table to the tip div and the box div
+                tip.html(table);
+                d3.select("#info-box").html(table)
                 circle
                 .classed("mouseover", tip.show);
             }
@@ -529,9 +510,9 @@ HOW THIS WORKS
                 };
             }
 
-            //Legend
+            // Legend
             var legend = svg.selectAll(".legend")
-                .data(color.domain())
+                .data(color.domain()) // determines the contents of the legend
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });

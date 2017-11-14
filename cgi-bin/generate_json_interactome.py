@@ -96,7 +96,11 @@ def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
 
   node_list = df_nodes['Standard name'].values
   edge_list = df_interactome[['source','target']].values
-  G = nx.Graph()
+
+  # build the networkx graph
+  # we use graph instead of multiGraph because centrality measures don't exist for those. 
+  # So here an edge just means there is an interaction, there is no way of indicating that a physical and a regulatory interaction exist
+  G = nx.Graph() 
   G.add_nodes_from(node_list)
   G.add_edges_from(edge_list)
 
@@ -229,7 +233,6 @@ def main(arguments,output_filename):
     ### start the alert div that contains any output generated here
     ######################################################
     print "<div class=\"alert alert-dismissable alert-info\">"
-
     timing = {} 
     start_all = timeit.default_timer()
     

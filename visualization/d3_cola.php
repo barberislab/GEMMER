@@ -1,14 +1,6 @@
 <!-- Cola CDN -->
 <script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
 
-<style>
-    #page {
-    fill: white;
-    stroke: black;
-    stroke-width: 1px;
-}
-</style>
-
 <svg>
     <defs>
         <marker id="blue_arrow" viewbox="0 -5 10 10" refX="28" refY="0"
@@ -60,6 +52,67 @@
         d3.json(<?php 
                     echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
                 ?>, function(error, graph) {   
+            // CONFIG PANEL 
+            //######################################################
+            //# CONFIG PANEL 
+            //######################################################
+            // FRICTION particle velocity is scaled by the specified friction. 
+            //      Thus, a value of 1 corresponds to a frictionless environment, while a value of 0 freezes all particles in place.
+            // LINKDISTANCE sets the target distance between linked nodes to the specified value.
+            // LINKSTRENGTH sets the strength (rigidity) of links to the specified value in the range [0,1]
+            // CHARGE A negative value results in node repulsion, while a positive value results in node attraction. 
+            // GRAVITY gravity is implemented as a weak geometric constraint similar to a virtual spring connecting each node to the center of the layout's size.
+            // THETA For clusters of nodes that are far away, the charge force is approximated by treating the distance cluster of 
+            // nodes as a single, larger node. Theta determines the accuracy of the computation: if the ratio of the area of a 
+            // quadrant in the quadtree to the distance between a node to the quadrant's center of mass is less than theta, 
+            // all nodes in the given quadrant are treated as a single, larger node rather than computed individually.
+            var config = {"friction": .9,  "linkDistance": 250, "linkStrength": 0.5, "charge": 100, "gravity": .3, "theta": .5 };
+            var gui = new dat.GUI({ autoPlace: false });
+
+            var fl = gui.addFolder('Force Layout');
+            // fl.open() // this opens the setings by default
+
+            var frictionChanger = fl.add(config, "friction", 0, 1);
+            frictionChanger.onChange(function(value) {
+            force.friction(value)
+            force.start()
+            });
+
+            var linkDistanceChanger = fl.add(config, "linkDistance", 0, 1000);
+            linkDistanceChanger.onChange(function(value) {
+            force.linkDistance(value)
+            force.start()
+            });
+
+            var linkStrengthChanger = fl.add(config, "linkStrength", 0, 1);
+            linkStrengthChanger.onChange(function(value) {
+            force.linkStrength(value)
+            force.start()
+            });
+
+            var chargeChanger = fl.add(config,"charge", 0, 500);
+            chargeChanger.onChange(function(value) {
+            force.charge(-value)
+            force.start()
+            });
+
+            var gravityChanger = fl.add(config,"gravity", 0, 1);
+            gravityChanger.onChange(function(value) {
+            force.gravity(value)
+            force.start()
+            });
+
+            var thetaChanger = fl.add(config,"theta", 0, 1);
+            thetaChanger.onChange(function(value) {
+            force.theta(value)
+            force.start()
+            });
+
+            var customContainer = $('.moveGUI').append($(gui.domElement));
+
+            //######################################################
+            //# END CONFIG PANEL 
+            //######################################################
 
             // define clusters and nodes
             var nodes = graph.nodes;
@@ -206,11 +259,12 @@
             var force = cola.d3adaptor()
                 .nodes(nodes)
                 .links(links)
-                .constraints(constraints)
                 .size([width, height])
+                .constraints(constraints)
                 .avoidOverlaps(true)
                 .jaccardLinkLengths(50,10)
-                .start(30);
+                .on("tick", tick)
+                .start(100);
 
             var link = svg.append("g")
                 .attr('class', 'link')
@@ -258,15 +312,18 @@
                 });
             
             function mouseovered(d) {
-                tip.html(
-                    "<table class=\"table table-condensed table-bordered\"><tbody>" +
+                // Build a table of properties
+                var table = "<table class=\"table table-condensed table-bordered\"><tbody>" +
                     "<tr><th>Gene</th><td>" + d['Standard name'] + " (" + d['Systematic name'] + ")</td></tr>" +
                     "<tr><th>Name description</th><td>" + d['Name description'] + "</td></tr>" + 
                     "<tr><th>Cluster</th><td>" + d.cluster + "</td></tr>" +
                     "<tr><th>Cell cycle phase of peak expression</th><td>" + d['Expression peak'] + "</td></tr>" +
                     "<tr><th>GFP abundance (localization)</th><td>" + d['GFP abundance'] + " (" + d['GFP localization'] + ")</tr></th>" +
                     "<tr><th>CYCLoPs localization:</th><td>" + d.CYCLoPs_html + "</tr></td>" +
-                    "</tbody></table>");
+                    "</tbody></table>";
+                // Send table to the tip div and the box div
+                tip.html(table);
+                d3.select("#info-box").html(table)
                 circle
                 .classed("mouseover", tip.show);
             }
@@ -339,9 +396,16 @@
                 })
                 .style("pointer-events", "none"); // CAN I DELETE THIS?
 
-            force.on("tick", function () {
-                circle.attr("cx", function (d) { return d.x; })
-                    .attr("cy", function (d) { return d.y; })
+            function tick(e) {
+                // e is an object of type 'tick'
+                
+                if (num_clusters > 1){
+                    circle.each(cluster(10 * e.alpha * e.alpha))
+                }
+                circle
+                    .each(collide(.5))
+                    .attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; })
                     // KEEP NODE POSITION WITHIN BOUNDING BOX                   
                     .attr("cx", function(d) {  // x must be minimally the node diameter on the left, and maximally the width-diameter
                         return d.x = Math.max(d.radius, Math.min(width - d.radius, d.x));
@@ -398,11 +462,58 @@
                 nametags
                     .attr("x", function(d) { return d.x - 13; })
                     .attr("y", function(d) { return d.y + 3; });
-            });
+            }
+            
+            // Move d to be adjacent to the cluster node.
+            function cluster(alpha) {
+                return function(d) {
+                    var cluster = clusters[d.cluster];
+                    if (cluster === d) return;
+                    var x = d.x - cluster.x,
+                        y = d.y - cluster.y,
+                        l = Math.sqrt(x * x + y * y),
+                        r = d.radius + cluster.radius;
+                    if (l != r) {
+                    l = (l - r) / l * alpha;
+                    d.x -= x *= l;
+                    d.y -= y *= l;
+                    cluster.x += x;
+                    cluster.y += y;
+                    }
+                };
+            }
 
-            //Legend
+            // Resolves collisions between d and all other circles.
+            function collide(alpha) {
+                var quadtree = d3.geom.quadtree(nodes);
+                return function(d) {
+                    var r = d.radius + max_r + Math.max(padding, clusterPadding),
+                        nx1 = d.x - r,
+                        nx2 = d.x + r,
+                        ny1 = d.y - r,
+                        ny2 = d.y + r;
+                    quadtree.visit(function(quad, x1, y1, x2, y2) {
+                        if (quad.point && (quad.point !== d)) {
+                            var x = d.x - quad.point.x,
+                                y = d.y - quad.point.y,
+                                l = Math.sqrt(x * x + y * y),
+                                r = d.radius + quad.point.radius + (d.cluster === quad.point.cluster ? padding : clusterPadding);
+                            if (l < r) {
+                                l = (l - r) / l * alpha;
+                                d.x -= x *= l;
+                                d.y -= y *= l;
+                                quad.point.x += x;
+                                quad.point.y += y;
+                            }
+                        }
+                    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+                    });
+                };
+            }
+
+            // Legend
             var legend = svg.selectAll(".legend")
-                .data(color.domain())
+                .data(color.domain()) // determines the contents of the legend
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -422,6 +533,6 @@
                 .style("font-size", "18px")
                 .text(function(d) { return d; });
 
-            });
+        });
     }
 </script>

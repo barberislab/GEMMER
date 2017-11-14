@@ -274,6 +274,9 @@ After several seconds the page will reload with the network visualization.
                     <!-- container div for the AJAX gui -->
                     <div class='moveGUI' id="moveGUI"></div>
                     <div class='chart' id='ex1'></div>
+                    <div class="info-box pre-scrollable" id="info-box">
+                        test
+                    </div>
                 </div>
 HTML;
 

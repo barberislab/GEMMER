@@ -155,4 +155,19 @@ div.vis_inner {
 .moveGUI, .folder, .dg, .main, .close-button { 
     width:200px; /* default width of gui is 245px*/
 }
+.info-box {
+    z-index:3; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */    
+    position: absolute; 
+    bottom: 0px;
+    right: 0px; 
+    color:#000000;
+    background-color: #ffffff;
+    border: 1px solid darkred;
+    width: 200px;
+    height: 300px;
+    font-size: 8px;
+}
+.info-box #CYCLoPs_table {
+    background-color: rgba(0, 0, 0, 0);
+}
 .property-name span { color:#ffffff; }

@@ -22,11 +22,6 @@ $(document).on('click', '.text_data_toggle', function(e){
 })
 </script>
 
-<p>
-Enter a gene ID corresponding with an SGD gene into the field below, e.g. SIC1, ORC1, NTH1. 
-After several seconds the page will reload with the network visualization.
-</p>
-
 <?php 
     include_once "pages/php_includes/get_form_entries.php";
 ?>
@@ -37,12 +32,14 @@ After several seconds the page will reload with the network visualization.
             <div class="col-md-12">
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <h3 class="panel-title">Visualization input options</h3>
+                        <h3 class="panel-title">Visualization query</h3>
                     </div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <label for="gene" id="gene_label">Gene</label>
+                                <label for="gene" id="gene_label" data-toggle="tooltip" data-placement="top" title="Hooray!">Gene</label> 
+                                <span class="label label-info" data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs 
+                                into the field below, e.g. SIC1, ORC1, NTH1. ">?</span>
                             </div>
                             <div class="col-md-3">
                                 <label for="cluster" id="cluster_label">Cluster by</label>
@@ -104,7 +101,7 @@ After several seconds the page will reload with the network visualization.
                     <div class="panel panel-info">
                         <div class="panel-heading">
                             <h3 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_adv" class="text_data_toggle">Advanced options</a></h3>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_adv" class="text_data_toggle">Advanced query options</a></h3>
                             <span class="pull-right"><a data-toggle="collapse" data-parent="#accordion" href="#collapse_adv"><i id="glyph_adv" class="glyphicon glyphicon-chevron-down"></i></a></span>
                         </div>
                         <div id="collapse_adv" class="panel-collapse collapse">
@@ -273,7 +270,7 @@ After several seconds the page will reload with the network visualization.
                 <div class="vis_inner" id="vis_inner" tabindex="1">
                     <!-- container div for the AJAX gui -->
                     <div class='moveGUI' id="moveGUI"></div>
-                    <div class='chart' id='ex1'></div>
+                    <div class='chart' id='chart'></div>
                     <div class="info-box pre-scrollable" id="info-box">
                         test
                     </div>
@@ -297,6 +294,12 @@ HTML;
                 break;
             case 'd3_cola': 
                 include(DOCUMENT_PATH . '/visualization/d3_cola.php');
+                break;
+            case 'd3_hive': 
+                include(DOCUMENT_PATH . '/visualization/d3_hive.php');
+                break;
+            case 'circosjs': 
+                include(DOCUMENT_PATH . '/visualization/circosjs.php');
                 break;
             default:
                 echo 'Layout variable has unexpected value: $layout';

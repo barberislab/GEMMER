@@ -108,7 +108,7 @@ $(function() {
         }
 
         // console.log("Input from the form:",data)
-        var link_to_open = "index.php?";
+        var link_to_open = "index.php?id=tool&";
         for (var key in data) {
             link_to_open += key + "=" + data[key] + "&";
         }

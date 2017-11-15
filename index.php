@@ -15,6 +15,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+
+
     <!--Bootstrap-select for nice select buttons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/css/bootstrap-select.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/js/bootstrap-select.min.js"></script>
@@ -34,7 +36,7 @@
     <!--Adjust title with page id-->
     <?php   
         // Set the default name 
-        $id = 'tool'; 
+        $id = 'landing'; 
         // Specify some disallowed paths 
         $disallowed_paths = array('header', 'footer'); 
         if (!empty($_GET['id'])) { 
@@ -48,14 +50,15 @@
 
     <script src="js/form-submit.js"></script>
 
+    <script src="js/tooltip_toggle.js"></script>
 </head>
 
 <body>
     <div class="container">
         <div class="row">
-            <div class="col-ld-2"></div> <!-- margin column -->
+            <div class="col-ld-1"></div> <!-- margin column -->
 
-            <div class="col-ld-8"><!-- A 8 unit wide column for large desktop size --> 
+            <div class="col-ld-10"><!-- A 8 unit wide column for large desktop size --> 
                 <div id="page" > <!-- container with white background -->
                     <header id="header">
                         <div id="header-inner">
@@ -80,9 +83,10 @@
                     <div id="feature"> <!-- Menu -->
                         <ul>
                             <li><a href="index.php">Home</a></li>
-                            <li><a href="index.php?id=news">News</a></li>
-                            <li><a href="index.php?id=GEMMER_documentation">Documentation</a></li>
+                            <li><a href="index.php?id=tool">Visualize</a></li>
                             <li><a href="index.php?id=database">Database</a></li>
+                            <li><a href="index.php?id=GEMMER_documentation">Documentation</a></li>
+                            <li><a href="index.php?id=news">News</a></li>
                             <li><a href="https://github.com/ThierryMondeel/GEMMER">Github repository</a></li>
                             <li><a href="index.php?id=contact">Contact</a></li>
                         </ul>
@@ -123,7 +127,7 @@
                 </div>
             </div>
             
-            <div class="col-ld-2"></div> <!-- margin column -->
+            <div class="col-ld-1"></div> <!-- margin column -->
         </div>
     </div>
 </body>

@@ -23,11 +23,15 @@ if ($full == '') {
     echo "<h3>Alternative network visualizations</h3>";
     echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3 max. 250 nodes</a>";
     echo " | ";
-    echo "<a href=\"index.php?$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
     echo " | ";
-    echo "<a href=\"index.php?$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
     echo " | ";
-    echo "<a href=\"index.php?$php_args&layout=d3_cola\" class=\"alert-link\">D3 with cola</a>";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3 with cola</a>";
+    echo " | ";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_hive\" class=\"alert-link\">D3 hiveplot</a>";
+    echo " | ";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">CircosJS</a>";
 
 
     echo "<h3>Export options</h3>";
@@ -100,7 +104,7 @@ The form is populated and submitted by the JavaScript below. -->
     */
     function submit_download_form(output_format) {
         // Get the d3js SVG element
-        var tmp = document.getElementById("ex1");
+        var tmp = document.getElementById("chart");
         var svg = tmp.getElementsByTagName("svg")[0];
         // Extract the data as SVG text string
         var svg_xml = (new XMLSerializer).serializeToString(svg);

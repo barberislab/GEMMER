@@ -1,6 +1,12 @@
 ## News on GEMMER development
 ---
 
+#### November 12th 2017: v1 beta V
+We are working on integration with CytoscapeJS and ColaJS
+- We have a functioning circular layout from cytoscapeJS. This required adding a new JSON output file that cytoscape understands
+- We also have a functional implementation of a force layout with ColaJS.
+
+---
 
 #### October 31st 2017: v1 beta III
 We improved the section of the database-update script that handles GO term assignment. GEMMER should now consider all GO annotations listed in SGD. 

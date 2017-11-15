@@ -63,6 +63,56 @@ body { background:#eee;}
 /* Clear both sides to assist with div alignment  */
 .clr { clear:both; padding:0; margin:0; width:100%; font-size:0px; line-height:0px;}
 
+
+img.center {
+    display: block;
+    margin: 0 auto;
+}
+
+
+/* ********************* */
+/* Landing page          */
+/* ********************* */
+.landing-container {
+    border: 1px dashed black;
+    border-radius: 25px; /* rounded corners */
+    background-color: #fff;
+}
+.empty-row {
+    height:10px;
+}
+/* uniform settings for the boxes */
+.landing-box {
+    height: 250px;
+    border: 1px dashed black;
+    border-radius: 25px; /* rounded corners */
+}
+.landing-box > h1 {
+    align-self: center;
+    text-align: center;
+}
+/* box specific settings */
+.blue {
+    /* This box is colored with the bootstrap bg-info class */
+    height: 250px;
+    border: 1px dashed darkblue;
+}
+.green {
+    background-color: #BEFCBE;
+    height: 250px;
+    border: 1px dashed darkgreen;
+}
+.purple {
+    background-color: #E7B7FD;
+    height: 250px;
+    border: 1px dashed purple;
+}
+.red {
+    background-color: #FFB9B9;
+    height: 250px;
+    border: 1px dashed darkred;
+}
+
 /* Borders for the alerts  */
 .alert-success {
     border: 3px solid darkgreen;
@@ -169,5 +219,6 @@ div.vis_inner {
 }
 .info-box #CYCLoPs_table {
     background-color: rgba(0, 0, 0, 0);
+    font-size: 8px;
 }
 .property-name span { color:#ffffff; }

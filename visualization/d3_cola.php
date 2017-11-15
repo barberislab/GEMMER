@@ -39,7 +39,7 @@
             base_node_opacity = 0.9;
 
         // SEEMS TO DEFINE THE IMAGE AS THE CONTAINING DIV
-        var svg = d3.select("#ex1").append("svg")
+        var svg = d3.select("#chart").append("svg")
             .attr("width", box_width)
             .attr("height", height)
 

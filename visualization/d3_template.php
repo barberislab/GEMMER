@@ -29,14 +29,14 @@
     
     function create_d3js_drawing() {
 
-        var box_width = document.getElementById("vis_inner").offsetWidth //980 // width of the bordered box (includes legend and controls)
-            width = document.getElementById("vis_inner").offsetWidth - document.getElementById("moveGUI").offsetWidth -1, // the actual d3 visualization's width - width of the GUI -1
+        var box_width = document.getElementById("vis_inner").offsetWidth
+            width = document.getElementById("vis_inner").offsetWidth
             height = document.getElementById("vis_inner").offsetHeight,
             base_link_opacity = 0.4,
             base_node_opacity = 0.9;
 
         // Put the visualiation in the right div
-        var svg = d3.select("#chart").append("svg")
+        var svg = d3.select("#vis_inner").append("svg")
             .attr("width", box_width)
             .attr("height", height)
 
@@ -49,74 +49,22 @@
         d3.json(<?php 
                     echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
                 ?>, function(error, graph) {   
-            // CONFIG PANEL 
-            //######################################################
-            //# CONFIG PANEL 
-            //######################################################
-            // FRICTION particle velocity is scaled by the specified friction. 
-            //      Thus, a value of 1 corresponds to a frictionless environment, while a value of 0 freezes all particles in place.
-            // LINKDISTANCE sets the target distance between linked nodes to the specified value.
-            // LINKSTRENGTH sets the strength (rigidity) of links to the specified value in the range [0,1]
-            // CHARGE A negative value results in node repulsion, while a positive value results in node attraction. 
-            // GRAVITY gravity is implemented as a weak geometric constraint similar to a virtual spring connecting each node to the center of the layout's size.
-            // THETA For clusters of nodes that are far away, the charge force is approximated by treating the distance cluster of 
-            // nodes as a single, larger node. Theta determines the accuracy of the computation: if the ratio of the area of a 
-            // quadrant in the quadtree to the distance between a node to the quadrant's center of mass is less than theta, 
-            // all nodes in the given quadrant are treated as a single, larger node rather than computed individually.
-            var config = {"friction": .9,  "linkDistance": 250, "linkStrength": 0.5, "charge": 100, "gravity": .3, "theta": .5 };
-            var gui = new dat.GUI({ autoPlace: false });
-
-            var fl = gui.addFolder('Force Layout');
-            // fl.open() // this opens the setings by default
-
-            var frictionChanger = fl.add(config, "friction", 0, 1);
-            frictionChanger.onChange(function(value) {
-            force.friction(value)
-            force.start()
-            });
-
-            var linkDistanceChanger = fl.add(config, "linkDistance", 0, 1000);
-            linkDistanceChanger.onChange(function(value) {
-            force.linkDistance(value)
-            force.start()
-            });
-
-            var linkStrengthChanger = fl.add(config, "linkStrength", 0, 1);
-            linkStrengthChanger.onChange(function(value) {
-            force.linkStrength(value)
-            force.start()
-            });
-
-            var chargeChanger = fl.add(config,"charge", 0, 500);
-            chargeChanger.onChange(function(value) {
-            force.charge(-value)
-            force.start()
-            });
-
-            var gravityChanger = fl.add(config,"gravity", 0, 1);
-            gravityChanger.onChange(function(value) {
-            force.gravity(value)
-            force.start()
-            });
-
-            var thetaChanger = fl.add(config,"theta", 0, 1);
-            thetaChanger.onChange(function(value) {
-            force.theta(value)
-            force.start()
-            });
-
-            var customContainer = $('.moveGUI').append($(gui.domElement));
-
-            //######################################################
-            //# END CONFIG PANEL 
-            //######################################################
 
             // define clusters and nodes
             var nodes = graph.nodes;
                 links = graph.links;
                 num_nodes = nodes.length;
                 num_links = links.length;
-        
+
+            // IF links are too many display a maximum number
+            // If compareFunction(a, b) is less than 0, sort a to an index lower than b, i.e. a comes first.
+            if (links.length > 1000) {
+                links.sort(function(a, b) {
+                    return parseFloat(a["#Experiments"]) - parseFloat(b["#Experiments"]);
+                });
+                links = links.slice(1, 1000);
+            }
+
             // structured as a pyramid with "no data" added to the end
             // var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
             //                     "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
@@ -183,14 +131,9 @@
             }
             console.log("Maximum normalized degree centrality: ", max_norm_dc)
 
-            // loop over nodes
-            // var n = 4;
-            // var K_d = mean_dc/max_dc; 
-            // console.log("Kd for the radius calculation: ", K_d)
             var max_r = 40;
 
             // loop over nodes
-            
             m = clusters_list.length;
             for (var i = 0; i < num_nodes; i++) {
                 var c = nodes[i].cluster; // cluster of this node
@@ -199,14 +142,14 @@
                 nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
                 nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
 
-                if (nodes.length > 200) {
-                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); // percentage of the maximum distance to the min. dc in the network
+                if (nodes.length > 25) {
+                    // percentage of the maximum distance to the min. dc in the network
+                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
                     var n = 4;
                     var K_d = 0.8;
                     var r = minimal_radius + (max_r - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
                 }
                 else {
-                    var c = nodes[i].cluster; // cluster of this node
                     // percentage of the maximum distance to the min. dc in the network
                     var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
                     var r = minimal_radius + (max_r - minimal_radius) * perc; // linear
@@ -216,7 +159,7 @@
                 if (!clusters[c] || (r > clusters[c].radius)) {
                         clusters[c] = nodes[i];
                         clusters[c].index = i;
-                    } 
+                }
             }
             
             num_clusters = Object.keys(clusters).length;
@@ -224,11 +167,11 @@
             console.log("These nodes are the cluster centres: ",clusters,clusters.length)
 
             // Artificially increase node size of clusters to a minimum of 15?
-            for (var i = 0; i < num_clusters; i++) {
-                var c = Object.keys(clusters)[i];
-                var ind = clusters[c].index;
-                nodes[ind].radius = Math.max(nodes[ind].radius,15)
-            }
+            // for (var i = 0; i < num_clusters; i++) {
+            //     var c = Object.keys(clusters)[i];
+            //     var ind = clusters[c].index;
+            //     nodes[ind].radius = Math.max(nodes[ind].radius,15)
+            // }
 
             // less padding for lots of nodes
             if (num_nodes > 100) {
@@ -263,7 +206,7 @@
                 .theta([0.5]) // 
                 .gravity([0.3]) // a force that can push nodes towards the center of the layout. Setting gravity to 0 disables it. gravity can also be negative. This gives the nodes a push away from the center.
                 .friction([0.9]) // At each step of the physics simulation (or tick as it is called in D3), node movement is scaled by this friction. The recommended range of friction is 0 to 1, with 0 being no movement and 1 being no friction.
-                .start();
+                .start(20);
 
             var link = svg.append("g")
                 .attr('class', 'link')
@@ -355,10 +298,11 @@
             }
             function fade(opacity) {
                 return function(d) {
+                    // highlighted is True when we are highlighting the interactors of a gene
+                    // if this is triggered we switch states
                     highlighted = !highlighted; 
 
-                    console.log("Click!");
-                    console.log(highlighted);
+                    console.log('Highlighted =', highlighted);
 
                     if (highlighted) { link_opacity_on = 0.8; link_opacity_off = 0.1; node_opacity = 0.1} else { link_opacity_on = base_link_opacity; link_opacity_off = base_link_opacity; node_opacity = base_node_opacity}
 
@@ -366,6 +310,11 @@
                         thisOpacity = isConnected(d, o) ? base_node_opacity : node_opacity;
                         this.setAttribute('fill-opacity', thisOpacity);
                         return thisOpacity;
+                    });
+
+                    nametags.style("opacity", function(o) {
+                        thisOpacity = isConnected(d, o) ? base_node_opacity : node_opacity;
+                        return thisOpacity 
                     });
 
                     // Suppose we go to highlighted. Then all links are at 0.3
@@ -388,11 +337,13 @@
             var nametags = svg.append("g").selectAll("text")
                 .data(force.nodes()) 
                 .enter().append("text")
-                .style("font", "8px sans-serif")
-                .style("letter-spacing", "1px")
+                .style("font",function(d) {
+                        // radius to font-size mapping
+                        // 15 -> 7.5, 40 -> 20
+                        fontsize = 0.4 * d.radius 
+                        return fontsize.toString() + "px sans-serif" })
                 .style("font-weight", "bold")
-                .text(function(d) { if (d.radius >= 15) { return d['Standard name']; }
-                })
+                .text(function(d) { return d['Standard name'] })
                 .style("pointer-events", "none"); // CAN I DELETE THIS?
 
             function tick(e) {
@@ -403,8 +354,6 @@
                 }
                 circle
                     .each(collide(.5))
-                    .attr("cx", function(d) { return d.x; })
-                    .attr("cy", function(d) { return d.y; })
                     // KEEP NODE POSITION WITHIN BOUNDING BOX                   
                     .attr("cx", function(d) {  // x must be minimally the node diameter on the left, and maximally the width-diameter
                         return d.x = Math.max(d.radius, Math.min(width - d.radius, d.x));
@@ -459,8 +408,28 @@
 
                 // Where to place the gene names
                 nametags
-                    .attr("x", function(d) { return d.x - 13; })
-                    .attr("y", function(d) { return d.y + 3; });
+                    // move the nametag toward the middle: set x and y of start of tag w.r.t. center of node
+                    // d.x, d.y sets text left-bottom corner in the middle of the node. 
+                    // In general we want to move this left and down, with the amount scaling with the radius. 
+                    // - means up & left + means up and right
+                    // these numbers are just my observations on what seems to work
+                    .attr("x", function(d) { 
+                        if (d['Standard name'].length == 3) {
+                            return d.x - d.radius / 2.3; 
+                        }
+                        if (d['Standard name'].length == 4) {
+                            return d.x - d.radius / 1.9; 
+                        }
+                        if (d['Standard name'].length == 5) {
+                            return d.x - d.radius / 1.5; 
+                        }
+                        else { // more than 5
+                            return d.x - d.radius/1.2; 
+                        }
+                        })
+                    .attr("y", function(d) { 
+                            return d.y + d.radius / 6; 
+                    })
             }
             
             // Move d to be adjacent to the cluster node.
@@ -511,22 +480,27 @@
             }
 
             // Legend
-            var legend = svg.selectAll(".legend")
+            legendWidth = document.getElementById("legend").offsetWidth
+
+            var svgLegend = d3.select("#legend").append("svg")
+                // .attr("width", 200).attr("height", 500)
+
+            var legend = svgLegend.selectAll(".legend")
                 .data(color.domain()) // determines the contents of the legend
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
             legend.append("rect")
-                .attr("x", box_width - 22) // width is 18 and taking 2 for the border this gives 2 px space
-                .attr("y", 225)
+                .attr("x", legendWidth - 22) // box_width - 22width is 18 and taking 2 for the border this gives 2 px space
+                .attr("y", 10) // slight margin from the tip of the div
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", color);
 
             legend.append("text")
-                .attr("x", box_width - 24)
-                .attr("y", 234) // note the extra 9 to align in the middle (18/2)
+                .attr("x", legendWidth - 24) // box_width 
+                .attr("y", 10 + 9) // note the extra 9 to align in the middle (18/2)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
                 .style("font-size", "18px")

@@ -90,6 +90,7 @@ img.center {
 .landing-box > h1 {
     align-self: center;
     text-align: center;
+    color: darkred;
 }
 /* box specific settings */
 .blue {
@@ -150,23 +151,24 @@ img.center {
     padding:1px 1px 1px 1px;
 }
 /* CSS FOR THE D3 TEMPLATE */
-.viz-container {
-    position: relative;
-}
-div.vis_inner {
-    width: 100%; /* 980px; */
+#vis_inner {
     height: 700px;
     border: 1px solid black;
     overflow:hidden;
     margin: 0;
     position: relative;
 }
+#vis-sidebar {
+    background: #dddddd;
+    height: 700px;
+    z-index: 2;
+}
 .d3-tip {
     font-size: 12px; /* Smaller than bootstrap default of 14 */
     line-height: 1;
     font-weight: bold;
     padding: 12px;
-    background: rgba(0, 0, 0, 0.8);
+    background: #ffffff;
     color: #ffffff;
     border-radius: 2px;
 }
@@ -192,33 +194,23 @@ div.vis_inner {
 .d3-tip .bg-info {
     background-color: darkblue;
 }
-.chart {
-    position: relative;
-}
-.moveGUI { 
-    position: absolute;
-    z-index:2; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */
-    right: 0;
-    top: 0;
-    /*margin: 0;*/
-}
-.moveGUI, .folder, .dg, .main, .close-button { 
-    width:200px; /* default width of gui is 245px*/
-}
-.info-box {
+#info-box {
     z-index:3; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */    
-    position: absolute; 
+    position: relative; 
     bottom: 0px;
     right: 0px; 
     color:#000000;
-    background-color: #ffffff;
+    background-color: #f1f1f1;
     border: 1px solid darkred;
-    width: 200px;
+    width: 100%;
     height: 300px;
-    font-size: 8px;
+    font-size: 9px;
 }
-.info-box #CYCLoPs_table {
-    background-color: rgba(0, 0, 0, 0);
-    font-size: 8px;
+#info-box #CYCLoPs_table {
+    /* background-color: rgba(0, 0, 0, 0.8); */
+    font-size: 9px;
+}
+#legend {
+    z-index: 10;
 }
 .property-name span { color:#ffffff; }

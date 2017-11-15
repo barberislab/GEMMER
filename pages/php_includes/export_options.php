@@ -104,7 +104,7 @@ The form is populated and submitted by the JavaScript below. -->
     */
     function submit_download_form(output_format) {
         // Get the d3js SVG element
-        var tmp = document.getElementById("chart");
+        var tmp = document.getElementById("vis_inner");
         var svg = tmp.getElementsByTagName("svg")[0];
         // Extract the data as SVG text string
         var svg_xml = (new XMLSerializer).serializeToString(svg);

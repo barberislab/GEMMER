@@ -265,16 +265,18 @@ $(document).on('click', '.text_data_toggle', function(e){
 
         // Set up the visualization div
         echo <<<HTML
-        <div id="visualization">
-            <div class="viz-container">
-                <div class="vis_inner" id="vis_inner" tabindex="1">
-                    <!-- container div for the AJAX gui -->
-                    <div class='moveGUI' id="moveGUI"></div>
-                    <div class='chart' id='chart'></div>
-                    <div class="info-box pre-scrollable" id="info-box">
-                        test
+        <div class="row" id="visualization">
+            <div class="col-md-12" id="container"> <!-- tabindex="1" -->
+                <div class='col-md-9' id='vis_inner'></div>
+
+                <div class="col-md-3" id="vis-sidebar">
+                    <div class="pre-scrollable" id="info-box">
+                        Hover over a gene to display detailed information here.
                     </div>
+                    <div class="pre-scrollable" id="legend"></div>
                 </div>
+            </div>
+        </div>
 HTML;
 
         // Export options and tables with detailed info on nodes and edges

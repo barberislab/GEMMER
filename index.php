@@ -65,7 +65,7 @@
                             <div class="row row-m-b-0">
                             <div id="logo" class="col-md-3">
                             <div class="image-placeholder">
-                                <img src="img/GEMMER_logo.png">
+                                <img src="img/GEMMER_logo.png" class="img-responsive">
                             </div>
                             </div>
                             <div id="logo-desc" class="col-md-9 col-fixed-height">

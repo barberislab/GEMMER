@@ -30,6 +30,12 @@ body { background:#eee;}
     text-align: center;
     width: 100%;
     border: 0px !important;
+    word-wrap: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    -o-hyphens: auto;
+    hyphens: auto;
 }
 .big-letter {
     font-size:1.2em;
@@ -83,14 +89,56 @@ img.center {
 }
 /* uniform settings for the boxes */
 .landing-box {
-    height: 250px;
     border: 1px dashed black;
     border-radius: 25px; /* rounded corners */
 }
-.landing-box > h1 {
+.landing-box > h1, h2 {
     align-self: center;
     text-align: center;
     color: darkred;
+}
+.item > h3 {
+    align-self: center;
+    text-align: center;
+}
+.landing-row {
+    align-self: center;
+    text-align: center;
+    height: 100px;
+}
+.landing-row > h1, h2 {
+    color: darkred;
+}
+.carousel-inner .full {
+    width:90%;
+ }
+ .carousel-caption {
+     color:#000000
+ }
+ .demo {
+     overflow:hidden;
+     height:550px;
+     border: 0px;
+ }
+.carousel-control.left, 
+.carousel-control.right {
+    background-image: none
+ }
+.carousel-indicators li {
+    background-color: #999;
+    background-color: rgba(70,70,70,.25);
+}
+.carousel-indicators .active {
+    background-color: #444;
+}
+.carousel {
+    height:100%
+}
+.glyphicon {
+    color:#999;
+}
+.glyphicon:hover {
+    color:darkred;
 }
 /* box specific settings */
 .blue {
@@ -102,16 +150,6 @@ img.center {
     background-color: #BEFCBE;
     height: 250px;
     border: 1px dashed darkgreen;
-}
-.purple {
-    background-color: #E7B7FD;
-    height: 250px;
-    border: 1px dashed purple;
-}
-.red {
-    background-color: #FFB9B9;
-    height: 250px;
-    border: 1px dashed darkred;
 }
 
 /* Borders for the alerts  */

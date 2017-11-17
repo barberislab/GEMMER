@@ -54,7 +54,11 @@ if (isset($_POST['gene'])) {
                         $max_nodes,$filter_condition,
                         $excel_flag,$filter_flag,$unique_str];
         
-        $command = 'python ' . $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gen_visualization.py ';
+        // Apache does not know where python3 is automatically. Add location to path
+        putenv("PATH=/usr/local/bin/:" . exec('echo $PATH'));
+
+        // Execute the python script
+        $command = 'python3 ' . $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gen_visualization.py ';
         foreach ($array_of_vars as $var) {
             $command = $command . $var . " ";
         }

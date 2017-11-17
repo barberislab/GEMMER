@@ -134,7 +134,7 @@ img.center {
 .carousel {
     height:100%
 }
-.glyphicon {
+.carousel-control .glyphicon {
     color:#999;
 }
 .glyphicon:hover {
@@ -147,7 +147,7 @@ img.center {
     border: 1px dashed darkblue;
 }
 .green {
-    background-color: #BEFCBE;
+    background-color: rgb(210, 252, 210);
     height: 250px;
     border: 1px dashed darkgreen;
 }

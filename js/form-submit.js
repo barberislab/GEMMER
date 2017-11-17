@@ -116,7 +116,7 @@ $(function() {
 
         $.ajax({
             type: "POST",
-            url: "pages/php_includes/process_user_input.php",
+            url: "pages/php_includes/bridge_php_python.php",
             data: data,
             beforeSend: function() {
                 data = "<h4>Request submitted!</h4><p>Your visualization will be ready soon.</p>";

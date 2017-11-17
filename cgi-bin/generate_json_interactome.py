@@ -1,18 +1,21 @@
-# import modules
 import ast
+import collections
+import json
 import os
 import sqlite3
 import timeit
 import traceback
 from collections import Counter
 
+import matplotlib
+matplotlib.use('Agg') # must be before further matplotlib imports
+import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
-import simplejson as js
 
-import collections
-import json
+import nxviz as nv  # only py3
+import simplejson as js
 
 pd.set_option('display.max_colwidth', -1)
 
@@ -29,17 +32,17 @@ def create_connection(db_file):
         conn = sqlite3.connect(db_file)
         return conn
     except Exception as e:
-        print e.message, e.args
+        print(e.message, e.args)
  
     return None
 
 def convert(data):
-    if isinstance(data, basestring):
+    if isinstance(data, str):
         return str(data)
     elif isinstance(data, collections.Mapping):
-        return dict(map(convert, data.iteritems()))
+        return dict(list(map(convert, iter(data.items()))))
     elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert, data))
+        return type(data)(list(map(convert, data)))
     else:
         return data
 
@@ -89,7 +92,7 @@ def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
     # SAVE
     writer.save()
 
-    print 'Completed generating the Excel file.'
+    print('Completed generating the Excel file.')
 
 def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   ''' Use NetworkX to calculate degree centrality etc. '''
@@ -206,7 +209,7 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
   ##########################
   # turn string source and target identifiers into numbers corresponding to nodes
   nodes_dict = nodes['Standard name'].to_dict()
-  nodes_dict = {v: k for k, v in nodes_dict.items()}
+  nodes_dict = {v: k for k, v in list(nodes_dict.items())}
 
   # replace string labels with node numbers
   interactome['source'] = interactome['source'].map(nodes_dict.get)
@@ -232,7 +235,7 @@ def main(arguments,output_filename):
     ######################################################
     ### start the alert div that contains any output generated here
     ######################################################
-    print "<div class=\"alert alert-dismissable alert-info\">"
+    print("<div class=\"alert alert-dismissable alert-info\">")
     timing = {} 
     start_all = timeit.default_timer()
     
@@ -354,19 +357,19 @@ def main(arguments,output_filename):
 
     if 'GFP:' in compartment:
       comp_to_check = compartment.replace('GFP:','')
-      print 'Prior to compartment filtering:', len(nodes), 'nodes. Filtering on', comp_to_check
+      print('Prior to compartment filtering:', len(nodes), 'nodes. Filtering on', comp_to_check)
       s = pd.Series([comp_to_check in x for x in nodes['GFP localization'].str.split(', ')])
       nodes = nodes[s.values]
       nodes = nodes.reset_index(drop=True)
-      print 'After compartment filtering:', len(nodes), 'nodes.'
+      print('After compartment filtering:', len(nodes), 'nodes.')
     elif 'CYCLoPs:' in compartment:
       comp_to_check = compartment.replace('CYCLoPs:','')
-      print 'Prior to compartment filtering:', len(nodes), 'nodes. Filtering on', comp_to_check
-      l_o_l = [[nodes.iloc[i]['CYCLoPs_dict'][x].keys() for x in nodes.iloc[i]['CYCLoPs_dict'].keys() ] for i in range(len(nodes)) ]
+      print('Prior to compartment filtering:', len(nodes), 'nodes. Filtering on', comp_to_check)
+      l_o_l = [[list(nodes.iloc[i]['CYCLoPs_dict'][x].keys()) for x in list(nodes.iloc[i]['CYCLoPs_dict'].keys()) ] for i in range(len(nodes)) ]
       s = pd.Series([comp_to_check in [v for WT in l_o_l[i] for v in WT] for i in range(len(l_o_l))]) 
       nodes = nodes[s.values]
       nodes = nodes.reset_index(drop=True)
-      print 'After compartment filtering:', len(nodes), 'nodes.'
+      print('After compartment filtering:', len(nodes), 'nodes.')
     else: #it is 'Any'
       pass
 
@@ -430,7 +433,7 @@ def main(arguments,output_filename):
     elif color_by == 'No coloring':
       nodes['color'] = ["No data" for i in range(len(nodes))]
     else:
-      print 'Unexpected value for color_by',color_by
+      print('Unexpected value for color_by',color_by)
 
     timing['Setting node cluster and color attributes'] = timeit.default_timer() - start
 
@@ -473,10 +476,10 @@ def main(arguments,output_filename):
       read_methods = f.read().splitlines()
     total_methods = len(read_methods)
     if len(method_types) < total_methods: # some have been deselected
-      print 'We have on file:', total_methods, 'methods. User queried for:', len(method_types)
+      print('We have on file:', total_methods, 'methods. User queried for:', len(method_types))
       len_before = len(interactome)
       interactome = interactome[interactome.apply(lambda x: any([m in x['Evidence'] for m in method_types]),1)]
-      print '<br/>We dropped', len_before - len(interactome), 'interactions based on the methods.<br/>'
+      print('<br/>We dropped', len_before - len(interactome), 'interactions based on the methods.<br/>')
 
     if len(interactome) == 0:
       raise ValueError('No interactions matching these conditions.')
@@ -542,7 +545,7 @@ def main(arguments,output_filename):
                       All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
       # full_network_link = '<?php echo "Click <a href=\\\\\\"index_full.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
       s = filter_message #+ full_network_link
-      print "<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>"
+      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 
@@ -557,6 +560,11 @@ def main(arguments,output_filename):
 
       # use networkx
       nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
+
+
+      # c = nv.CircosPlot(G)
+      # c.draw()
+      # plt.savefig('output/test.pdf')
 
       timing['networkx properties calculation'] += timeit.default_timer() - start
 
@@ -587,7 +595,7 @@ def main(arguments,output_filename):
       ######################################################
       ### End output text alert div
       ######################################################
-      print "</div>"
+      print("</div>")
 
       ######################################################
       # Generate strings for the nodes and interactome dataframes to print
@@ -617,7 +625,7 @@ def main(arguments,output_filename):
       # PRINT COLLAPSABLE BOOTSTRAP HTML CODE WITH THE DATAFRAMES
       ######################################################
       # the 'in' class makes the collapse open by default: the interactions here
-      print """
+      print("""
         <div class="panel-group" id="accordion">
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -629,9 +637,9 @@ def main(arguments,output_filename):
             <div id="collapse1" class="panel-collapse collapse">
               <div class="panel-body">
                 <div class="table-responsive">
-              """
-      print df_user_input_to_print
-      print """
+              """)
+      print(df_user_input_to_print)
+      print("""
                 </div>
               </div>
             </div>
@@ -646,9 +654,9 @@ def main(arguments,output_filename):
             <div id="collapse2" class="panel-collapse collapse">
               <div class="panel-body">
                 <div class="table-responsive">
-              """
-      print df_network.to_html(classes=['table','table-condensed','table-bordered'],index=False)
-      print """
+              """)
+      print(df_network.to_html(classes=['table','table-condensed','table-bordered'],index=False))
+      print("""
                 </div>
               </div>
             </div>
@@ -666,9 +674,9 @@ def main(arguments,output_filename):
                 By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
                 Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
                 <div class="table-responsive">
-                """
-      print nodes
-      print """
+                """)
+      print(nodes)
+      print("""
                 </div>
               </div>
             </div>
@@ -686,20 +694,20 @@ def main(arguments,output_filename):
                 By clicking the column headers the table will be sorted on that column. Use shift+click to sort on multiple columns. 
                 Default sorting is on number of experiments, number of publications, number of methods and alphabetical on standard name, in that order.
                 <div class="table-responsive">
-              """
-      print interactome
-      print """
+              """)
+      print(interactome)
+      print("""
                 </div>
               </div>
             </div>
           </div>
-          """
+          """)
       
 
       ######################################################
       # Optional diagnostics
       ######################################################
-      print """
+      print("""
         <div class="panel panel-default">
           <div class="panel-heading">
             <h4 class="panel-title">
@@ -710,22 +718,22 @@ def main(arguments,output_filename):
           <div id="collapse5" class="panel-collapse collapse">
             <div class="panel-body">
               <div class="table-responsive">
-      """
+      """)
       timing['print frames'] = timeit.default_timer() - start_print
       timing['all'] = timeit.default_timer() - start_all
       df_timing = pd.Series(timing)
       df_timing = df_timing.to_frame()
       df_timing.columns = ['Time']
       df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
-      print df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered'])
-      print "Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python."
-      print """
+      print(df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered']))
+      print("Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python.")
+      print("""
                 </div>
               </div>
             </div>
           </div>
         </div>
-        """
+        """)
 
 if __name__ == "__main__":
   main()

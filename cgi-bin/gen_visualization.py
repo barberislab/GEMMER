@@ -3,9 +3,9 @@ import os
 import sqlite3
 import sys
 import traceback
-from StringIO import StringIO  # Python2
+from io import StringIO 
 
-import generate_json_interactome
+import generate_json_interactome 
 
 script_dir = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
 
@@ -19,7 +19,7 @@ def create_connection(db_file):
         conn = sqlite3.connect(db_file)
         return conn
     except Exception as e:
-        print e.message, e.args
+        print(e.message, e.args)
  
     return None
 
@@ -31,7 +31,6 @@ result = StringIO()
 sys.stdout = result
 
 cwd = os.getcwd()
-# print 'Current folder:',cwd,'\n\n'
 
 arguments = sys.argv
 if len(arguments) > 1:
@@ -51,18 +50,18 @@ if isinstance(gene_string,str):
     else:
         genes = [gene_string]
 else:
-    print 'Input is not a string!'
+    print('Input is not a string!')
     # Redirect again the std output to screen
     sys.stdout = old_stdout
     # Then, get the stdout like a string and process it
     result_string = result.getvalue()
-    print result_string
+    print(result_string)
     raise SystemExit
 
 gene_exists = True
 for g in genes:
     if g not in gene_record:
-        print "The given gene does not exist in our database:", g
+        print("The given gene does not exist in our database:", g)
         gene_exists = False
 
 if not gene_exists:
@@ -70,7 +69,7 @@ if not gene_exists:
     sys.stdout = old_stdout
     # Then, get the stdout like a string and process it
     result_string = result.getvalue()
-    print result_string
+    print(result_string)
     raise SystemExit
 
 json_output_filename = os.path.abspath(script_dir+'/../output/json_files/interactome_'+gene_string+'_'+unique_str+'.json') # where to save the interactome
@@ -100,10 +99,10 @@ try: # try, except such that on failure php can show us the error
                 os.remove(curpath)
 
 except Exception:
-    print(traceback.format_exc())
+    print((traceback.format_exc()))
     # Redirect again the std output to screen
     sys.stdout = old_stdout
     # Then, get the stdout like a string and process it
     result_string = result.getvalue()
-    print result_string
+    print(result_string)
     raise SystemExit

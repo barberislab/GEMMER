@@ -267,9 +267,9 @@ $(document).on('click', '.text_data_toggle', function(e){
         echo <<<HTML
         <div class="row" id="visualization">
             <div class="col-md-12" id="container"> <!-- tabindex="1" -->
-                <div class='col-md-9' id='vis_inner'></div>
+                <div class="col-md-9 padding-0" id='vis_inner'></div>
 
-                <div class="col-md-3" id="vis-sidebar">
+                <div class="col-md-3 padding-0" id="vis-sidebar">
                     <div class="pre-scrollable" id="info-box">
                         Hover over a gene to display detailed information here.
                     </div>

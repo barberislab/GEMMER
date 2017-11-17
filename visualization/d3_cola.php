@@ -34,15 +34,15 @@
     
     function create_d3js_drawing() {
 
-        var box_width = document.getElementById("vis_inner").offsetWidth
-            width = document.getElementById("vis_inner").offsetWidth 
+        var width = document.getElementById("vis_inner").offsetWidth,
             height = document.getElementById("vis_inner").offsetHeight,
             base_link_opacity = 0.4,
-            base_node_opacity = 0.9;
+            base_node_opacity = 0.9,
+            cola_margin = 25; // used in tick as margin of nodes from edges to ensure cluster boxes stay within div
 
         // SEEMS TO DEFINE THE IMAGE AS THE CONTAINING DIV
         var svg = d3.select("#vis_inner").append("svg")
-            .attr("width", box_width)
+            .attr("width", width)
             .attr("height", height)
 
         var tip = d3.tip()
@@ -236,16 +236,7 @@
                 // initial graph layout iterations without constraints to get the graph to untangle.
                 // iterations for structural constraints (if none are specified so any iterations here would be the same as the previous step)
                 // iterations with non-overlap constraints
-                // NOTE: if problem is simple and within these iterations there is convergence, some formatting issues occur with nametags
-                if (nodes.length < 10) {
-                    force.start(0,0,0);
-                }
-                else if (nodes.length < 25) {
-                    force.start(1,0,0);
-                }
-                else {
-                    force.start(10,0,10);
-                }
+                force.start(1,0,1);
 
             var link = svg.append("g")
                 .attr('class', 'link')
@@ -255,7 +246,7 @@
                 .style("fill","none")
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) {
-                    if (d.type == "regulation") { console.log('regulation',d); return "blue" } // blue
+                    if (d.type == "regulation") { return "blue" } // blue
                     else if (d.type == "physical") { return "#8f0000"} // red
                     else { return "grey" } // red
                     })
@@ -406,34 +397,34 @@
                 .text(function(d) { return d['Standard name']; })
                 .style("pointer-events", "none"); // CAN I DELETE THIS?
 
-            function tick(e) {                
+            function tick(e) {
                 circle
                     // KEEP NODE POSITION WITHIN BOUNDING BOX                   
                     .attr("cx", function(d) {  // x must be minimally the node diameter on the left, and maximally the width-diameter
-                        return d.x = Math.max(d.radius+2, Math.min(width - d.radius, d.x));
+                        return d.x = Math.max(d.radius + 5 + cola_margin, Math.min(width - d.radius - 5 - cola_margin, d.x));
                     })
                     .attr("cy", function(d) {
-                        return d.y = Math.max(d.radius+2, Math.min(height - d.radius, d.y));
+                        return d.y = Math.max(d.radius + 5 + cola_margin, Math.min(height - d.radius - 5 - cola_margin, d.y));
                     });
 
-                    // update group box positioning based on nodes which set the group.bounds property
-                    // .bounds can cross the viewing div. So constrain if needed
-                    // .bounds has keys x, X, y, Y
-                    group.attr({
-                        x: function (d) { return d.bounds.x },
-                        y: function (d) { return d.bounds.y },
-                        width: function (d) { return d.bounds.width() },
-                        height: function(d) { return d.bounds.height() },
-                        // changing bounds this way does not seem to actually change the bounds setting
-                        bounds: function (d) { 
-                            newbounds = 'a', {'x': Math.max(d.bounds.x,0), // left limit
-                                         'X': Math.min(d.bounds.X,width), // right limit
-                                         'y': Math.max(d.bounds.y,0), // top limit
-                                         'Y': Math.min(d.bounds.Y,height) // bottom limit
-                                        };
-                            return newbounds
-                        }
-                    });
+                // update group box positioning based on nodes which set the group.bounds property
+                // .bounds can cross the viewing div. So constrain if needed
+                // .bounds has keys x, X, y, Y
+                group.attr({
+                    x: function (d) { return d.bounds.x },
+                    y: function (d) { return d.bounds.y },
+                    width: function (d) { return d.bounds.width() },
+                    height: function(d) { return d.bounds.height() },
+                    // changing bounds this way does not seem to actually change the bounds setting
+                    bounds: function (d) { 
+                        newbounds = 'a', {'x': Math.max(d.bounds.x,0), // left limit
+                                        'X': Math.min(d.bounds.X,width), // right limit
+                                        'y': Math.max(d.bounds.y,0), // top limit
+                                        'Y': Math.min(d.bounds.Y,height) // bottom limit
+                                    };
+                        return newbounds
+                    }
+                });
 
                 // Define where to start and stop the line segments: from source to target
                 link.attr("d", function(d) {
@@ -518,18 +509,18 @@
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
             legend.append("rect")
-                .attr("x", legendWidth - 22) // box_width - 22width is 18 and taking 2 for the border this gives 2 px space
+                .attr("x", legendWidth - 22) // rectangles have width of 18 and taking 2 for the border this gives 2 px space
                 .attr("y", 10) // slight margin from the tip of the div
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", color);
 
             legend.append("text")
-                .attr("x", legendWidth - 24) // box_width 
+                .attr("x", legendWidth - 22 - 5)
                 .attr("y", 10 + 9) // note the extra 9 to align in the middle (18/2)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .style("font-size", "18px")
+                .style("font-size", "16px")
                 .text(function(d) { return d; });
 
         });

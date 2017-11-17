@@ -29,15 +29,14 @@
     
     function create_d3js_drawing() {
 
-        var box_width = document.getElementById("vis_inner").offsetWidth
-            width = document.getElementById("vis_inner").offsetWidth
+        var width = document.getElementById("vis_inner").offsetWidth
             height = document.getElementById("vis_inner").offsetHeight,
             base_link_opacity = 0.4,
             base_node_opacity = 0.9;
 
         // Put the visualiation in the right div
         var svg = d3.select("#vis_inner").append("svg")
-            .attr("width", box_width)
+            .attr("width", width)
             .attr("height", height)
 
         var tip = d3.tip()
@@ -355,11 +354,14 @@
                 circle
                     .each(collide(.5))
                     // KEEP NODE POSITION WITHIN BOUNDING BOX                   
-                    .attr("cx", function(d) {  // x must be minimally the node diameter on the left, and maximally the width-diameter
-                        return d.x = Math.max(d.radius, Math.min(width - d.radius, d.x));
+                    .attr("cx", function(d) {  
+                        // x must be minimally the node diameter + margin
+                        // maximally the width - diameter - 5
+                        // 5 is an extra margin from the edge including the 1 px border
+                        return d.x = Math.max(d.radius + 5, Math.min(width - d.radius - 5, d.x));
                     })
                     .attr("cy", function(d) {
-                        return d.y = Math.max(d.radius, Math.min(height - d.radius, d.y));
+                        return d.y = Math.max(d.radius + 5, Math.min(height - d.radius - 5, d.y));
                     });
 
                 // Define where to start and stop the line segments: from source to target
@@ -492,18 +494,18 @@
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
             legend.append("rect")
-                .attr("x", legendWidth - 22) // box_width - 22width is 18 and taking 2 for the border this gives 2 px space
+                .attr("x", legendWidth - 22) // rectangles have width of 18 and taking 2 for the border this gives 2 px space
                 .attr("y", 10) // slight margin from the tip of the div
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", color);
 
             legend.append("text")
-                .attr("x", legendWidth - 24) // box_width 
+                .attr("x", legendWidth - 22 - 5)  
                 .attr("y", 10 + 9) // note the extra 9 to align in the middle (18/2)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .style("font-size", "18px")
+                .style("font-size", "16px")
                 .text(function(d) { return d; });
 
         });

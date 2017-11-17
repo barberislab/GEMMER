@@ -37,7 +37,7 @@ if ($full == '') {
     echo "<h3>Export options</h3>";
 
     // SVG export for D3
-    if ($layout == 'D3js') {
+    if ($layout == 'D3js' | $layout == 'd3_cola') {
         echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") or the formatted Excel workbook. <br/>";
         echo '<a href="#" id="download">Download SVG</a> |'; 
     }

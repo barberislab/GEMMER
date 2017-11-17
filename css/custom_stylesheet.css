@@ -201,6 +201,11 @@ img.center {
     height: 700px;
     z-index: 2;
 }
+.padding-0{
+     /* for bootstrap columns with no padding  */
+    padding-right:0;
+    padding-left:0;
+}
 .d3-tip {
     font-size: 12px; /* Smaller than bootstrap default of 14 */
     line-height: 1;
@@ -242,13 +247,25 @@ img.center {
     border: 1px solid darkred;
     width: 100%;
     height: 300px;
-    font-size: 9px;
+    font-size: 12px;
 }
 #info-box #CYCLoPs_table {
-    /* background-color: rgba(0, 0, 0, 0.8); */
-    font-size: 9px;
+    /* slightly smaller text for the table */
+    font-size: 10px; 
 }
 #legend {
     z-index: 10;
+}
+#python_output #CYCLoPs_table {
+    font-size: 10px; 
+}
+#python_output #CYCLoPs_table > tbody td {
+    padding: 1px;
+}
+#python_output #CYCLoPs_table > tbody th {
+    padding: 1px;
+}
+#python_output #CYCLoPs_table > thead th {
+    padding: 1px;
 }
 .property-name span { color:#ffffff; }

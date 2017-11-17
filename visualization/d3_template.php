@@ -32,18 +32,14 @@
         var width = document.getElementById("vis_inner").offsetWidth
             height = document.getElementById("vis_inner").offsetHeight,
             base_link_opacity = 0.4,
-            base_node_opacity = 0.9;
+            base_node_opacity = 0.9,
+            highlighted = false,
+            highlighted_link = false;
 
         // Put the visualiation in the right div
         var svg = d3.select("#vis_inner").append("svg")
             .attr("width", width)
             .attr("height", height)
-
-        var tip = d3.tip()
-            .attr('class', 'd3-tip')
-            .direction('s')
-
-        svg.call(tip);
 
         d3.json(<?php 
                     echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
@@ -165,13 +161,6 @@
             console.log("The number of clusters:",num_clusters)
             console.log("These nodes are the cluster centres: ",clusters,clusters.length)
 
-            // Artificially increase node size of clusters to a minimum of 15?
-            // for (var i = 0; i < num_clusters; i++) {
-            //     var c = Object.keys(clusters)[i];
-            //     var ind = clusters[c].index;
-            //     nodes[ind].radius = Math.max(nodes[ind].radius,15)
-            // }
-
             // less padding for lots of nodes
             if (num_nodes > 100) {
                 var padding = 2;
@@ -224,13 +213,13 @@
                     else { return }
                     })
                 .style("stroke-opacity", base_link_opacity)
-                .on("mouseover", mouseovered_link)
-                .on("mouseout", mouseouted_link);
+                .on("click", fade_link(0));
+                // .on("mouseover", mouseovered_link)
+                // .on("mouseout", mouseouted_link);
 
             var drag = force.drag()
                 .on("dragstart", dragstart);
 
-            var highlighted = false
             var circle = svg.selectAll("circle")
                 .data(nodes)
                 .enter().append("circle")
@@ -253,39 +242,16 @@
                 });
             
             function mouseovered(d) {
-                // Build a table of properties
-                var table = "<table class=\"table table-condensed table-bordered\"><tbody>" +
-                    "<tr><th>Gene</th><td>" + d['Standard name'] + " (" + d['Systematic name'] + ")</td></tr>" +
-                    "<tr><th>Name description</th><td>" + d['Name description'] + "</td></tr>" + 
-                    "<tr><th>Cluster</th><td>" + d.cluster + "</td></tr>" +
-                    "<tr><th>Cell cycle phase of peak expression</th><td>" + d['Expression peak'] + "</td></tr>" +
-                    "<tr><th>GFP abundance (localization)</th><td>" + d['GFP abundance'] + " (" + d['GFP localization'] + ")</tr></th>" +
-                    "<tr><th>CYCLoPs localization:</th><td>" + d.CYCLoPs_html + "</tr></td>" +
-                    "</tbody></table>";
-                // Send table to the tip div and the box div
-                tip.html(table);
-                d3.select("#info-box").html(table)
-                circle
-                .classed("mouseover", tip.show);
+                // empty
             }
             function mouseouted(d) {
-                circle
-                .classed("mouseover", tip.hide);
+                // empty
             }
             function mouseovered_link(d) {
-                tip.html(
-                    "<table class=\"table table-condensed table-bordered\"><tbody>" +
-                    "<tr><th>Source</th><td>" + d['source']['Standard name'] + "</td></tr>" + 
-                    "<tr><th>Target</th><td>" + d['target']['Standard name'] + "</td></tr>" +
-                    "<tr><th>Type</th><td>" + d['type'] + "</td></tr>" +
-                    "</tbody></table>"
-                    );
-                link
-                .classed("mouseover", tip.show);
+                // empty
             }
             function mouseouted_link(d) {
-                link
-                .classed("mouseover", tip.hide);
+                // empty
             }
             var linkedByIndex = {};
                 links.forEach(function(d) {
@@ -295,13 +261,30 @@
             function isConnected(a, b) {
                 return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
             }
+
             function fade(opacity) {
                 return function(d) {
                     // highlighted is True when we are highlighting the interactors of a gene
                     // if this is triggered we switch states
                     highlighted = !highlighted; 
 
-                    console.log('Highlighted =', highlighted);
+                    if (highlighted) {
+                        // Build a table of properties
+                        var table = "<table class=\"table table-condensed table-bordered\"><tbody>" +
+                            "<tr><th>Gene</th><td>" + d['Standard name'] + " (" + d['Systematic name'] + ")</td></tr>" +
+                            "<tr><th>Name description</th><td>" + d['Name description'] + "</td></tr>" + 
+                            "<tr><th>Cluster</th><td>" + d.cluster + "</td></tr>" +
+                            "<tr><th>Cell cycle phase of peak expression</th><td>" + d['Expression peak'] + "</td></tr>" +
+                            "<tr><th>GFP abundance (localization)</th><td>" + d['GFP abundance'] + " (" + d['GFP localization'] + ")</tr></th>" +
+                            "<tr><th>CYCLoPs localization:</th><td>" + d.CYCLoPs_html + "</tr></td>" +
+                            "</tbody></table>";
+                        
+                        // Send table to the sidebar div
+                        d3.select("#info-box").html(table)
+                    }
+                    else {
+                        d3.select("#info-box").html("Click on a gene to highlight its connections and display detailed information here.")
+                    }
 
                     if (highlighted) { link_opacity_on = 0.8; link_opacity_off = 0.1; node_opacity = 0.1} else { link_opacity_on = base_link_opacity; link_opacity_off = base_link_opacity; node_opacity = base_node_opacity}
 
@@ -323,6 +306,43 @@
                         return o.source === d || o.target === d ? link_opacity_on : link_opacity_off;
                     });
                 };
+            }
+
+            function fade_link(opacity) {
+                return function(d) {
+                    highlighted_link = !highlighted_link; 
+                    
+                    if (highlighted_link) {
+                        var table = "<table class=\"table table-condensed table-bordered\"><tbody>" +
+                        "<tr><th>Source</th><td>" + d['source']['Standard name'] + "</td></tr>" + 
+                        "<tr><th>Target</th><td>" + d['target']['Standard name'] + "</td></tr>" +
+                        "<tr><th>Type</th><td>" + d['type'] + "</td></tr>" +
+                        "</tbody></table>";
+
+                        // Send table to the sidebar div
+                        d3.select("#info-box").html(table)
+                    }
+                    else {
+                        d3.select("#info-box").html("Click on a gene to highlight its connections and display detailed information here.")
+                    }
+
+                    if (highlighted_link) { link_opacity_on = 0.8; link_opacity_off = 0.1; node_opacity = 0.1} else { link_opacity_on = base_link_opacity; link_opacity_off = base_link_opacity; node_opacity = base_node_opacity}
+
+                    circle.style("stroke-opacity", function(o) {
+                        thisOpacity = (o['Standard name'] == d.source['Standard name'] || o['Standard name'] == d.target['Standard name']) ? base_node_opacity : node_opacity;
+                        this.setAttribute('fill-opacity', thisOpacity);
+                        return thisOpacity;
+                    });
+
+                    nametags.style("opacity", function(o) {
+                        thisOpacity = (o['Standard name'] == d.source['Standard name'] || o['Standard name'] == d.target['Standard name']) ? base_node_opacity : node_opacity;
+                        return thisOpacity 
+                    });
+
+                    link.style("stroke-opacity", function(o) {
+                        return o.source === d.source && o.target === d.target ? link_opacity_on : link_opacity_off;
+                    });
+                }
             }
 
             function dblclick(d) {

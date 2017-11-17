@@ -206,37 +206,6 @@ img.center {
     padding-right:0;
     padding-left:0;
 }
-.d3-tip {
-    font-size: 12px; /* Smaller than bootstrap default of 14 */
-    line-height: 1;
-    font-weight: bold;
-    padding: 12px;
-    background: #ffffff;
-    color: #ffffff;
-    border-radius: 2px;
-}
-.d3-tip table {
-    width: auto; /* make sure it just expands with content */
-    /* Set max width and word-wrapping */
-    word-wrap: break-word;
-    min-width: 150px;
-    max-width: 300px;
-    white-space:normal;
-    color: #ffffff;
-}
-.d3-tip #CYCLoPs_table {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-.d3-tip a {
-    color:#ffffff;
-    z-index:99; /* should be on top; */
-}
-.d3-tip {
-    font-size: 10px;  
-}
-.d3-tip .bg-info {
-    background-color: darkblue;
-}
 #info-box {
     z-index:3; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */    
     position: relative; 

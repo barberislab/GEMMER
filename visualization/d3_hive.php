@@ -1,8 +1,17 @@
-<!-- Adapted from https://bl.ocks.org/mbostock/7607999 -->
+<!-- Adapted from https://bl.ocks.org/mbostock/7607999 
+Most of the credit goes to the original developer. 
 
-<!-- Flare contains classes with dotted hyrarchies. 
-The dots dictate the wedges and the final class the string in the image
-Imports generates green links.  -->
+NOTE: this uses d3 v4.
+
+The original example used the "Flare" dataset which contains classes where dots indicate hyrarchies. 
+The dots dictate the wedges and the final class 'XXX.XXX.Name' the string in the image.
+In the original imports generated green links, and being import red. 
+
+We shaped our 'hive json file' to match this format. 
+Our 'cluster' setting dictating the hyrarchy of wedges (function or compartments). The genes are shows as string ids.
+
+
+-->
 
 <style>
 .node {
@@ -75,13 +84,20 @@ var svg = d3.select("#vis_inner").append("svg")
 var link = svg.append("g").selectAll(".link"),
     node = svg.append("g").selectAll(".node");
 
-d3.json("visualization/flare.json", function(error, classes) {
+  
+d3.json(<?php echo "\"output/json_files/interactome_{$gene}_{$unique_str}_d3hive.json\""; ?>, function(error, graph) {
   if (error) throw error;
 
-  var root = packageHierarchy(classes)
+  // run through custom function
+  var root = packageHierarchy(graph)
       .sum(function(d) { return d.size; });
 
+  // root is a hyrarchy of objects (subclasses of functions)
+  console.log("root:",root);
+
   cluster(root);
+
+  console.log("post-cluster root:",root);
 
   link = link
     .data(packageImports(root.leaves()))
@@ -101,6 +117,7 @@ d3.json("visualization/flare.json", function(error, classes) {
       .on("mouseover", mouseovered)
       .on("mouseout", mouseouted);
 });
+
 
 function mouseovered(d) {
   node
@@ -129,6 +146,7 @@ function mouseouted(d) {
 
 // Lazily construct the package hierarchy from class names.
 function packageHierarchy(classes) {
+  console.log('This:',classes)
   var map = {};
 
   function find(name, data) {
@@ -147,12 +165,13 @@ function packageHierarchy(classes) {
   classes.forEach(function(d) {
     find(d.name, d);
   });
-
+  console.log("map:",map)
   return d3.hierarchy(map[""]);
 }
 
 // Return a list of imports for the given array of nodes.
 function packageImports(nodes) {
+  console.log("nodes",nodes)
   var map = {},
       imports = [];
 
@@ -163,11 +182,18 @@ function packageImports(nodes) {
 
   // For each import, construct a link from the source to target node.
   nodes.forEach(function(d) {
+    console.log("d:",d);
     if (d.data.imports) d.data.imports.forEach(function(i) {
+      console.log("i",i);
+      console.log("map[d]",map[d.data.name])
+      console.log("map[i]",map[i])
+      console.log("the issue:",map[d.data.name].path(map[i]))
+
       imports.push(map[d.data.name].path(map[i]));
     });
   });
 
+  console.log("imports:", imports)
   return imports;
 }
 

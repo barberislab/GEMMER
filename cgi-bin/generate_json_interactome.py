@@ -131,7 +131,7 @@ def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   return df_nodes, df_interactome, df_network, G
 
 
-def write_network_to_json(nodes, interactome, filter_condition, filename, case='', primary_nodes = []):
+def write_network_to_json(nodes, interactome, filter_condition, filename, G, case='', primary_nodes = []):
   ''' Write the network to be visualized to a JSON file for use with D3. '''
 
   # remove unneeded columns to speed up json writing
@@ -139,17 +139,8 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
 
   interactome = interactome[['source','target','type','#Experiments']]
 
-  ### For reasonable performance we limit the number of nodes and edges
-  # nodes: based on filter_condition and only non-primary nodes
-  max_nodes = 250
-
-  # edges: remove interactions between non-primary nodes
-  # try to remove genetic ones first
-  max_edges = 1000
-
-  # reduce nodes
+  # sort
   nodes = nodes.sort_values(by=['primary node',filter_condition],ascending=False)
-  nodes = nodes.iloc[:max_nodes]
   nodes.reset_index(drop=True,inplace=True)
 
   # reduce interactions based on remaining nodes
@@ -172,6 +163,50 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
         break
 
   interactome.reset_index(drop=True,inplace=True)
+
+  ##########################
+  # export d3 hive json
+  ##########################
+  # 'name': category1.category2.id, imports: ['gene1', 'gene2']
+  filename_d3hive = filename[:-5] + '_d3hive' + filename[-5:]
+
+  if case != '': 
+    filename_d3hive = filename_d3hive[:-5]+'_full'+filename_d3hive[-5:]
+
+  nodes_d3hive = nodes.copy()
+
+  nodes_d3hive['name'] = nodes_d3hive.apply(lambda row: row.cluster + '.' + row['Standard name'], axis=1)
+
+  # # create list of node names each node interacts with
+  nodes_d3hive = nodes_d3hive.set_index('Standard name') 
+  print(len(G.nodes),len(nodes_d3hive))  
+
+  # print(nodes_d3hive.apply(lambda row: len(list(G.neighbors(row.name))) , axis=1))
+
+  # for row in nodes_d3hive.index:
+  #   print(list(G.neighbors(nodes_d3hive.loc[row].name)))
+
+  # print(type(nodes_d3hive.apply(lambda row: list(G.neighbors(row.name)), axis=1)))
+
+  # here is the issue
+  # print(len(nodes_d3hive.apply(lambda row: [ nodes_d3hive.loc[x].cluster + '.' + x for x in list(G.neighbors(row.name)) ], axis=1)))
+  
+  # if case == '':
+  #   print(nodes_d3hive)
+
+  def build_import_str(row,df,G):
+    interactors = [x for x in list(G.neighbors(row.name))]
+    imports = ', '.join([df.loc[int].cluster + '.' + int for int in interactors])
+    return imports
+
+  # nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: [ nodes_d3hive.loc[x].cluster + '.' + x for x in list(G.neighbors(row.name)) ], axis=1)
+  nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: build_import_str(row,nodes_d3hive,G), axis=1)
+  nodes_d3hive['imports'] = nodes_d3hive['imports'].apply(lambda row: row.split(', '))
+  nodes_d3hive['size'] = nodes_d3hive.apply(lambda row: len(row['imports']), axis=1)
+  nodes_d3hive = nodes_d3hive[['name','size','imports']]
+
+  with open(filename_d3hive, 'w') as outfile:
+    json.dump(nodes_d3hive.to_dict('records'), outfile)
 
   ##########################
   # export cytoscape json
@@ -225,7 +260,7 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, case='
       outfile.write(",\n\n\n\"links\":\n\n")
       interactome.to_json(outfile, orient="records")
       outfile.write("}")
-  
+
   return
 
 
@@ -517,14 +552,12 @@ def main(arguments,output_filename):
     # # WRITE "FULL" NETWORK TO JSON
     # # this will include a filtering step for really big networks
     # ######################################################
-    start_json = timeit.default_timer()
-    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,'full',primary_nodes)
-    timing['json_full'] = timeit.default_timer() - start_json
-
+    # start_json = timeit.default_timer()
+    # write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,G,'full',primary_nodes)
+    # timing['json_full'] = timeit.default_timer() - start_json
 
     ######################################################
     # FILTER NODES TO MANAGEABLE VISUALIZATION
-    ######################################################
 
     if (filter_flag) and (len(nodes) > max_nodes):
       start_filter = timeit.default_timer()
@@ -540,14 +573,14 @@ def main(arguments,output_filename):
       interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
       interactome.reset_index(drop=True,inplace=True)
 
-      ### SHOW WARNING MESSAGE ABOUT FILTER STEP
-      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      # full_network_link = '<?php echo "Click <a href=\\\\\\"index_full.php?gene=$gene&unique_str=$unique_str&full=full\\\\\\" class=\\\\\\"alert-link\\\\\\">here</a> to visualize the more complete network."; ?>'
-      s = filter_message #+ full_network_link
-      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      ## SHOW WARNING MESSAGE ABOUT FILTER STEP
+      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      # s = filter_message
+      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
+
 
       ######################################################
       # Network properties with networkx: 2
@@ -561,18 +594,26 @@ def main(arguments,output_filename):
       # use networkx
       nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
 
+      timing['networkx properties calculation'] += timeit.default_timer() - start
+
+
+      ######################################################
+      # Networkx image generation: circos, arcplot, ...
+      ######################################################
+      # start = timeit.default_timer()
 
       # c = nv.CircosPlot(G)
       # c.draw()
-      # plt.savefig('output/test.pdf')
+      # plt.savefig(script_dir+'/../output/circos_plot_test.pdf')
 
-      timing['networkx properties calculation'] += timeit.default_timer() - start
+      # timing['networkx circos plot'] = timeit.default_timer() - start
+
 
     ######################################################
     ### Write the network to json
     ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes,interactome,filter_condition,output_filename)
+    write_network_to_json(nodes,interactome,filter_condition,output_filename,G)
     timing['json'] = timeit.default_timer() - start_json
 
     if excel_flag:

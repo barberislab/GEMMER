@@ -95,7 +95,7 @@ try: # try, except such that on failure php can show us the error
         for file in filenames:
             curpath = os.path.join(dirpath, file)
             file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(curpath))
-            if datetime.datetime.now() - file_modified > datetime.timedelta(hours=24):
+            if datetime.datetime.now() - file_modified > datetime.timedelta(hours=1):
                 os.remove(curpath)
 
 except Exception:

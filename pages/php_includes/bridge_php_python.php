@@ -3,43 +3,10 @@
 ini_set('display_errors', '1');
 ini_set('error_reporting', E_ALL);
 
+include_once $_SERVER["DOCUMENT_ROOT"] . "/pages/php_includes/post_form_entries.php";
+
 // Empty input is already filtered out by the form itself
 if (isset($_POST['gene'])) {
-    //row1
-    $gene = $_POST['gene'];
-    $cluster = $_POST['cluster'];
-    $color = $_POST['color'];
-    $int_type = $_POST['int_type'];
-    //row2
-    $experiments = $_POST['experiments'];
-    $publications = $_POST['publications'];
-    $methods = $_POST['methods'];
-    $method_types = $_POST['method_types'];
-    //row3
-    $process = $_POST['process'];
-    $compartment = $_POST['compartment'];
-    $expression = $_POST['expression'];
-    //row4
-    $max_nodes = $_POST['max_nodes'];
-    $filter_condition = $_POST['filter_condition'];
-    //other
-    $unique_str = $_POST['unique_str'];
-
-    if (isset($_POST['excel_flag'])) {
-        $excel_flag = $_POST['excel_flag'];
-    }
-    else {
-        $excel_flag = 0;
-    }
-    if (isset($_GET['filter_flag'])) {
-        $filter_flag = $_GET['filter_flag'];
-    }
-    else {
-        $filter_flag = 1;
-    }
-
-
-
     echo "<p>Submitting query...</p>";
 
     if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {

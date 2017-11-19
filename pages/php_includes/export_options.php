@@ -21,23 +21,26 @@ if ($full == '') {
     }
 
     echo "<h3>Alternative network visualizations</h3>";
-    echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3 max. 250 nodes</a>";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=D3js\" class=\"alert-link\">GEMMER D3.js</a>";
+    echo " | ";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3.js with cola</a>";
+    echo " | ";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_hive\" class=\"alert-link\">D3.js hiveplot</a>";
+    echo " | ";
+    echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3.js max. 250 nodes</a>";
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
     echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3 with cola</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_hive\" class=\"alert-link\">D3 hiveplot</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">CircosJS</a>";
+    
+    echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">Circos.js</a>";
 
 
     echo "<h3>Export options</h3>";
 
     // SVG export for D3
-    if ($layout == 'D3js' | $layout == 'd3_cola') {
+    if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_hive') {
         echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") or the formatted Excel workbook. <br/>";
         echo '<a href="#" id="download">Download SVG</a> |'; 
     }
@@ -48,12 +51,13 @@ if ($full == '') {
     $php_args_excel = "excel_link=$excel_output_link&" . $php_args;
 
     // Excel for filtered network
-    echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args_excel}\" target=\"blank\">Download Excel workbook</a>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Download Excel workbook</a>";
 
     // Excel for full network
-    $php_args = $php_args . "&filter_flag=0"; // filter_flag 0 means do not filter
+    // add the filter_flag (i.e. show all results or not) and set it to 0 (i.e. no filtering)
+    $php_args_excel = $php_args_excel . "&filter_flag=0";
     echo " | ";
-    echo "<a href=\"pages/php_includes/write_excel_file.php?{$php_args_excel}\" target=\"blank\">Download Excel workbook for full network</a>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Download Excel workbook for full network</a>";
 }
 else {
     echo "<h3>Export options</h3>";

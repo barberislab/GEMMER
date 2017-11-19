@@ -1,8 +1,15 @@
+<h1>Excel file export</h1>
+<p>
+    We will now export the data to Excel. To go back to the visualization use the "Back" button in your browser. 
+    Alternatively, use the menu above to navigate elsewhere.
+</p>
+
 <?php 
+
 // For getting output with sleep
-header( 'Content-type: text/html; charset=utf-8' );
-header("Cache-Control: no-cache, must-revalidate");
-header ("Pragma: no-cache");
+// header( 'Content-type: text/html; charset=utf-8' );
+// header("Cache-Control: no-cache, must-revalidate");
+// header ("Pragma: no-cache");
 set_time_limit(0);
 ob_implicit_flush(1);
 
@@ -12,18 +19,22 @@ if (isset($_GET['gene'])) {
     $cluster = $_GET['cluster'];
     $color = $_GET['color'];
     $int_type = $_GET['int_type'];
+
     //row2
     $experiments = $_GET['experiments'];
     $publications = $_GET['publications'];
     $methods = $_GET['methods'];
     $method_types = $_GET['method_types'];
+
     //row3
     $process = $_GET['process'];
     $compartment = $_GET['compartment'];
     $expression = $_GET['expression'];
+
     //row4
     $max_nodes = $_GET['max_nodes'];
     $filter_condition = $_GET['filter_condition'];
+
     //other
     $unique_str = $_GET['unique_str'];
 
@@ -40,6 +51,9 @@ if (isset($_GET['gene'])) {
         $filter_flag = 1; // default to filtering
     }
 }
+else {
+    echo "No gene input given...";
+}
 
 $excel_link = $_GET['excel_link'];
 
@@ -49,17 +63,20 @@ $process,$compartment,str_replace(array("(",")"),"",$expression), // Note we rem
 $max_nodes,str_replace(" ","_",$filter_condition),
 $excel_flag,$filter_flag,$unique_str];
 
-$command = 'python ' . $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gen_visualization.py ';
+// Apache does not know where python3 is automatically. Add location to path
+putenv("PATH=/usr/local/bin/:" . exec('echo $PATH'));
+
+$command = 'python3 ' . $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/gen_visualization.py ';
 foreach ($array_of_vars as $var) {
     $command = $command . $var . " ";
 }
 $command = $command . " 2>&1";
-echo "<br/><br/>Executing Excel file generation...";
+echo "<p>Busy building the Excel file...</p>";
 
 
 exec($command, $out, $status);
 
-echo "<br/><br/>Done executing command.<br/><br/>";
+echo "<p>Done executing command.</p>";
 
 // print output if any
 $count = 0;

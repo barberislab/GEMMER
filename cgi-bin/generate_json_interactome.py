@@ -97,17 +97,9 @@ def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
 def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   ''' Use NetworkX to calculate degree centrality etc. '''
 
-  node_list = df_nodes['Standard name'].values
-  edge_list = df_interactome[['source','target']].values
-
-  # build the networkx graph
-  # we use graph instead of multiGraph because centrality measures don't exist for those. 
-  # So here an edge just means there is an interaction, there is no way of indicating that a physical and a regulatory interaction exist
-  G = nx.Graph() 
-  G.add_nodes_from(node_list)
-  G.add_edges_from(edge_list)
-
   start = timeit.default_timer()
+
+  G = nx.from_pandas_dataframe(df_interactome,'source','target',edge_attr=['type'])
 
   # The degree centrality for a node v is the fraction of nodes it is connected to
   d = nx.degree_centrality(G)
@@ -179,31 +171,22 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, G, cas
 
   # # create list of node names each node interacts with
   nodes_d3hive = nodes_d3hive.set_index('Standard name') 
-  print(len(G.nodes),len(nodes_d3hive))  
-
-  # print(nodes_d3hive.apply(lambda row: len(list(G.neighbors(row.name))) , axis=1))
-
-  # for row in nodes_d3hive.index:
-  #   print(list(G.neighbors(nodes_d3hive.loc[row].name)))
-
-  # print(type(nodes_d3hive.apply(lambda row: list(G.neighbors(row.name)), axis=1)))
-
-  # here is the issue
-  # print(len(nodes_d3hive.apply(lambda row: [ nodes_d3hive.loc[x].cluster + '.' + x for x in list(G.neighbors(row.name)) ], axis=1)))
-  
-  # if case == '':
-  #   print(nodes_d3hive)
 
   def build_import_str(row,df,G):
     interactors = [x for x in list(G.neighbors(row.name))]
-    imports = ', '.join([df.loc[int].cluster + '.' + int for int in interactors])
-    return imports
 
-  # nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: [ nodes_d3hive.loc[x].cluster + '.' + x for x in list(G.neighbors(row.name)) ], axis=1)
+    # build "imports" as a list of dictionaries
+    imports = [ {'id': df.loc[int].cluster + '.' + int, 'type':G.get_edge_data(row.name,int)['type'] } for int in interactors]
+    
+    return [imports]
+
   nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: build_import_str(row,nodes_d3hive,G), axis=1)
-  nodes_d3hive['imports'] = nodes_d3hive['imports'].apply(lambda row: row.split(', '))
   nodes_d3hive['size'] = nodes_d3hive.apply(lambda row: len(row['imports']), axis=1)
-  nodes_d3hive = nodes_d3hive[['name','size','imports']]
+  nodes_d3hive = nodes_d3hive[['name','size','imports',
+                              'Systematic name','Name description',
+                              'cluster','Expression peak',
+                              'GFP abundance','GFP localization',
+                              'CYCLoPs_html']]
 
   with open(filename_d3hive, 'w') as outfile:
     json.dump(nodes_d3hive.to_dict('records'), outfile)
@@ -573,11 +556,11 @@ def main(arguments,output_filename):
       interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
       interactome.reset_index(drop=True,inplace=True)
 
-      ## SHOW WARNING MESSAGE ABOUT FILTER STEP
-      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      # s = filter_message
-      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      # SHOW WARNING MESSAGE ABOUT FILTER STEP
+      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      s = filter_message
+      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 

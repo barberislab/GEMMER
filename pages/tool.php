@@ -271,7 +271,7 @@ $(document).on('click', '.text_data_toggle', function(e){
 
                 <div class="col-md-3 padding-0" id="vis-sidebar">
                     <div class="pre-scrollable" id="info-box">
-                        Hover over a gene to display detailed information here.
+                        Click on a gene to display detailed information here.
                     </div>
                     <div class="pre-scrollable" id="legend"></div>
                 </div>
@@ -297,8 +297,8 @@ HTML;
             case 'd3_cola': 
                 include(DOCUMENT_PATH . '/visualization/d3_cola.php');
                 break;
-            case 'd3_hive': 
-                include(DOCUMENT_PATH . '/visualization/d3_hive.php');
+            case 'd3_heb': 
+                include(DOCUMENT_PATH . '/visualization/d3_heb.php');
                 break;
             case 'circosjs': 
                 include(DOCUMENT_PATH . '/visualization/circosjs.php');

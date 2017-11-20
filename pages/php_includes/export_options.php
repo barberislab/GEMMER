@@ -25,7 +25,7 @@ if ($full == '') {
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3.js with cola</a>";
     echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_hive\" class=\"alert-link\">D3.js hiveplot</a>";
+    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_heb\" class=\"alert-link\">D3.js hierarchival edge bundles</a>";
     echo " | ";
     echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3.js max. 250 nodes</a>";
     echo " | ";
@@ -33,7 +33,6 @@ if ($full == '') {
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
     echo " | ";
-    
     echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">Circos.js</a>";
 
 

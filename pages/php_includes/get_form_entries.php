@@ -18,10 +18,11 @@ if (isset($_GET['int_type'])) {
     $int_type = $_GET['int_type'];
 }
 else {$int_type = 'physical_genetic_regulation';}
+
+//row 2
 if (isset($_GET['experiments'])) {
     $experiments = $_GET['experiments'];
 }
-//row 2
 else {$experiments = 1;}
 if (isset($_GET['publications'])) {
     $publications = $_GET['publications'];
@@ -36,6 +37,7 @@ if (isset($_GET['method_types'])) {
     $methods_selected = explode(',',$method_types);
 }
 else {$method_types = '';}
+
 //row 3
 if (isset($_GET['process'])) {
     $process_orig = $_GET['process'];

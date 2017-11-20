@@ -26,8 +26,7 @@ function create_alert(data,alert_type) {
 }
 
 $(function() {
-    $('.error').hide(); // hides the required field text in error class
-
+    // This function gets data from the form on the tool page and subsequently runs the executing function
     $(".submit-btn").click(function() {
         // Get the form values DO NOT process them for PHP/Python use
         // To get memory to work we process them in PHP
@@ -107,38 +106,45 @@ $(function() {
             layout              : layout, 
         }
 
-        // console.log("Input from the form:",data)
-        var link_to_open = "index.php?id=tool&";
-        for (var key in data) {
-            link_to_open += key + "=" + data[key] + "&";
-        }
-        link_to_open = link_to_open.slice(0, -1);
+        // execute visualization
+        execute_visualization(data);
+    })
+})
 
-        $.ajax({
-            type: "POST",
-            url: "pages/php_includes/bridge_php_python.php",
-            data: data,
-            beforeSend: function() {
-                data = "<h4>Request submitted!</h4><p>Your visualization will be ready soon.</p>";
-                create_alert(data,"alert-info");
-            },
-            success: function(data) {
-                // Only open viz if PHP process script says everything is okay
-                // Surround PHP/Python output in green or red alert box based on success or failure
-                if (data.indexOf("Everything went A-OK.") != -1) { // this string has to exist in data
-                    create_alert(data,"alert-success");
+function execute_visualization(data) {
+    $('.error').hide(); // hides the required field text in error class
 
-                    window.location.href = link_to_open;
-                }
-                else {
-                    if (data.indexOf("No interactions matching these conditions.") != -1 ) {
-                        console.log("Original php return:" + data);
-                        data = "No interactions matching these conditions. Try reducing the specificity of your search or reduce the number of required experiments, methods and/or publications."
-                    }
-                    create_alert(data,"alert-danger");
-                }
+    // console.log("Input from the form:",data)
+    var link_to_open = "index.php?id=tool&";
+    for (var key in data) {
+        link_to_open += key + "=" + data[key] + "&";
+    }
+    link_to_open = link_to_open.slice(0, -1);
+    console.log(data)
+    $.ajax({
+        type: "POST",
+        url: "pages/php_includes/bridge_php_python.php",
+        data: data,
+        beforeSend: function() {
+            data = "<h4>Request submitted!</h4><p>Your visualization will be ready soon.</p>";
+            create_alert(data,"alert-info");
+        },
+        success: function(data) {
+            // Only open viz if PHP process script says everything is okay
+            // Surround PHP/Python output in green or red alert box based on success or failure
+            if (data.indexOf("Everything went A-OK.") != -1) { // this string has to exist in data
+                create_alert(data,"alert-success");
+
+                window.location.href = link_to_open;
             }
-        });
-        return false;
+            else {
+                if (data.indexOf("No interactions matching these conditions.") != -1 ) {
+                    console.log("Original php return:" + data);
+                    data = "No interactions matching these conditions. Try reducing the specificity of your search or reduce the number of required experiments, methods and/or publications."
+                }
+                create_alert(data,"alert-danger");
+            }
+        }
     });
-});
+    return false;
+}

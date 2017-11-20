@@ -115,10 +115,7 @@
             var clusters = new Array();
 
             // based on number of nodes set minimal node radius
-            // min = 1, max = for 1 node: 21. every 25 nodes the minimum decreases by 5px
-            // at 25 nodes nametags might disappear
-            // at 100 nodes the minimum is 1
-            var minimal_radius = Math.max(1,20 - 5*((num_nodes)/25))
+            var minimal_radius = Math.max(5,15 - 2.5*((num_nodes)/25))
             console.log("Minimal radius: ", minimal_radius)
 
             // normalize the dc's so that the minimum maps to zero and the maxium to 1
@@ -140,13 +137,13 @@
                 var c = nodes[i].cluster; // string of the cluster name of this node
                 var j = clusters_list.indexOf(c); // assign unique cluster number to each node to set coherent starting point
 
-                nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
-                nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
+                // nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
+                // nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
 
-                if (nodes.length > 25) {
+                if (nodes.length > 10) {
                     // percentage of the maximum distance to the min. dc in the network
                     var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc);
-                    var n = 4;
+                    var n = 5;
                     var K_d = 0.8;
                     var r = minimal_radius + (max_r - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
                 }
@@ -224,7 +221,7 @@
                 // initial graph layout iterations without constraints to get the graph to untangle.
                 // iterations for structural constraints (if none are specified so any iterations here would be the same as the previous step)
                 // iterations with non-overlap constraints
-                force.start(1,0,1);
+                force.start();
 
             var link = svg.append("g")
                 .attr('class', 'link')
@@ -409,10 +406,15 @@
                 .style("font",function(d) {
                         // radius to font-size mapping
                         // 15 -> 7.5, 40 -> 20
-                        fontsize = 0.4 * d.radius 
+                        fontsize = 0.45 * d.radius 
                         return fontsize.toString() + "px sans-serif" })
                 .style("font-weight", "bold")
                 .text(function(d) { return d['Standard name']; })
+                // move the nametag toward the middle: set x and y of start of tag w.r.t. center of node
+                // d.x, d.y sets text left-bottom corner in the middle of the node. 
+                // In general we want to move this left and down, with the amount scaling with the radius. 
+                // - means up & left + means up and right
+                // these numbers are just my observations on what seems to work
                 .style("pointer-events", "none"); // CAN I DELETE THIS?
 
             function tick(e) {

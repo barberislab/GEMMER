@@ -10,11 +10,6 @@
                 fill = #66F stroke=none >
             <path d="M0,-5L10,0L0,5Z">
         </marker>
-        <marker id="red_arrow" viewbox="0 -5 10 10" refX="28" refY="0"
-                markerWidth="5" markerHeight="5" orient="auto"
-                fill = #F66 stroke=none >
-            <path d="M0,-5L10,0L0,5Z">
-        </marker>
     </defs>
 </svg>
 

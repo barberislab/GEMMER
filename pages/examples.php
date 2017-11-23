@@ -26,7 +26,13 @@ These examples use our interactive D3.js layout which allows node clustering and
 <div id="script-text">
 </div>
 
-<h2>D3.js hierarchical edge bundling</h2>
+<h2>Alternative network layouts</h2>
+We illustrated the use of the various menu options on GEMMER's custom D3.js layout. 
+GEMMER also provides a collection of alternative network layouts: hierarchical edge bundling, 
+a D3 layout using Cola.js, an nxviz matrix plot and a couple experimental cytoscape layouts.
+We include links to examples of these below. Through the tool each query may be visualized with the alternative layouts by scrolling down 
+to the "Alternative visualizations" header and clicking the layout of your choice. 
+
 <ul>
     <li><a href="" id="ex_heb_FKH12_reg">FKH1,2 multi-node example</a></li>
     The same example for the FKH1,2 transcription factors as introduced above.

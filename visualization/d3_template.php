@@ -1,14 +1,12 @@
 <svg>
     <defs>
+        <!-- viewbox contains (startx, starty, width, height) -->
         <marker id="blue_arrow" viewbox="0 -5 10 10" refX="28" refY="0"
                 markerWidth="5" markerHeight="5" orient="auto"
                 fill = #66F stroke=none >
-            <path d="M0,-5L10,0L0,5Z">
-        </marker>
-        <marker id="red_arrow" viewbox="0 -5 10 10" refX="28" refY="0"
-                markerWidth="5" markerHeight="5" orient="auto"
-                fill = #F66 stroke=none >
-            <path d="M0,-5L10,0L0,5Z">
+            <!-- (0,0) is the middle
+            start in (0,-5), draw to (10,0), draw to (0,5) fill in the shape and you have a triangle -->
+            <path d="M0,-5L10,0L0,5Z"> 
         </marker>
     </defs>
 </svg>
@@ -210,10 +208,7 @@
                 .style("fill","none")
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) { return d_interactions[d.type] })
-                .attr("marker-end", function (d) {
-                    if (d.type == "regulation") { return "url(#blue_arrow)" }
-                    else { return }
-                    })
+                .attr("marker-end", function (d) {if (d.type == "regulation") { return "url(#blue_arrow)" }})
                 .style("stroke-opacity", base_link_opacity)
                 .on("click", fade_link(0));
                 // .on("mouseover", mouseovered_link)
@@ -559,8 +554,6 @@
             .style("text-anchor", "start ")
             .style("font-size", "14px")
             .text(function(d) { return d });
-
-
         });
     }
 </script>

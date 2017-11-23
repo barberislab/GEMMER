@@ -5,6 +5,7 @@ mkdir output/excel_files
 mkdir output/json_files
 mkdir output/include_html
 mkdir output/nxviz
+mkdir output/networkx
 
 echo "Making sure permissions on python module are correct"
 # chmod -R 777 ../../html/ # the whole world can rwx

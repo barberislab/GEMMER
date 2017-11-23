@@ -21,31 +21,55 @@ if ($full == '') {
     }
 
     echo "<h3>Alternative network visualizations</h3>";
-    echo '<span style="display:inline-block; width: 200px;">Interactive D3.js</span>';
-    echo "<a href=\"index.php?id=tool&$php_args&layout=D3js\" class=\"alert-link\">GEMMER D3.js</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3.js with cola</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=d3_heb\" class=\"alert-link\">D3.js hierarchival edge bundles</a>";
-    echo " | ";
-    echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3.js max. 250 nodes</a>";
-    echo "<br />";
-    echo '<span style="display:inline-block; width: 200px;">Interactive Cytoscape.js</span>';
-    echo "<a href=\"index.php?id=tool&$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
+    echo <<<EOT
+<table class="table">
+    <tr>
+        <th>
+            Interactive D3.js
+        </th>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=D3js" class="alert-link">GEMMER D3.js</a>
+        </td>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=d3_cola" class="alert-link">D3.js with cola</a>
+        </td>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=d3_heb" class="alert-link">D3.js hierarchival edge bundles</a>
+        </td>
+        <td>
+            <a href="index_full.php?$php_args&full=full" class="alert-link" target="blank">D3.js max. 250 nodes</a>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Interactive Cytoscape.js (experimental) 
+        </th>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=circular" class="alert-link">Circular layout</a>
+        </td>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=cytoscape_colajs" class="alert-link">CytoscapeJS-Cola layout</a>
+        </td>
+    </tr>
+    <tr>
+        <th>
+            Non-interactive
+        </th>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=nxviz_matrix" class="alert-link">Nxviz matrix plot</a>
+        </td>
+        <td>
+            <a href="index.php?id=tool&$php_args&layout=circosjs" class="alert-link">Circos.js</a>
+        </td>
+    </tr>
+</table>
 
-    echo "<br/>";
-    echo '<span style="display:inline-block; width: 200px;">Non-interactive</span>';
-    echo "<a href=\"index.php?id=tool&$php_args&layout=nxviz_matrix\" class=\"alert-link\">Nxviz Matrix plot</a>";
-    echo " | ";
-    echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">Circos.js</a>";
-
+EOT;
 
     echo "<h3>Export options</h3>";
     // SVG export for D3
     if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_heb') {
-        echo '<span style="display:inline-block; width: 200px;" data-toggle="tooltip" data-placement="top" title="Download the image in SVG format (by right-clicking Download SVG and Save as, or by opening it in a new tab).">';
+        echo '<span style="display:inline-block; width: 150px;" data-toggle="tooltip" data-placement="top" title="Download the image in SVG format (by right-clicking Download SVG and Save as, or by opening it in a new tab).">';
         echo '<img style="vertical-align:middle" src="img/noun/svg_blue.svg" width=20%>';
         echo '<a href="#" id="download">Download SVG</a></span>'; 
     }
@@ -56,17 +80,31 @@ if ($full == '') {
     $php_args_excel = "excel_link=$excel_output_link&" . $php_args;
 
     // Excel image
-    echo '<span style="display:inline-block; width: 400px;">
-    <img style="vertical-align:middle" src="img/noun/excel_green.svg" width=10%>';
+    echo '<span style="display:inline-block; width: 280px;">
+    <img style="vertical-align:middle" src="img/noun/excel_green.svg" width=12%>';
 
     // Excel for filtered network
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Visualized network</a>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\"> Visualized network</a>";
 
     // Excel for full network
     // add the filter_flag (i.e. show all results or not) and set it to 0 (i.e. no filtering)
     $php_args_excel = $php_args_excel . "&filter_flag=0";
     echo " | ";
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Full network</a></span>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\"> Full network</a></span>";
+
+
+    // json
+    echo '<span style="display:inline-block; width: 300px;">';
+    echo '<img style="vertical-align:middle" src="img/noun/json_purple.svg" width=13%>';
+    echo "<a download href=\"output/json_files/interactome_{$gene}_{$unique_str}.json\" target=\"blank\"> D3.js</a> | ";
+    echo "<a download href=\"output/json_files/interactome_{$gene}_{$unique_str}_csjs.json\" target=\"blank\">Cytoscape.js</a> | ";
+    echo "<a download href=\"output/json_files/interactome_{$gene}_{$unique_str}_d3hive.json\" target=\"blank\">D3.js H.E.B.</a></span>";
+
+    // GEFX
+    echo '<span style="display:inline-block; width: 350px;">';
+    echo '<img style="vertical-align:middle" src="img/noun/graph_orange.svg" width=16%>';
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gefx\" target=\"blank\">GEFX full network</a> | ";
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gefx\" target=\"blank\">GEFX visualized network</a></span>";
 }
 else {
     echo "<h3>Export options</h3>";

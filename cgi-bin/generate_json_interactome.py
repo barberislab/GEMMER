@@ -515,6 +515,7 @@ def main(arguments,output_filename):
     # Network properties with networkx: 1
     ######################################################
     start = timeit.default_timer()
+
     df_network = pd.Series()
     df_network['Number of nodes'] = len(nodes)
     df_network['Number of edges'] = len(interactome)
@@ -526,6 +527,16 @@ def main(arguments,output_filename):
     df_network = df_network.transpose()
 
     timing['networkx properties calculation'] = timeit.default_timer() - start
+
+
+    ######################################################
+    # Export full networkx graph to graph formats (GEFX)
+    ######################################################
+    start = timeit.default_timer()
+
+    nx.write_gexf(G, SCRIPT_DIR+'/../output/networkx/' + primary_nodes_str + "_" + unique_str + "_full.gexf")
+
+    timing['networkx export'] = timeit.default_timer() - start
 
 
     ######################################################
@@ -563,10 +574,10 @@ def main(arguments,output_filename):
       interactome.reset_index(drop=True,inplace=True)
 
       # SHOW WARNING MESSAGE ABOUT FILTER STEP
-      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      # s = filter_message
-      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      s = filter_message
+      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 
@@ -585,6 +596,14 @@ def main(arguments,output_filename):
 
       timing['networkx properties calculation'] += timeit.default_timer() - start
 
+      ######################################################
+      # Export full networkx graph to graph formats (GEFX)
+      ######################################################
+      start = timeit.default_timer()
+
+      nx.write_gexf(G, SCRIPT_DIR+'/../output/networkx/' + primary_nodes_str + "_" + unique_str + ".gexf")
+
+      timing['networkx export'] += timeit.default_timer() - start
 
       ######################################################
       # Nxviz image generation: circos, arcplot, matrixplot

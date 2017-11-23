@@ -25,7 +25,9 @@ function create_alert(data,alert_type) {
     return false;
 }
 
-$(function() {
+$(document).ready(function() {
+    $('.error_label').hide(); // hides the required field text in error class
+
     // This function gets data from the form on the tool page and subsequently runs the executing function
     $(".submit-btn").click(function() {
         // Get the form values DO NOT process them for PHP/Python use
@@ -44,7 +46,7 @@ $(function() {
         var gene = replaceAll(replaceAll($("input#gene").val(),' ',''),',','_').toUpperCase(); // separate multiple inputs with underscore
         var cluster = replaceAll($("select#cluster").val(),' ','_');
         var color = replaceAll($("select#color").val(),' ','_');
-        var int_type = replaceAll($("select#int_type").val(),' ','_');
+        var int_type = replaceAll($("select#int_type").val().join(),' ','_');
         // row 2
         var experiments = $("input#experiments").val();
         var publications = $("input#publications").val();
@@ -108,19 +110,18 @@ $(function() {
 
         // execute visualization
         execute_visualization(data);
-    })
-})
+    });
+});
 
 function execute_visualization(data) {
-    $('.error').hide(); // hides the required field text in error class
 
-    // console.log("Input from the form:",data)
+    console.log("Input from the form:",data)
     var link_to_open = "index.php?id=tool&";
     for (var key in data) {
         link_to_open += key + "=" + data[key] + "&";
     }
     link_to_open = link_to_open.slice(0, -1);
-    console.log(data)
+
     $.ajax({
         type: "POST",
         url: "pages/php_includes/bridge_php_python.php",

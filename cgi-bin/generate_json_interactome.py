@@ -17,10 +17,11 @@ import pandas as pd
 import nxviz as nv  # only py3
 import simplejson as js
 
+
 pd.set_option('display.max_colwidth', -1)
 
-
-script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
+#<-- absolute dir the script is in
+script_dir = os.path.dirname(os.path.abspath(__file__))
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -33,7 +34,7 @@ def create_connection(db_file):
         return conn
     except Exception as e:
         print(e.message, e.args)
- 
+
     return None
 
 def convert(data):
@@ -46,48 +47,48 @@ def convert(data):
     else:
         return data
 
-def write_excel_file(df_user_input,df_network,df_nodes,df_interactome, file_id):
+def write_excel_file(df_user_input, df_network, df_nodes, df_interactome, file_id):
 
     filename_base = os.path.abspath(script_dir+'/../output/excel_files/')
 
     writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
     workbook = writer.book
 
-    format_null = workbook.add_format({'text_wrap': True,'align':'left','font_size':10})
+    format_null = workbook.add_format({'text_wrap': True, 'align':'left', 'font_size':10})
 
-    df_nodes = df_nodes.drop(['CYCLoPs_html',	'CYCLoPs_dict'],1)
-    df_interactome = df_interactome.drop(['Evidence HTML'],1)
+    df_nodes = df_nodes.drop(['CYCLoPs_html',	'CYCLoPs_dict'], 1)
+    df_interactome = df_interactome.drop(['Evidence HTML'], 1)
 
     ### User input
-    df_user_input.to_excel(writer,sheet_name='user input', index=True)
+    df_user_input.to_excel(writer, sheet_name='user input', index=True)
     worksheet = writer.sheets['user input']
-    worksheet.set_column('A:A',30,format_null)
-    worksheet.set_column('B:B',200,format_null)
+    worksheet.set_column('A:A', 30, format_null)
+    worksheet.set_column('B:B', 200, format_null)
 
     ### Network
-    df_network.transpose().to_excel(writer,sheet_name='network properties', index=True)
+    df_network.transpose().to_excel(writer, sheet_name='network properties', index=True)
     worksheet = writer.sheets['network properties']
-    worksheet.set_column('A:B',30,format_null)
+    worksheet.set_column('A:B', 30, format_null)
 
     ### Nodes
-    df_nodes.to_excel(writer,sheet_name='nodes', index=False)
+    df_nodes.to_excel(writer, sheet_name='nodes', index=False)
     worksheet = writer.sheets['nodes']
-    worksheet.set_column('A:B',15,format_null)
-    worksheet.set_column('C:C',40,format_null)
-    worksheet.set_column('D:D',75,format_null)
-    worksheet.set_column('E:H',15,format_null)
-    worksheet.set_column('I:I',40,format_null)
-    worksheet.set_column('J:M',15,format_null)
-    worksheet.set_column('N:O',30,format_null)
+    worksheet.set_column('A:B', 15, format_null)
+    worksheet.set_column('C:C', 40, format_null)
+    worksheet.set_column('D:D', 75, format_null)
+    worksheet.set_column('E:H', 15, format_null)
+    worksheet.set_column('I:I', 40, format_null)
+    worksheet.set_column('J:M', 15, format_null)
+    worksheet.set_column('N:O', 30, format_null)
 
     ### Interactome
-    df_interactome.to_excel(writer,sheet_name='interactome',index=False)
+    df_interactome.to_excel(writer, sheet_name='interactome', index=False)
     worksheet = writer.sheets['interactome']
-    worksheet.set_column('A:C',10,format_null)
-    worksheet.set_column('D:D',100,format_null)
-    worksheet.set_column('E:G',15,format_null)
+    worksheet.set_column('A:C', 10, format_null)
+    worksheet.set_column('D:D', 100, format_null)
+    worksheet.set_column('E:G', 15, format_null)
 
-    worksheet.set_column('A:G',None,format_null)
+    worksheet.set_column('A:G', None, format_null)
 
     # SAVE
     writer.save()
@@ -106,7 +107,8 @@ def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   df_nodes['Degree centrality'] = df_nodes['Standard name'].map(d)
 
   ### Drop nodes without interactions
-  df_nodes = df_nodes[df_nodes['Degree centrality'] != 0.0]
+  # these show up as nan, because they did not exist in the networkx graph due to not having any interactions
+  df_nodes = df_nodes[pd.notnull(df_nodes['Degree centrality'])]
   df_nodes = df_nodes.reset_index(drop=True)
 
   # calculate eigenvector and katz centrality
@@ -169,14 +171,17 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, G, cas
 
   nodes_d3hive['name'] = nodes_d3hive.apply(lambda row: row.cluster + '.' + row['Standard name'], axis=1)
 
-  # # create list of node names each node interacts with
+  # create list of node names each node interacts with
   nodes_d3hive = nodes_d3hive.set_index('Standard name') 
 
   def build_import_str(row,df,G):
-    interactors = [x for x in list(G.neighbors(row.name))]
-
     # build "imports" as a list of dictionaries
-    imports = [ {'id': df.loc[int].cluster + '.' + int, 'type':G.get_edge_data(row.name,int)['type'] } for int in interactors]
+    if row.name in G:
+      interactors = [x for x in list(G.neighbors(row.name))]
+      imports = [ {'id': df.loc[int].cluster + '.' + int, 'type':G.get_edge_data(row.name,int)['type'] } for int in interactors]
+    else: 
+      # this may occur when a 'source node' has no connections satisfying the user's criteria
+      imports = []
     
     return [imports]
 
@@ -253,7 +258,8 @@ def main(arguments,output_filename):
     ######################################################
     ### start the alert div that contains any output generated here
     ######################################################
-    print("<div class=\"alert alert-dismissable alert-info\">")
+    algorithm_output_str = ''
+
     timing = {} 
     start_all = timeit.default_timer()
     
@@ -306,7 +312,7 @@ def main(arguments,output_filename):
     excel_flag = bool(int(excel_flag))
     filter_flag = bool(int(filter_flag))
 
-    split_types = int_type.split('_')
+    split_types = int_type.split(',')
 
     compartment = compartment.replace('_',' ')
 
@@ -494,10 +500,10 @@ def main(arguments,output_filename):
       read_methods = f.read().splitlines()
     total_methods = len(read_methods)
     if len(method_types) < total_methods: # some have been deselected
-      print('We have on file:', total_methods, 'methods. User queried for:', len(method_types))
+      algorithm_output_str += '<p>' + 'We have on file: ' + str(total_methods) + ' methods. User queried for: ' + str(len(method_types)) + '</p>'
       len_before = len(interactome)
       interactome = interactome[interactome.apply(lambda x: any([m in x['Evidence'] for m in method_types]),1)]
-      print('<br/>We dropped', len_before - len(interactome), 'interactions based on the methods.<br/>')
+      algorithm_output_str += '<p>' + 'We dropped: ' + str(len_before - len(interactome)) + ' interactions based on the methods.' + '</p>'
 
     if len(interactome) == 0:
       raise ValueError('No interactions matching these conditions.')
@@ -557,10 +563,10 @@ def main(arguments,output_filename):
       interactome.reset_index(drop=True,inplace=True)
 
       # SHOW WARNING MESSAGE ABOUT FILTER STEP
-      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      s = filter_message
-      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      # s = filter_message
+      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 
@@ -581,15 +587,15 @@ def main(arguments,output_filename):
 
 
       ######################################################
-      # Networkx image generation: circos, arcplot, ...
+      # Nxviz image generation: circos, arcplot, matrixplot
       ######################################################
-      # start = timeit.default_timer()
+      start = timeit.default_timer()
 
-      # c = nv.CircosPlot(G)
-      # c.draw()
-      # plt.savefig(script_dir+'/../output/circos_plot_test.pdf')
+      c = nv.MatrixPlot(G)
+      c.draw()
+      plt.savefig(script_dir+'/../output/nxviz/matrix_' + unique_str + '.png')
 
-      # timing['networkx circos plot'] = timeit.default_timer() - start
+      timing['nxviz matrix plot'] = timeit.default_timer() - start
 
 
     ######################################################
@@ -758,6 +764,15 @@ def main(arguments,output_filename):
           </div>
         </div>
         """)
+
+
+      ######################################################
+      # Optional diagnostics
+      ######################################################
+      if algorithm_output_str != '':
+        print("<div class=\"alert alert-dismissable alert-info\">")
+        print(algorithm_output_str)
+        print("</div>")
 
 if __name__ == "__main__":
   main()

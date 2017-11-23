@@ -6,7 +6,7 @@
 <script>
 var myCircos = new Circos({
 container: '#vis_inner',
-width: document.getElementById("vis_inner").offsetWidth - document.getElementById("moveGUI").offsetWidth -1, // the actual d3 visualization's width - width of the GUI -1
+width: document.getElementById("vis_inner").offsetWidth, // the actual d3 visualization's width - width of the GUI -1
 height: document.getElementById("vis_inner").offsetHeight,
 });
 

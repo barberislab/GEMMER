@@ -13,18 +13,14 @@
     <!--Bootstrap CSS, JQuery and Bootstrap JS-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> <!-- first load jquery -->
 
     <!--Bootstrap-select for nice select buttons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/css/bootstrap-select.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.3/js/bootstrap-select.min.js"></script>
 
-    <!--D3, D3.tip and dat-gui-->
+    <!-- D3 -->
     <script src="https://d3js.org/d3.v3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js"></script>
 
     <!--  Datatables  -->
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.css">
@@ -48,9 +44,9 @@
         echo "<title>GEMMER: GEnome-wide tool for Multi-scale Modeling data Extraction and Representation - " . $id . "</title>";
     ?>
 
+    <script src="js/tooltip_toggle.js"></script>
     <script src="js/form-submit.js"></script>
 
-    <script src="js/tooltip_toggle.js"></script>
 </head>
 
 <body>
@@ -86,7 +82,7 @@
                             <li><a href="index.php?id=tool">Visualize</a></li>
                             <li><a href="index.php?id=database">Database</a></li>
                             <li><a href="index.php?id=examples">Examples</a></li>
-                            <li><a href="index.php?id=GEMMER_documentation">Documentation</a></li>
+                            <li><a href="index.php?id=documentation">Documentation</a></li>
                             <li><a href="index.php?id=news">News</a></li>
                             <li><a href="https://github.com/ThierryMondeel/GEMMER">Github repository</a></li>
                             <li><a href="index.php?id=contact">Contact</a></li>

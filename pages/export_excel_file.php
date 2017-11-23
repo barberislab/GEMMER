@@ -58,7 +58,7 @@ else {
 $excel_link = $_GET['excel_link'];
 
 $array_of_vars = [$gene,$cluster,$color,$int_type,
-$experiments,$publications,$methods,$method_types,
+$experiments,$publications,$methods,$methods_string,
 $process,$compartment,str_replace(array("(",")"),"",$expression), // Note we remove brackets here due to errors
 $max_nodes,str_replace(" ","_",$filter_condition),
 $excel_flag,$filter_flag,$unique_str];

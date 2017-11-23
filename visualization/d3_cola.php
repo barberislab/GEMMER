@@ -18,7 +18,13 @@
     </defs>
 </svg>
 
-<script type="text/javascript">    
+<script type="text/javascript">
+    function getAvg(x) {
+        return x.reduce(function (p, c) {
+            return p + c;
+        }) / x.length;
+    }
+
     /*
         One-time initialization
     */
@@ -67,10 +73,6 @@
             }
 
             // structured as a pyramid with "no data" added to the end
-            // var compartments = ["Bud","Budsite","Nucleus","Cytoplasm","Peroxisome","SpindlePole","Cell Periphery","Vac/Vac Memb",
-            //                     "Nuc Periphery","Cort. Patches","Endosome","Nucleolus","Budneck","Golgi","Mito","ER",
-            //                     "No data"];
-            // var functions = ["Cell cycle","Cell division","DNA replication","Signal transduction","Metabolism","None"];
 
             // there are 16 compartments for CYCLoPs
             // color source: https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
@@ -85,9 +87,11 @@
             // green, yellow, blue, purple, orange, snow
             var d_functions = {"Cell cycle":"#2ca02c","Cell division":"#ffe119","DNA replication":"#0080ff",
                             "Signal transduction":"#cc33cc","Metabolism":"#ff7f0e","None":"#F8F8FF"};
-            
-            // var in_compartments = compartments.indexOf(nodes[0].color);
-            // var in_functions = functions.indexOf(nodes[0].color);
+
+            var d_interactions = {"genetic":"grey","physical":"#8f0000","regulation":"blue"}
+            var color_scheme_interactions = d3.scale.ordinal()
+                .domain(Object.keys(d_interactions))
+                .range(Object.values(d_interactions));
 
             if (nodes[0].color in d_functions) {
                 var clusters_list = Object.keys(d_functions);
@@ -115,52 +119,63 @@
             var clusters = new Array();
 
             // based on number of nodes set minimal node radius
-            var minimal_radius = Math.max(5,15 - 2.5*((num_nodes)/25))
-            console.log("Minimal radius: ", minimal_radius)
+            // at 100 nodes the minimum is reached, at 0 nodes the maximum is reached.
+            var minimal_radius = 20 - ((20-5)/4)*((num_nodes)/25)// [5 - 20]
+            
+            // maximum radisu decreases with number of nodes
+            var maximum_radius = 40 - num_nodes/10;
 
             // normalize the dc's so that the minimum maps to zero and the maxium to 1
             // when all dc's are equal the max_norm_dc = 0: problem! 
             console.log(nodes);
             var min_dc = Math.min.apply(Math,nodes.map(function(o){return o['Degree centrality'];}))
-            console.log("Minimum degree centrality: ", min_dc)
             var max_norm_dc = Math.max.apply(Math,nodes.map(function(o){return o['Degree centrality'] - min_dc;}))
             if (max_norm_dc == 0) {
                 max_norm_dc = 1; // to avoid division by zero. 
             }
-            console.log("Maximum normalized degree centrality: ", max_norm_dc)
+            var dc_array = nodes.map(function(o){return o['Degree centrality'] - min_dc})
+            var mean_dc = getAvg(dc_array)
 
-            var max_r = 40;
+            // based on network properties set the hill curve parameters
+            // n and k_d make the curve steeper. i.e. more nodes with smaller radius
+            var n = 1 + 5*num_nodes/100; // [1-6]
+            var K_d = Math.min(1,Math.max(0.1,mean_dc + 0.1*num_nodes/100)) // at least 0.1, max 1
+
+            // radius reduction for the Cola layout to ensure it mostly stays within bounding box
+            minimal_radius = 0.8*minimal_radius
+            maximum_radius = 0.8*maximum_radius;
+            n = 0.8*n
+            K_d = 0.8*K_d
+
+            console.log("Minimal radius: ", minimal_radius, "Maximal radius: ", maximum_radius)
+            console.log("Minimum degree centrality: ", min_dc)
+            console.log("Maximum normalized degree centrality: ", max_norm_dc)
+            console.log("Average normalized degree centrality",mean_dc)
+            console.log("n:",n,"K_d",K_d)
 
             // loop over nodes
             m = clusters_list.length;
             for (var i = 0; i < num_nodes; i++) {
-                var c = nodes[i].cluster; // string of the cluster name of this node
+                var c = nodes[i].cluster; // cluster of this node
                 var j = clusters_list.indexOf(c); // assign unique cluster number to each node to set coherent starting point
 
-                // nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
-                // nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
+                nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
+                nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
 
-                if (nodes.length > 10) {
-                    // percentage of the maximum distance to the min. dc in the network
-                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc);
-                    var n = 5;
-                    var K_d = 0.8;
-                    var r = minimal_radius + (max_r - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
-                }
-                else {
-                    // percentage of the maximum distance to the min. dc in the network
-                    var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
-                    var r = minimal_radius + (max_r - minimal_radius) * perc; // linear
-                }
+                // percentage of the maximum distance to the min. dc in the network
+                var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
+
+                // calculate the radius
+                var r = minimal_radius + (maximum_radius - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
 
                 nodes[i].radius = r;
-                // for grouping: pretend like the node has width = height = diameter + a bit extra depending on number of clusters/nodes
-                nodes[i].width = nodes[i].height = (2*r) + (2 + Math.max(0,25 - 5*clusters.length)); // this is used to get the cluster box right. This needs to be bigger than radius for prettiness
-
                 if (!clusters[c] || (r > clusters[c].radius)) {
                         clusters[c] = nodes[i];
                         clusters[c].index = i;
-                    } 
+                    }
+                
+                // for grouping: pretend like the node has width = height = diameter + a bit extra depending on number of clusters/nodes
+                nodes[i].width = nodes[i].height = (2*r) + (2 + Math.max(0,25 - 5*clusters.length)); // this is used to get the cluster box right. This needs to be bigger than radius for prettiness
             }
             
             num_clusters = Object.keys(clusters).length;
@@ -230,11 +245,7 @@
                 .enter().append("path")
                 .style("fill","none")
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
-                .style("stroke", function (d) {
-                    if (d.type == "regulation") { return "blue" } // blue
-                    else if (d.type == "physical") { return "#8f0000"} // red
-                    else { return "grey" } // red
-                    })
+                .style("stroke", function (d) { return d_interactions[d.type] })
                 .attr("marker-end", function (d) {
                     if (d.type == "regulation") { return "url(#blue_arrow)" }
                     else { return }
@@ -318,10 +329,12 @@
                             "</tbody></table>";
                         
                         // Send table to the sidebar div
+                        d3.select("#info-box").style("display","block")
                         d3.select("#info-box").html(table)
                     }
                     else {
-                        d3.select("#info-box").html("Click on a gene to highlight its connections and display detailed information here.")
+                        d3.select("#info-box").style("display","table")
+                        d3.select("#info-box").html("<span>Click on a gene to highlight its connections and display detailed information here.</span>")
                     }
 
                     if (highlighted) { 
@@ -517,10 +530,14 @@
             }
 
             // Legend
-            legendWidth = document.getElementById("legend").offsetWidth
-            
-            var svgLegend = d3.select("#legend").append("svg")
-                // .attr("width", 200).attr("height", 500)
+            var legendWidth = document.getElementById("legend-nodes").offsetWidth
+                legendHeight = 20 * color.domain().length;
+
+
+            // ******* Node legend ************
+            var svgLegend = d3.select("#legend-nodes").append("svg")
+                .style("width",legendWidth)
+                .style("height",legendHeight);
 
             var legend = svgLegend.selectAll(".legend")
                 .data(color.domain()) // determines the contents of the legend
@@ -529,19 +546,44 @@
                 .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
             legend.append("rect")
-                .attr("x", legendWidth - 22) // rectangles have width of 18 and taking 2 for the border this gives 2 px space
-                .attr("y", 10) // slight margin from the tip of the div
+                .attr("x", legendWidth - 18) // rectangles have width of 18 and taking 2 for the border this gives 2 px space
+                .attr("y", 2) // slight margin from the tip of the div
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", color);
 
             legend.append("text")
-                .attr("x", legendWidth - 22 - 5)
-                .attr("y", 10 + 9) // note the extra 9 to align in the middle (18/2)
+                .attr("x", legendWidth - 18 - 5)
+                .attr("y", 2 + 9) // note the extra 9 to align in the middle (18/2)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
-                .style("font-size", "16px")
+                .style("font-size", "14px")
                 .text(function(d) { return d; });
+
+            // ******* line legend ************
+            var svgLineLegend = d3.select("#legend-lines").append("svg")
+                .style("width",legendWidth);
+
+            var linelegend = svgLineLegend.selectAll(".legend")
+                .data(color_scheme_interactions.domain()) // determines the contents of the legend
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+            linelegend.append("rect")
+                .attr("x", 0) 
+                .attr("y", 10) // slight margin from the tip of the div
+                .attr("width", 18)
+                .attr("height", 2)
+                .style("fill", color_scheme_interactions);
+
+            linelegend.append("text")
+                .attr("x", 0 + 18 + 5)
+                .attr("y", 10) // note the extra 9 to align in the middle (18/2)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start ")
+                .style("font-size", "14px")
+                .text(function(d) { return d });
 
         });
 }

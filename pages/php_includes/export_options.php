@@ -6,8 +6,8 @@ if ($full == '') {
     'unique_str','excel_flag'];
 
     // note the use of _orig fr process and expression. The non _orig variables are arrays, these are strings.
-    $args = [$gene,$cluster,$color,$int_type,$experiments,$publications,$methods,$method_types,
-            $process_orig,$compartment,$expression_orig, // Note we remove brackets here due to errors
+    $args = [$gene,$cluster,$color,$int_type_string,$experiments,$publications,$methods,$methods_string,
+            $process_string,$compartment,$expression_string, // Note we remove brackets here due to errors
             $max_nodes,$filter_condition,
             $unique_str,TRUE];
 
@@ -21,6 +21,7 @@ if ($full == '') {
     }
 
     echo "<h3>Alternative network visualizations</h3>";
+    echo '<span style="display:inline-block; width: 200px;">Interactive D3.js</span>';
     echo "<a href=\"index.php?id=tool&$php_args&layout=D3js\" class=\"alert-link\">GEMMER D3.js</a>";
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=d3_cola\" class=\"alert-link\">D3.js with cola</a>";
@@ -28,20 +29,25 @@ if ($full == '') {
     echo "<a href=\"index.php?id=tool&$php_args&layout=d3_heb\" class=\"alert-link\">D3.js hierarchival edge bundles</a>";
     echo " | ";
     echo "<a href=\"index_full.php?$php_args&full=full\" class=\"alert-link\" target=\"blank\">D3.js max. 250 nodes</a>";
-    echo " | ";
+    echo "<br />";
+    echo '<span style="display:inline-block; width: 200px;">Interactive Cytoscape.js</span>';
     echo "<a href=\"index.php?id=tool&$php_args&layout=circular\" class=\"alert-link\">Circular layout</a>";
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=cytoscape_colajs\" class=\"alert-link\">CytoscapeJS-Cola layout</a>";
+
+    echo "<br/>";
+    echo '<span style="display:inline-block; width: 200px;">Non-interactive</span>';
+    echo "<a href=\"index.php?id=tool&$php_args&layout=nxviz_matrix\" class=\"alert-link\">Nxviz Matrix plot</a>";
     echo " | ";
     echo "<a href=\"index.php?id=tool&$php_args&layout=circosjs\" class=\"alert-link\">Circos.js</a>";
 
 
     echo "<h3>Export options</h3>";
-
     // SVG export for D3
-    if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_hive') {
-        echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") or the formatted Excel workbook. <br/>";
-        echo '<a href="#" id="download">Download SVG</a> |'; 
+    if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_heb') {
+        echo '<span style="display:inline-block; width: 200px;" data-toggle="tooltip" data-placement="top" title="Download the image in SVG format (by right-clicking Download SVG and Save as, or by opening it in a new tab).">';
+        echo '<img style="vertical-align:middle" src="img/noun/svg_blue.svg" width=20%>';
+        echo '<a href="#" id="download">Download SVG</a></span>'; 
     }
 
     // relative to the pages/php_includes folder
@@ -49,14 +55,18 @@ if ($full == '') {
 
     $php_args_excel = "excel_link=$excel_output_link&" . $php_args;
 
+    // Excel image
+    echo '<span style="display:inline-block; width: 400px;">
+    <img style="vertical-align:middle" src="img/noun/excel_green.svg" width=10%>';
+
     // Excel for filtered network
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Download Excel workbook</a>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Visualized network</a>";
 
     // Excel for full network
     // add the filter_flag (i.e. show all results or not) and set it to 0 (i.e. no filtering)
     $php_args_excel = $php_args_excel . "&filter_flag=0";
     echo " | ";
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Download Excel workbook for full network</a>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\">Full network</a></span>";
 }
 else {
     echo "<h3>Export options</h3>";
@@ -74,6 +84,7 @@ The form is populated and submitted by the JavaScript below. -->
 
 <!--Javascript for downloading the SVG. The hidden form "svgform"" submits to a perl script -->
 <script>
+    console.log(d3.select("#download"))
     d3.select("#download")
         .on("mouseover", writeDownloadLink);
 
@@ -119,5 +130,5 @@ The form is populated and submitted by the JavaScript below. -->
         form['data'].value = svg_xml;
         form.submit();
     }
-</script>
+    </script>
 </div>

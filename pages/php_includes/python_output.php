@@ -1,7 +1,8 @@
 <div id="python_output">
     <?php 
         if ($full == '') {
-            echo "<h3>Algorithm output warnings</h3>";
+            echo "<h3>Detailed information on network properties, nodes and interactions </h3>";
+            echo "Click the panels below to expand the corresponding section.";
             include(DOCUMENT_PATH . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php'); 
         }
     ?>

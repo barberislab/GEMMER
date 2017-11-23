@@ -23,6 +23,11 @@ var width = document.getElementById("vis_inner").offsetWidth,
     base_link_opacity = 0.05,
     base_node_opacity = 1.0;
 
+  var d_interactions = {"genetic":"grey","physical":"#8f0000","regulation":"blue"}
+  var color_scheme_interactions = d3.scale.ordinal()
+      .domain(Object.keys(d_interactions))
+      .range(Object.values(d_interactions));
+
 // setup alias to cluster function
 var cluster = d3.cluster()
     .size([360, innerRadius]);
@@ -63,7 +68,7 @@ d3.json(<?php echo "\"output/json_files/interactome_{$gene}_{$unique_str}_d3hive
       .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; }) // assign the source/target from the array of objects
       .attr("class", "link")
       // .style("stroke","steelblue")
-      .style("stroke",function(l) {if (l.type == 'regulation') {return "steelblue"} else if (l.type == 'physical') {return "darkred"} else {return "grey"} } )
+      .style("stroke",function(l) {return d_interactions[l.type]})
       .style("stroke-opacity",base_link_opacity)
       .style("fill","none")
       .style("pointer-events","none");
@@ -80,6 +85,36 @@ d3.json(<?php echo "\"output/json_files/interactome_{$gene}_{$unique_str}_d3hive
       .style('fill','#000')
       .style("opacity", base_node_opacity)
       .on("click", click_event);
+
+  // Legend
+  var legendWidth = document.getElementById("legend-nodes").offsetWidth - 20
+      legendHeight = document.getElementById("legend").offsetHeight;
+
+  // ******* line legend ************
+  var svgLineLegend = d3.select("#legend-lines").append("svg")
+      .style("width",legendWidth);
+
+  var linelegend = svgLineLegend.selectAll(".legend")
+      .data(color_scheme_interactions.domain()) // determines the contents of the legend
+      .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  linelegend.append("rect")
+      .attr("x", 0) 
+      .attr("y", 10) // slight margin from the tip of the div
+      .attr("width", 18)
+      .attr("height", 2)
+      .style("fill", color_scheme_interactions);
+
+  linelegend.append("text")
+      .attr("x", 0 + 18 + 5)
+      .attr("y", 10) // note the extra 9 to align in the middle (18/2)
+      .attr("dy", ".35em")
+      .style("text-anchor", "start ")
+      .style("font-size", "14px")
+      .text(function(d) { return d });
+
 });
 
 function click_event(d) {
@@ -145,6 +180,7 @@ function highlight_event(d) {
     "</tbody></table>";
   
   // Send table to the sidebar div
+  d3.select("#info-box").style("display","block")
   d3.select("#info-box").html(table)
 }
 
@@ -161,7 +197,8 @@ function unhighlight_event(d) {
       .style("opacity",base_node_opacity)
       .style("fill", "#000").style("font",'300 11px "Helvetica Neue", Helvetica, Arial, sans-serif'); // reset style
 
-  d3.select("#info-box").html("Click on a gene to highlight its connections and display detailed information here.")
+  d3.select("#info-box").style("display","table")
+  d3.select("#info-box").html("<span>Click on a gene to highlight its connections and display detailed information here.</span>")
 
 }
 

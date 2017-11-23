@@ -7,7 +7,7 @@ body { background:#eee;}
 #header { border-style: solid; border-width: 1px; border-color: black; }
 #header-inner { margin:0 auto; padding:0 10px 0 15px;} /* padding was 10. Did this so that the image will align exactly */
 .row-m-b-0 {
-    marging-bottom : 0px;
+    margin-bottom : 0px;
   }
 
 /* Logo */
@@ -79,11 +79,6 @@ img.center {
 /* ********************* */
 /* Landing page          */
 /* ********************* */
-.landing-container {
-    border: 1px dashed black;
-    border-radius: 25px; /* rounded corners */
-    background-color: #fff;
-}
 .empty-row {
     height:10px;
 }
@@ -104,7 +99,8 @@ img.center {
 .landing-row {
     align-self: center;
     text-align: center;
-    height: 100px;
+    height: 130px;
+    border-radius: 25px; /* rounded corners */
 }
 .landing-row > h1, h2 {
     color: darkred;
@@ -149,6 +145,16 @@ img.center {
 .green {
     background-color: rgb(210, 252, 210);
     height: 250px;
+    border: 1px dashed darkgreen;
+}
+.red {
+    background-color: rgb(252, 210, 215);
+    /* height: 250px; */
+    border: 1px dashed darkgreen;
+}
+.purple {
+    background-color: rgba(239, 173, 255, 0.548);
+    /* height: 250px; */
     border: 1px dashed darkgreen;
 }
 
@@ -197,26 +203,38 @@ img.center {
     position: relative;
 }
 #vis-sidebar {
-    background: #dddddd;
     height: 700px;
     z-index: 2;
+    border: 1px rgb(112, 111, 111);
 }
 .padding-0{
      /* for bootstrap columns with no padding  */
     padding-right:0;
     padding-left:0;
+    padding-top:0;
+}
+.padding-1{
+    /* for bootstrap columns with no padding  */
+   padding-right:5px;
+   padding-left:5px;
 }
 #info-box {
+    display: table; /* Get text in info-box to vertically align */
+    text-align: center; 
     z-index:3; /* z-index only works on positioned elements (position:absolute, position:relative, or position:fixed) */    
     position: relative; 
     bottom: 0px;
     right: 0px; 
     color:#000000;
-    background-color: #f1f1f1;
-    border: 1px solid darkred;
     width: 100%;
     height: 350px;
     font-size: 12px;
+    /* overflow:scroll; */
+}
+/* Get text in info-box to vertically align */
+#info-box > span { 
+    display: table-cell;
+    vertical-align: middle;
 }
 #info-box #CYCLoPs_table {
     /* slightly smaller text for the table */
@@ -224,6 +242,8 @@ img.center {
 }
 #legend {
     z-index: 10;
+    height: 255px;
+    /* overflow:scroll; */
 }
 #python_output #CYCLoPs_table {
     font-size: 10px; 

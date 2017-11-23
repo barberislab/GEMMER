@@ -15,9 +15,10 @@ if (isset($_GET['color'])) {
 }
 else {$color = 'GO_term_1'; }
 if (isset($_GET['int_type'])) {
-    $int_type = $_GET['int_type'];
+    $int_type_string = $_GET['int_type']; // the string version
+    $int_type = explode(",",$_GET['int_type']); // the array version
 }
-else {$int_type = 'physical_genetic_regulation';}
+else {$int_type = array('physical','genetic','regulation');}
 
 //row 2
 if (isset($_GET['experiments'])) {
@@ -33,15 +34,15 @@ if (isset($_GET['methods'])) {
 }
 else {$methods = 1;}
 if (isset($_GET['method_types'])) {
-    $method_types = $_GET['method_types'];
-    $methods_selected = explode(',',$method_types);
+    $methods_string = $_GET['method_types']; // the string version
+    $methods_selected = explode(',',$methods_string); // the array version
 }
-else {$method_types = '';}
+else {$methods_string = '';}
 
 //row 3
 if (isset($_GET['process'])) {
-    $process_orig = $_GET['process'];
-    $process = explode(",",str_replace("_"," ",$_GET['process']));
+    $process_string = $_GET['process']; // the string version
+    $process = explode(",",str_replace("_"," ",$_GET['process'])); // array version
 }
 else {$process = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");} # we will auto-select all
 if (isset($_GET['compartment'])) {
@@ -49,7 +50,7 @@ if (isset($_GET['compartment'])) {
 }
 else {$compartment = 'all';}
 if (isset($_GET['expression'])) {
-    $expression_orig = $_GET['expression']; // for the excel link
+    $expression_string = $_GET['expression']; // for the excel link
     $expression = explode(",",str_replace("_"," ",$_GET['expression']));
 }
 else {$expression = array("G1(P)", "G1/S","S","G2","G2/M","M","M/G1","G1","No data");}

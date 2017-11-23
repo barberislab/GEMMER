@@ -37,9 +37,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <label for="gene" id="gene_label" data-toggle="tooltip" data-placement="top" title="Hooray!">Gene</label> 
-                                <span class="label label-info" data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs 
-                                into the field below, e.g. SIC1, ORC1, NTH1. ">?</span>
+                                <label for="gene" id="gene_label">Gene</label> 
                             </div>
                             <div class="col-md-3">
                                 <label for="cluster" id="cluster_label">Cluster by</label>
@@ -53,10 +51,12 @@ $(document).on('click', '.text_data_toggle', function(e){
                         </div>
                         <div class="row">
                             <div class="col-md-3">
-                                <input type="text" name="gene" id="gene" style='width:100%;' value="<?php echo str_replace('_',', ',$gene); ?>" class="text-input" />
-                                <label class="error" for="gene" id="gene_error">This field is required</label>
+                                <input type="text" name="gene" id="gene" style='width:100%;' 
+                                    value="<?php echo str_replace('_',', ',$gene); ?>" class="text-input" data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs into the field below, e.g. SIC1, ORC1, NTH1."/>
+                                <label class="error_label" for="gene" id="gene_error">This field is required</label>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" data-toggle="tooltip" data-placement="top" 
+                                    title="Cluster nodes on compartment expression, function or not at all.">
                                 <select name="cluster" id="cluster" class="selectpicker" data-width="100%">
                                     <?php 
                                         $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No clustering");
@@ -79,12 +79,12 @@ $(document).on('click', '.text_data_toggle', function(e){
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select name="int_type" id="int_type" class="selectpicker" data-width="100%">
+                                <select name="int_type" id="int_type" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
                                     <?php 
-                                        $types = array("physical", "physical, genetic", "physical, genetic, regulation", "physical, regulation", "genetic", "genetic, regulation", "regulation");
+                                        $types = array("physical", "genetic", "regulation");
                                         foreach ($types as $value) {
                                             $value_proc = str_replace(', ','_',$value);
-                                            echo "<option value=\"" . $value_proc . "\"" . (($value_proc==$int_type)?' selected="selected"':"") . ">$value</option>";
+                                            echo "<option value=\"" . $value_proc . "\"" . ((in_array($value,$int_type))?' selected="selected"':"") . ">$value</option>";
                                         }
                                     ?>
                                 </select>
@@ -124,11 +124,11 @@ $(document).on('click', '.text_data_toggle', function(e){
                                 <div class="row">
                                     <div class="col-md-3">
                                         <input type="number" name="experiments" id="experiments" style='width:100%;' value="<?php echo $experiments; ?>" class="text-input" />
-                                        <label class="error" for="experiments" id="experiments_error">Cannot be lower than 1</label>
+                                        <label class="error_label" for="experiments" id="experiments_error">Cannot be lower than 1</label>
                                     </div>
                                     <div class="col-md-3">
                                         <input type="number" name="methods" id="methods" style='width:100%;' value="<?php echo $methods; ?>" class="text-input" />
-                                        <label class="error" for="methods" id="methods_error">Cannot be lower than 1</label>
+                                        <label class="error_label" for="methods" id="methods_error">Cannot be lower than 1</label>
                                     </div>
                                     <div class="col-md-3">
                                         <select name="method_types" id="method_types" class="selectpicker" data-live-search="true" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
@@ -141,7 +141,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                                     $value = trim(fgets($myfile));
                                                     $value_proc = str_replace(': ',':',$value);
                                                     $value_proc = str_replace(' ','_',$value_proc);
-                                                    if ($method_types == '') {
+                                                    if ($methods_string == '') {
                                                         echo '<option value=' . $value_proc . " selected=\"selected\">$value</option>";
                                                     }
                                                     else {
@@ -154,7 +154,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     </div>
                                     <div class="col-md-3">
                                         <input type="number" name="publications" id="publications" style='width:100%;' value="<?php echo $publications; ?>" class="text-input" />
-                                        <label class="error" for="publications" id="publications_error">Cannot be lower than 1</label>
+                                        <label class="error_label" for="publications" id="publications_error">Cannot be lower than 1</label>
                                     </div>
                                 </div>
                                 
@@ -227,7 +227,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                 <div class="row">
                                     <div class="col-md-3">
                                         <input type="number" name="max_nodes" id="max_nodes" style='width:100%;' value="<?php echo $max_nodes; ?>" class="text-input" />
-                                            <label class="error" for="max_nodes" id="max_nodes_error">Minimum: 10, Maximum: 100. See the full network link after submission.</label>
+                                            <label class="error_label" for="max_nodes" id="max_nodes_error">Minimum: 10, Maximum: 100. See the full network link after submission.</label>
                                     </div>
                                     <div class="col-md-3">
                                         <select name="filter_condition" id="filter_condition" class="selectpicker" data-width="100%">
@@ -270,10 +270,19 @@ $(document).on('click', '.text_data_toggle', function(e){
                 <div class="col-md-9 padding-0" id='vis_inner'></div>
 
                 <div class="col-md-3 padding-0" id="vis-sidebar">
-                    <div class="pre-scrollable" id="info-box">
-                        Click on a gene to display detailed information here.
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Detailed information</div>
+                        <div class="panel-body pre-scrollable padding-0" id="info-box">
+                            <span>Click on a gene to display detailed information here.</span>
+                        </div>
                     </div>
-                    <div class="pre-scrollable" id="legend"></div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Legend</div>
+                        <div class="panel-body pre-scrollable padding-1" id="legend">
+                            <div class="col-md-4 padding-0" id="legend-lines"></div>
+                            <div class="col-md-8 padding-0" id="legend-nodes"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -281,7 +290,7 @@ HTML;
 
         // Export options and tables with detailed info on nodes and edges
         include(DOCUMENT_PATH . '/pages/php_includes/export_options.php');
-        include(DOCUMENT_PATH . '/pages/php_includes/python_output.php');
+        include(DOCUMENT_PATH . '/pages/php_includes/python_output.php'); 
 
         // Load the visualization
         switch ($layout) {
@@ -303,14 +312,17 @@ HTML;
             case 'circosjs': 
                 include(DOCUMENT_PATH . '/visualization/circosjs.php');
                 break;
+            case 'nxviz_matrix':
+                include(DOCUMENT_PATH . '/visualization/nxviz_matrix.php');
+                break;
             default:
-                echo 'Layout variable has unexpected value: $layout';
+                echo "Layout variable has unexpected value: $layout";
         }
 
         // Focus on the div containing the visualisation
         echo <<<HTML
         <script>
-            document.getElementById('vis_inner').focus();
+            document.getElementById('visualization').focus();
         </script>
 HTML;
 
@@ -334,4 +346,3 @@ $(document).ready(function() {
     });
 }); 
 </script>
-

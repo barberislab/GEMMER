@@ -103,8 +103,8 @@ EOT;
     // GEFX
     echo '<span style="display:inline-block; width: 350px;">';
     echo '<img style="vertical-align:middle" src="img/noun/graph_orange.svg" width=16%>';
-    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gefx\" target=\"blank\">GEFX full network</a> | ";
-    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gefx\" target=\"blank\">GEFX visualized network</a></span>";
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gexf\" target=\"blank\">GEXF full network</a> | ";
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gexf\" target=\"blank\">GEXF visualized network</a></span>";
 }
 else {
     echo "<h3>Export options</h3>";

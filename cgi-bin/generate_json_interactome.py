@@ -112,10 +112,10 @@ def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
   df_nodes = df_nodes.reset_index(drop=True)
 
   # calculate eigenvector and katz centrality
-  if filter_condition != 'Katz centrality':
+  if filter_condition == 'Eigenvector centrality':
     d = nx.eigenvector_centrality(G,max_iter=400) # this takes about 40%-50% of the time the stuff below this most of the rest
     df_nodes['Eigenvector centrality'] = df_nodes['Standard name'].map(d)
-  else: # don't calculate this unless asked for
+  if filter_condition == 'Katz centrality': # don't calculate this unless asked for
     d = nx.katz_centrality_numpy(G)
     df_nodes['Katz centrality'] = df_nodes['Standard name'].map(d)
 

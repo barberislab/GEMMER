@@ -14,7 +14,7 @@ These examples use our interactive D3.js layout which allows node clustering and
   in according to the CYCLoPs measurements and coloring the nodes based on their predicted function. 
   <li><a href="" id="ex_clb1_invert_clustering">Clb1 invert clustering and coloring</a></li>
     This example inverts the clustering and coloring: cluster by function, color by compartment. 
-  <li><a href="" id="ex_clb1_phyreg_75_2pub">Clb1 physical interactions only, 75 nodes, minimum of 2 publications</a></li>
+  <li><a href="" id="ex_clb1_phyreg_75_2pub">Clb1 physical and regulatory interactions only, 75 nodes, minimum of 2 publications</a></li>
     This is a more advanced example. Suppose we wish to filter out (not show) genetic interactions, and only consider interactions that have 
     been reported in a minimum of 2 publications. We also want to see more than 25 nodes, up to 75 nodes for instance. 
     GEMMER returns a visualization with only a couple nodes. These are all nodes that have a physical or regulatory interaction with Clb1 with at least 2 publications reporting on them. 
@@ -39,7 +39,7 @@ These examples use our interactive D3.js layout which allows node clustering and
 default_settings = {
     'cluster'             : 'No_clustering',
     'color'               : 'No_coloring',
-    'int_type'            : 'physical_genetic_regulation',
+    'int_type'            : 'physical,genetic,regulation',
     'experiments'         : 1,
     'publications'        : 1,
     'methods'             : 1,
@@ -125,7 +125,7 @@ data_ex_clb1_phyreg_75_2pub = {// create object
     gene                : 'CLB1',
     cluster             : 'GO_term_1',
     color               : 'CYCLoPs_WT1',
-    int_type            : 'physical_regulation',
+    int_type            : 'physical,regulation',
     experiments         : default_settings['experiments'],
     publications        : 2,
     methods             : default_settings['methods'],

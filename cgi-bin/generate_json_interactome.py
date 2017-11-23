@@ -21,7 +21,7 @@ import simplejson as js
 pd.set_option('display.max_colwidth', -1)
 
 #<-- absolute dir the script is in
-script_dir = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -49,7 +49,7 @@ def convert(data):
 
 def write_excel_file(df_user_input, df_network, df_nodes, df_interactome, file_id):
 
-    filename_base = os.path.abspath(script_dir+'/../output/excel_files/')
+    filename_base = os.path.abspath(SCRIPT_DIR+'/../output/excel_files/')
 
     writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
     workbook = writer.book
@@ -323,7 +323,7 @@ def main(arguments,output_filename):
     ######################################################
     start_initial = timeit.default_timer()
 
-    database = script_dir+"/data/DB_genes_and_interactions.db"
+    database = SCRIPT_DIR+"/data/DB_genes_and_interactions.db"
     conn = create_connection(database)
 
     # get all interactions in which the given genes takes part
@@ -496,7 +496,7 @@ def main(arguments,output_filename):
     start = timeit.default_timer()
 
     to_drop = []
-    with open(script_dir+'/data/unique_experimental_methods.txt') as f:
+    with open(SCRIPT_DIR+'/data/unique_experimental_methods.txt') as f:
       read_methods = f.read().splitlines()
     total_methods = len(read_methods)
     if len(method_types) < total_methods: # some have been deselected
@@ -593,7 +593,7 @@ def main(arguments,output_filename):
 
       c = nv.MatrixPlot(G)
       c.draw()
-      plt.savefig(script_dir+'/../output/nxviz/matrix_' + unique_str + '.png')
+      plt.savefig(SCRIPT_DIR+'/../output/nxviz/matrix_' + unique_str + '.png')
 
       timing['nxviz matrix plot'] = timeit.default_timer() - start
 

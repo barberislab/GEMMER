@@ -797,7 +797,7 @@ def get_KEGG_info_genes(conn):
 
 def main():
 
-    script_dir = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
     database = "DB_genes_and_interactions.db"
 
     # delete old DB
@@ -885,11 +885,11 @@ def main():
     # incorporate GFP data for all genes in the database
     if os.path.isfile('./gfp_dict.json'):
         print 'Loading pre-existing GFP dataset'
-        gfp_dict = json_load_byteified(open(script_dir+'/gfp_dict.json'))
+        gfp_dict = json_load_byteified(open(SCRIPT_DIR+'/gfp_dict.json'))
         store_gfp_data(conn,gene_symbols,d=gfp_dict)
     else:
         gfp_dict = store_gfp_data(conn,gene_symbols)
-        with open(script_dir+'/gfp_dict.json', 'w') as fp:
+        with open(SCRIPT_DIR+'/gfp_dict.json', 'w') as fp:
             json.dump(gfp_dict, fp)
     conn.commit()
 
@@ -898,11 +898,11 @@ def main():
     # don't always regenerate CYCLoPs data because it is slow
     if os.path.isfile('./CYCLoPs_dict.json'):
         print 'Loading pre-existing CYCLoPs dataset'
-        CYCLoPs_dict = json_load_byteified(open(script_dir+'/CYCLoPs_dict.json'))
+        CYCLoPs_dict = json_load_byteified(open(SCRIPT_DIR+'/CYCLoPs_dict.json'))
         store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict)
     else:
         CYCLoPs_dict = store_CYCLoPs_data(conn,gene_symbols)
-        with open(script_dir+'/CYCLoPs_dict.json', 'w') as fp:
+        with open(SCRIPT_DIR+'/CYCLoPs_dict.json', 'w') as fp:
             json.dump(CYCLoPs_dict, fp)
     conn.commit()
 

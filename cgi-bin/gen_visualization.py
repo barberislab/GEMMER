@@ -1,13 +1,15 @@
+""" Executes generate_json_interactome, catches errors, cleans up old files.  """
+
 import datetime
 import os
 import sqlite3
 import sys
 import traceback
-from io import StringIO 
+from io import StringIO
 
-import generate_json_interactome 
+import generate_json_interactome
 
-script_dir = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
 
 def create_connection(db_file):
     """ create a database connection to the SQLite database
@@ -18,91 +20,98 @@ def create_connection(db_file):
     try:
         conn = sqlite3.connect(db_file)
         return conn
-    except Exception as e:
-        print(e.message, e.args)
- 
+    except Exception as exc:
+        print(exc.message, exc.args)
+
     return None
 
-# Store the reference, in case you want to show things again in standard output
-old_stdout = sys.stdout
- 
-# This variable will store everything that is sent to the standard output
-result = StringIO()
-sys.stdout = result
+def main():
+    """ Executes generate_json_interactome, catches errors, cleans up old files.  """
 
-cwd = os.getcwd()
+    # Store the reference, in case you want to show things again in standard output
+    old_stdout = sys.stdout
 
-arguments = sys.argv
-if len(arguments) > 1:
-    gene_string = arguments[1]
+    # This variable will store everything that is sent to the standard output
+    result = StringIO()
+    sys.stdout = result
 
-unique_str = arguments[-1]
+    arguments = sys.argv
+    if len(arguments) > 1:
+        gene_string = arguments[1]
 
-database = script_dir+"/data/DB_genes_and_interactions.db"
-conn = create_connection(database)
-cursor = conn.execute("SELECT * from genes")
-gene_record = [x[0] for x in cursor]
+    unique_str = arguments[-1]
 
-# CHECK IF THE INPUT GENE IS AN EXISTING GENE, ELSE EXIT ERROR CODE 1
-if isinstance(gene_string,str):
-    if '_' in gene_string:
-        genes = gene_string.split('_')
+    database = SCRIPT_DIR+"/data/DB_genes_and_interactions.db"
+    conn = create_connection(database)
+    cursor = conn.execute("SELECT * from genes")
+    gene_record = [x[0] for x in cursor]
+
+    # CHECK IF THE INPUT GENE IS AN EXISTING GENE, ELSE EXIT ERROR CODE 1
+    if isinstance(gene_string, str):
+        if '_' in gene_string:
+            genes = gene_string.split('_')
+        else:
+            genes = [gene_string]
     else:
-        genes = [gene_string]
-else:
-    print('Input is not a string!')
-    # Redirect again the std output to screen
-    sys.stdout = old_stdout
-    # Then, get the stdout like a string and process it
-    result_string = result.getvalue()
-    print(result_string)
-    raise SystemExit
+        print('Input is not a string!')
+        # Redirect again the std output to screen
+        sys.stdout = old_stdout
+        # Then, get the stdout like a string and process it
+        result_string = result.getvalue()
+        print(result_string)
+        raise SystemExit
 
-gene_exists = True
-for g in genes:
-    if g not in gene_record:
-        print("The given gene does not exist in our database:", g)
-        gene_exists = False
+    gene_exists = True
+    for gene in genes:
+        if gene not in gene_record:
+            print("The given gene does not exist in our database:", gene)
+            gene_exists = False
 
-if not gene_exists:
-    # Redirect again the std output to screen
-    sys.stdout = old_stdout
-    # Then, get the stdout like a string and process it
-    result_string = result.getvalue()
-    print(result_string)
-    raise SystemExit
+    if not gene_exists:
+        # Redirect again the std output to screen
+        sys.stdout = old_stdout
+        # Then, get the stdout like a string and process it
+        result_string = result.getvalue()
+        print(result_string)
+        raise SystemExit
 
-json_output_filename = os.path.abspath(script_dir+'/../output/json_files/interactome_'+gene_string+'_'+unique_str+'.json') # where to save the interactome
+    # where to save the interactome
+    json_output_filename = os.path.abspath(SCRIPT_DIR+'/../output/json_files/interactome_' +
+                                           gene_string + '_' + unique_str + '.json')
 
-try: # try, except such that on failure php can show us the error
+    try: # try, except such that on failure php can show us the error
 
-    generate_json_interactome.main(arguments[1:len(arguments)],json_output_filename)
+        generate_json_interactome.main(arguments[1:len(arguments)], json_output_filename)
 
-    # Redirect again the std output to screen
-    sys.stdout = old_stdout
-    
-    # Then, get the stdout like a string and process it
-    result_string = result.getvalue()
+        # Redirect again the std output to screen
+        sys.stdout = old_stdout
 
-    # Save the python output string as a php page to incorporate in the visualization
-    filename = script_dir+'/../output/include_html/include_interactome_'+gene_string+'_'+unique_str+'.php'
-    with open(filename, "w") as text_file:
-        text_file.write(result_string)
+        # Then, get the stdout like a string and process it
+        result_string = result.getvalue()
 
-    # clean old files
-    dir_to_search = script_dir+'/../output'
-    for dirpath, dirnames, filenames in os.walk(dir_to_search):
-        for file in filenames:
-            curpath = os.path.join(dirpath, file)
-            file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(curpath))
-            if datetime.datetime.now() - file_modified > datetime.timedelta(hours=1):
-                os.remove(curpath)
+        # Save the python output string as a php page to incorporate in the visualization
+        filename = SCRIPT_DIR+'/../output/include_html/include_interactome_' \
+            + gene_string + '_' + unique_str + '.php'
+        with open(filename, "w") as text_file:
+            text_file.write(result_string)
 
-except Exception:
-    print((traceback.format_exc()))
-    # Redirect again the std output to screen
-    sys.stdout = old_stdout
-    # Then, get the stdout like a string and process it
-    result_string = result.getvalue()
-    print(result_string)
-    raise SystemExit
+        # clean old files
+        dir_to_search = SCRIPT_DIR+'/../output'
+        for dirpath, dirnames, filenames in os.walk(dir_to_search):
+            for file in filenames:
+                curpath = os.path.join(dirpath, file)
+                file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(curpath))
+                if datetime.datetime.now() - file_modified > datetime.timedelta(hours=1):
+                    os.remove(curpath)
+
+    except Exception:
+        print((traceback.format_exc()))
+        # Redirect again the std output to screen
+        sys.stdout = old_stdout
+        # Then, get the stdout like a string and process it
+        result_string = result.getvalue()
+        print(result_string)
+        raise SystemExit
+
+if __name__ == "__main__":
+    main()

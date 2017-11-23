@@ -21,9 +21,9 @@ def create_connection(db_file):
 
     return None
 
-script_dir = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))  #<-- absolute dir the script is in
 
-database = script_dir+"/../cgi-bin/data/DB_genes_and_interactions.db"
+database = SCRIPT_DIR+"/../cgi-bin/data/DB_genes_and_interactions.db"
 conn = create_connection(database)
 
 ### build dataframe of protein coding genes

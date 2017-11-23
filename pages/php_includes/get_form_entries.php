@@ -62,19 +62,13 @@ else {$max_nodes = 25;}
 if (isset($_GET['filter_condition'])) {
     $filter_condition = str_replace("_"," ",$_GET['filter_condition']);
 }
-else {$filter_condition = 'Eigenvector centrality';}
+else {$filter_condition = 'Degree centrality';}
 
 if (isset($_GET['unique_str'])) {
     $unique_str = $_GET['unique_str'];
 }
 else {
     $unique_str = '';
-}
-if (isset($_GET['full'])) {
-    $full = '_' . $_GET['full'];
-}
-else {
-    $full = '';
 }
 if (isset($_GET['layout'])) {
     $layout = $_GET['layout'];

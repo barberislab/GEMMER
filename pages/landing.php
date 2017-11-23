@@ -3,9 +3,6 @@
 
     <!-- Content -->
     <div class="col-md-12 landing-container">
-        <!-- Margin -->
-        <div class="row empty-row"></div>
-
         <!-- Top row -->
         <div class="row">
             <div class="col-md-12"> <!-- this creates horizontal margins w.r.t. container -->
@@ -13,10 +10,10 @@
                     <div class="col-md-12 landing-box blue bg-info">  <!-- this creates horizontal margins w.r.t. next column -->
                         <h1>GEMMER</h1>
                         <ul style="list-style-type:square">
-                            <li>Complements the existing array of databases and visualization tools for budding yeast</li>
+                            <li>Complements the existing web-based databases and visualization tools for budding yeast</li>
                             <li>Provides <i>high-quality</i> visualizations of interaction networks for user-specified genes</li>
                             <li>Highlights within such visualizations information on function, expression, timing and network importance.</li>
-                            <li>Aims to show meaningfull interactomes, not hairball networks</li>
+                            <li>Goes beyond "hairball" networks to provide meaningful, rational visualizations</li>
                         </ul>
                         See the <a href="index.php?id=documentation">documentation</a> for more detailed information.
                     </div>
@@ -74,7 +71,7 @@
             </div>
         </div>
 
-        <div class="row empty-row"></div>
+        <div class="row empty-row-10"></div>
 
         <!-- Middle row -->
         <div class="row">
@@ -104,17 +101,17 @@
                                 <div class="carousel-inner">
                                     <div class="item active">
                                         <h3>Interactive, clustered D3.js</h3>
-                                        <img src="img/demo_d3_clustered.png" alt="Clustered D3.js layout" class="img-responsive center full"%>
+                                        <img src="img/demo_d3_clustered.png" alt="Clustered D3.js layout" class="img-responsive center-block full">
                                     </div>
 
                                     <div class="item">
                                         <h3>Interactive, clustered Cola.js</h3>
-                                        <img src="img/demo_d3cola.svg" alt="D3.js + cola.js layout" class="img-responsive center full">
+                                        <img src="img/demo_d3cola.svg" alt="D3.js + cola.js layout" class="img-responsive center-block full">
                                     </div>
 
                                     <div class="item">
                                         <h3>Interactive D3.js Hierarchical edge bundles</h3>
-                                        <img src="img/demo_d3_hierarchical_edge_bundles.svg" alt="Hierarchical edge bundling with D3.js" class="img-responsive center full">
+                                        <img src="img/demo_d3_hierarchical_edge_bundles.svg" alt="Hierarchical edge bundling with D3.js" class="img-responsive center-block full">
                                     </div>
                                 </div>
 
@@ -137,42 +134,40 @@
                     <div class="col-md-12">
                         <div class="row landing-row purple">
                             <h1>Data export and modeling</h1>
-                            All data underlying visualizations may be exported in a variety of formats for further analysis.
+                            Visualized interactomes may be exported in a variety of formats for further analysis.
                         </div>
 
                         <div class="row landing-box demo">
-                            <div id="carousel-right" class="carousel slide" data-ride="carousel">
-                                <!-- https://www.w3schools.com/bootstrap/bootstrap_carousel.asp -->
-                                <!-- Indicators -->
-                                <ol class="carousel-indicators">
-                                    <li data-target="#carousel-right" data-slide-to="0" class="active"></li>
-                                    <li data-target="#carousel-right" data-slide-to="1"></li>
-                                    <li data-target="#carousel-right" data-slide-to="2"></li>
-                                </ol>
-
-                                <!-- Wrapper for slides -->
-                                <div class="carousel-inner">
-                                    <div class="item active">
-                                        <h3>Export network to Excel, JSON, GraphML</h3>
-                                        <img src="img/noun/excel_green.svg" class="img-responsive" width=15%> <br/>
-                                        For offline usage and further analysis by Gephi and Cytoscape
+                            <div class="item active">
+                                <h3>Export network to Excel, JSON, GraphML</h3>
+                                <p>For offline usage and further analysis by Gephi and Cytoscape</p>
+                                <div class="row empty-row-50"></div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <img src="img/noun/excel_green.svg" class="img-responsive center-block" width=40%>
                                     </div>
-
-                                    <div class="item">
-                                        <h3>Open Excel file in Cytoscape</h3>
+                                    <div class="col-md-4">
+                                        <img src="img/noun/json_purple.svg" class="img-responsive center-block" width=40%>
                                     </div>
-
+                                    <div class="col-md-4">
+                                        <img src="img/noun/graph_orange.svg" class="img-responsive center-block" width=40%>
+                                    </div>
                                 </div>
-
-                                <!-- Left and right controls -->
-                                <a class="left carousel-control" href="#carousel-right" data-slide="prev">
-                                    <span class="glyphicon glyphicon-chevron-left"></span>
-                                    <span class="sr-only">Previous</span>
-                                </a>
-                                <a class="right carousel-control" href="#carousel-right" data-slide="next">
-                                    <span class="glyphicon glyphicon-chevron-right"></span>
-                                    <span class="sr-only">Next</span>
-                                </a>
+                                <div class="row empty-row-50"></div>
+                                <div class="row">
+                                    <img src="img/noun/arrow_down_black.svg" class="img-responsive center-block" width=10%>
+                                </div>
+                                <div class="row empty-row-50"></div>
+                                <div class="row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-4">
+                                        <img src="img/Gephi-logo.png" class="img-responsive center-block" width=100%>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <img src="img/cytoscape-logo" class="img-responsive center-block" width=100%>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -297,17 +297,20 @@ HTML;
             case 'D3js': 
                 include(DOCUMENT_PATH . '/visualization/d3_template.php');
                 break;
-            case 'circular': 
-                include(DOCUMENT_PATH . '/visualization/circular.php');
-                break;
-            case 'cytoscape_colajs': 
-                include(DOCUMENT_PATH . '/visualization/cytoscape_colajs.php');
-                break;
             case 'd3_cola': 
                 include(DOCUMENT_PATH . '/visualization/d3_cola.php');
                 break;
             case 'd3_heb': 
                 include(DOCUMENT_PATH . '/visualization/d3_heb.php');
+                break;
+            case 'd3_large': 
+                include(DOCUMENT_PATH . '/visualization/d3_large.php');
+                break;
+            case 'circular': 
+                include(DOCUMENT_PATH . '/visualization/circular.php');
+                break;
+            case 'cytoscape_colajs': 
+                include(DOCUMENT_PATH . '/visualization/cytoscape_colajs.php');
                 break;
             case 'circosjs': 
                 include(DOCUMENT_PATH . '/visualization/circosjs.php');

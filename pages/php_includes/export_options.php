@@ -1,6 +1,5 @@
 <div id="export_options">
 <?php 
-if ($full == '') {
     $arg_names = ['gene','cluster','color','int_type','experiments','publications','methods','method_types',
     'process','compartment','expression','max_nodes','filter_condition',
     'unique_str','excel_flag'];
@@ -22,7 +21,7 @@ if ($full == '') {
 
     echo "<h3>Alternative network visualizations</h3>";
     echo <<<EOT
-<table class="table">
+    <table class="table">
     <tr>
         <th>
             Interactive D3.js
@@ -37,7 +36,7 @@ if ($full == '') {
             <a href="index.php?id=tool&$php_args&layout=d3_heb" class="alert-link">D3.js hierarchival edge bundles</a>
         </td>
         <td>
-            <a href="index_full.php?$php_args&full=full" class="alert-link" target="blank">D3.js max. 250 nodes</a>
+            <a href="index.php?id=tool&$php_args&layout=d3_large" class="alert-link">D3.js max. 250 nodes</a>
         </td>
     </tr>
     <tr>
@@ -62,13 +61,13 @@ if ($full == '') {
             <a href="index.php?id=tool&$php_args&layout=circosjs" class="alert-link">Circos.js</a>
         </td>
     </tr>
-</table>
+    </table>
 
-EOT;
+    EOT;
 
     echo "<h3>Export options</h3>";
     // SVG export for D3
-    if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_heb') {
+    if ($layout == 'D3js' | $layout == 'd3_cola' | $layout == 'd3_heb' | $layout == 'd3_large') {
         echo '<span style="display:inline-block; width: 150px;" data-toggle="tooltip" data-placement="top" title="Download the image in SVG format (by right-clicking Download SVG and Save as, or by opening it in a new tab).">';
         echo '<img style="vertical-align:middle" src="img/noun/svg_blue.svg" width=20%>';
         echo '<a href="#" id="download">Download SVG</a></span>'; 
@@ -105,12 +104,6 @@ EOT;
     echo '<img style="vertical-align:middle" src="img/noun/graph_orange.svg" width=16%>';
     echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gexf\" target=\"blank\">GEXF full network</a> | ";
     echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gexf\" target=\"blank\">GEXF visualized network</a></span>";
-}
-else {
-    echo "<h3>Export options</h3>";
-    echo "Download the image in SVG format (by right-clicking \"Download SVG\" and \"Save as\") <br/>";
-    echo '<a href="#" id="download">Download SVG</a>';
-}
 ?>
 
 <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.

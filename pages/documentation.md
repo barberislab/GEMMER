@@ -69,16 +69,6 @@ interactions. Furthermore various tables with this information are also displaye
 ### Visualizing multiple genes together -->
 
 
-<!-- 
-## Back-end details
-### D3js
-For drawing the visualization we make use of D3js. 
-[d3js](http://d3js.org) is a JavaScript library for manipulating documents based on data.
-The library enables stunning client-side visualization inside the webbrowser.
-Commonly in science-related websites (and possibly many others), users need to save the generated 
-visualization in vectorized format (e.g. PDF), to be able to incorporate the graphics in presentation or publications. -->
-
-
 ## Dependencies
 GEMMER would not be possible without the following open-source projects:
 * [YeastMine](https://yeastmine.yeastgenome.org/yeastmine/begin.do)

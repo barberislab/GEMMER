@@ -133,99 +133,105 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, G, cas
 
   interactome = interactome[['source','target','type','#Experiments']]
 
-  # sort
-  nodes = nodes.sort_values(by=['primary node',filter_condition],ascending=False)
-  nodes.reset_index(drop=True,inplace=True)
+  # when exporting full json reduce nodes/interactions to max. 250 nodes
+  if case != '':
+    max_nodes = 250
+    max_edges = 2000
 
-  # reduce interactions based on remaining nodes
-  n = nodes['Standard name'].values # list of remaining node IDs
-  interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
+    # sort
+    nodes = nodes.sort_values(by=['primary node',filter_condition],ascending=False)
+    nodes = nodes.iloc[:max_nodes]
+    nodes.reset_index(drop=True,inplace=True)
 
-  # remove genetic interactions first (<5 experiments)
-  if case != '' and len(interactome) > max_edges:
-    for i in range(5):
-      interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] == i)].index)
+    # reduce interactions based on remaining nodes
+    n = nodes['Standard name'].values # list of remaining node IDs
+    interactome = interactome[ (interactome['source'].isin(n)) & (interactome['target'].isin(n)) ]
 
-      if len(interactome) <= max_edges:
-        break
+    # remove genetic interactions first (<5 experiments)
+    if case != '' and len(interactome) > max_edges:
+      for i in range(5):
+        interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'genetic') & (interactome['#Experiments'] == i)].index)
+        if len(interactome) <= max_edges:
+          break
 
-    # remove physical interactions (<3 experiments)
-    for i in range(3):
-      if case != '' and len(interactome) > max_edges:
-        interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'physical') & (interactome['#Experiments'] == i)].index)
-      if len(interactome) <= max_edges:
-        break
+      # remove physical interactions (<3 experiments)
+      for i in range(3):
+        if case != '' and len(interactome) > max_edges:
+          interactome = interactome.drop(interactome[ (~interactome['source'].isin(primary_nodes)) & (~interactome['target'].isin(primary_nodes)) & (interactome['type'] == 'physical') & (interactome['#Experiments'] == i)].index)
+        if len(interactome) <= max_edges:
+          break
 
-  interactome.reset_index(drop=True,inplace=True)
+    interactome.reset_index(drop=True,inplace=True)
 
-  ##########################
-  # export d3 hive json
-  ##########################
-  # 'name': category1.category2.id, imports: ['gene1', 'gene2']
-  filename_d3hive = filename[:-5] + '_d3hive' + filename[-5:]
+  if case == '':
+    ##########################
+    # export d3 hive json
+    ##########################
+    # 'name': category1.category2.id, imports: ['gene1', 'gene2']
+    filename_d3hive = filename[:-5] + '_d3hive' + filename[-5:]
 
-  if case != '': 
-    filename_d3hive = filename_d3hive[:-5]+'_full'+filename_d3hive[-5:]
+    if case != '': 
+      filename_d3hive = filename_d3hive[:-5]+'_full'+filename_d3hive[-5:]
 
-  nodes_d3hive = nodes.copy()
+    nodes_d3hive = nodes.copy()
 
-  nodes_d3hive['name'] = nodes_d3hive.apply(lambda row: row.cluster + '.' + row['Standard name'], axis=1)
+    nodes_d3hive['name'] = nodes_d3hive.apply(lambda row: row.cluster + '.' + row['Standard name'], axis=1)
 
-  # create list of node names each node interacts with
-  nodes_d3hive = nodes_d3hive.set_index('Standard name') 
+    # create list of node names each node interacts with
+    nodes_d3hive = nodes_d3hive.set_index('Standard name') 
 
-  def build_import_str(row,df,G):
-    # build "imports" as a list of dictionaries
-    if row.name in G:
-      interactors = [x for x in list(G.neighbors(row.name))]
-      imports = [ {'id': df.loc[int].cluster + '.' + int, 'type':G.get_edge_data(row.name,int)['type'] } for int in interactors]
-    else: 
-      # this may occur when a 'source node' has no connections satisfying the user's criteria
-      imports = []
-    
-    return [imports]
+    def build_import_str(row,df,G):
+      # build "imports" as a list of dictionaries
+      if row.name in G:
+        interactors = [x for x in list(G.neighbors(row.name))]
+        imports = [ {'id': df.loc[int].cluster + '.' + int, 'type':G.get_edge_data(row.name,int)['type'] } for int in interactors]
+      else: 
+        # this may occur when a 'source node' has no connections satisfying the user's criteria
+        imports = []
+      
+      return [imports]
 
-  nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: build_import_str(row,nodes_d3hive,G), axis=1)
-  nodes_d3hive['size'] = nodes_d3hive.apply(lambda row: len(row['imports']), axis=1)
-  nodes_d3hive = nodes_d3hive[['name','size','imports',
-                              'Systematic name','Name description',
-                              'cluster','Expression peak',
-                              'GFP abundance','GFP localization',
-                              'CYCLoPs_html']]
+    nodes_d3hive['imports'] = nodes_d3hive.apply(lambda row: build_import_str(row,nodes_d3hive,G), axis=1)
+    nodes_d3hive['size'] = nodes_d3hive.apply(lambda row: len(row['imports']), axis=1)
+    nodes_d3hive = nodes_d3hive[['name','size','imports',
+                                'Systematic name','Name description',
+                                'cluster','Expression peak',
+                                'GFP abundance','GFP localization',
+                                'CYCLoPs_html']]
 
-  with open(filename_d3hive, 'w') as outfile:
-    json.dump(nodes_d3hive.to_dict('records'), outfile)
+    with open(filename_d3hive, 'w') as outfile:
+      json.dump(nodes_d3hive.to_dict('records'), outfile)
 
-  ##########################
-  # export cytoscape json
-  ##########################
-  filename_cs = filename[:-5]+'_csjs'+filename[-5:]
+    ##########################
+    # export cytoscape json
+    ##########################
+    filename_cs = filename[:-5]+'_csjs'+filename[-5:]
 
-  if case != '': 
-    filename_cs = filename_cs[:-5]+'_full'+filename_cs[-5:]
+    if case != '': 
+      filename_cs = filename_cs[:-5]+'_full'+filename_cs[-5:]
 
-  nodes_cs = nodes.copy()
-  nodes_cs = nodes_cs.rename(columns={'Standard name':'id'}) # cytoscape requires an ID attribute
+    nodes_cs = nodes.copy()
+    nodes_cs = nodes_cs.rename(columns={'Standard name':'id'}) # cytoscape requires an ID attribute
 
-  with open(filename_cs, 'w') as outfile:
-    # generate [ {"data": {"id":bla,...} }, {"data": {...}}, ...  ]
+    with open(filename_cs, 'w') as outfile:
+      # generate [ {"data": {"id":bla,...} }, {"data": {...}}, ...  ]
 
-    json_str_cs = '['
+      json_str_cs = '['
 
-    d_nodes = nodes_cs.to_dict('records')
-    d_nodes = convert(d_nodes)
+      d_nodes = nodes_cs.to_dict('records')
+      d_nodes = convert(d_nodes)
 
-    json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_nodes])
+      json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_nodes])
 
-    json_str_cs += ','
-    
-    d_interactome = interactome.to_dict("records")
-    json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_interactome])
+      json_str_cs += ','
+      
+      d_interactome = interactome.to_dict("records")
+      json_str_cs += ",".join(['{"data":' + str(row) + '}' for row in d_interactome])
 
-    json_str_cs += ']'
-    json_d = ast.literal_eval(json_str_cs)
+      json_str_cs += ']'
+      json_d = ast.literal_eval(json_str_cs)
 
-    json.dump(json_d, outfile)
+      json.dump(json_d, outfile)
 
   ##########################
   # export D3 json
@@ -552,9 +558,9 @@ def main(arguments,output_filename):
     # # WRITE "FULL" NETWORK TO JSON
     # # this will include a filtering step for really big networks
     # ######################################################
-    # start_json = timeit.default_timer()
-    # write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,G,'full',primary_nodes)
-    # timing['json_full'] = timeit.default_timer() - start_json
+    start_json = timeit.default_timer()
+    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,G,'full',primary_nodes)
+    timing['json_full'] = timeit.default_timer() - start_json
 
     ######################################################
     # FILTER NODES TO MANAGEABLE VISUALIZATION

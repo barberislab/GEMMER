@@ -46,7 +46,7 @@
             .attr("height", height)
 
         d3.json(<?php 
-                    echo "\"output/json_files/interactome_{$gene}_{$unique_str}.json\""; 
+                    echo "\"output/json_files/interactome_{$gene}_{$unique_str}_full.json\""; 
                 ?>, function(error, graph) {   
 
             // define clusters and nodes
@@ -141,6 +141,7 @@
 
             // loop over nodes
             m = clusters_list.length;
+            r = 6;
             for (var i = 0; i < num_nodes; i++) {
                 var c = nodes[i].cluster; // cluster of this node
                 var j = clusters_list.indexOf(c); // assign unique cluster number to each node to set coherent starting point
@@ -148,16 +149,10 @@
                 nodes[i].x = Math.cos(j / m * 2 * Math.PI) * 200 + width / 2 + Math.random();
                 nodes[i].y = Math.sin(j / m * 2 * Math.PI) * 200 + height / 2 + Math.random();
 
-                // percentage of the maximum distance to the min. dc in the network
-                var perc = (nodes[i]['Degree centrality'] - min_dc)/(max_norm_dc); 
-
-                // calculate the radius
-                var r = minimal_radius + (maximum_radius - minimal_radius) * (perc**n/(K_d**n + perc**n)); // non-linear Hill curve
-
                 nodes[i].radius = r;
                 if (!clusters[c] || (r > clusters[c].radius)) {
-                        clusters[c] = nodes[i];
-                        clusters[c].index = i;
+                    clusters[c] = nodes[i];
+                    clusters[c].index = i;
                 }
             }
             
@@ -293,11 +288,6 @@
                         return thisOpacity;
                     });
 
-                    nametags.style("opacity", function(o) {
-                        thisOpacity = isConnected(d, o) ? base_node_opacity : node_opacity;
-                        return thisOpacity 
-                    });
-
                     // Suppose we go to highlighted. Then all links are at 0.3
                     // All links from selected node should go on, all others off
                     // If toward unhighlited everything becomes 0.3 again
@@ -333,11 +323,6 @@
                         return thisOpacity;
                     });
 
-                    nametags.style("opacity", function(o) {
-                        thisOpacity = (o['Standard name'] == d.source['Standard name'] || o['Standard name'] == d.target['Standard name']) ? base_node_opacity : node_opacity;
-                        return thisOpacity 
-                    });
-
                     link.style("stroke-opacity", function(o) {
                         return o.source === d.source && o.target === d.target ? link_opacity_on : link_opacity_off;
                     });
@@ -350,19 +335,6 @@
             function dragstart(d) {
                 d3.select(this).classed("fixed", d.fixed = true);
             }
-
-            // Create text for nametags in nodes
-            var nametags = svg.append("g").selectAll("text")
-                .data(force.nodes()) 
-                .enter().append("text")
-                .style("font",function(d) {
-                        // radius to font-size mapping
-                        // 15 -> 7.5, 40 -> 20
-                        fontsize = 0.4 * d.radius 
-                        return fontsize.toString() + "px sans-serif" })
-                .style("font-weight", "bold")
-                .text(function(d) { return d['Standard name'] })
-                .style("pointer-events", "none"); // CAN I DELETE THIS?
 
             function tick(e) {
                 // e is an object of type 'tick'
@@ -426,31 +398,6 @@
 
                     return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + x2 + "," + y2;
                 });
-
-                // Where to place the gene names
-                nametags
-                    // move the nametag toward the middle: set x and y of start of tag w.r.t. center of node
-                    // d.x, d.y sets text left-bottom corner in the middle of the node. 
-                    // In general we want to move this left and down, with the amount scaling with the radius. 
-                    // - means up & left + means up and right
-                    // these numbers are just my observations on what seems to work
-                    .attr("x", function(d) { 
-                        if (d['Standard name'].length == 3) {
-                            return d.x - d.radius / 2.3; 
-                        }
-                        if (d['Standard name'].length == 4) {
-                            return d.x - d.radius / 1.9; 
-                        }
-                        if (d['Standard name'].length == 5) {
-                            return d.x - d.radius / 1.5; 
-                        }
-                        else { // more than 5
-                            return d.x - d.radius/1.2; 
-                        }
-                        })
-                    .attr("y", function(d) { 
-                            return d.y + d.radius / 6; 
-                    })
             }
             
             // Move d to be adjacent to the cluster node.

@@ -164,7 +164,7 @@
                                         <img src="img/Gephi-logo.png" class="img-responsive center-block" width=100%>
                                     </div>
                                     <div class="col-md-4">
-                                        <img src="img/cytoscape-logo" class="img-responsive center-block" width=100%>
+                                        <img src="img/cytoscape-logo.png" class="img-responsive center-block" width=100%>
                                     </div>
                                     <div class="col-md-2"></div>
                                 </div>

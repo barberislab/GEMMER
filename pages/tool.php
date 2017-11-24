@@ -52,11 +52,13 @@ $(document).on('click', '.text_data_toggle', function(e){
                         <div class="row">
                             <div class="col-md-3">
                                 <input type="text" name="gene" id="gene" style='width:100%;' 
-                                    value="<?php echo str_replace('_',', ',$gene); ?>" class="text-input" data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs into the field below, e.g. SIC1, ORC1, NTH1."/>
+                                    value="<?php echo str_replace('_',', ',$gene); ?>" class="text-input" 
+                                    data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs into the 
+                                    field below, e.g. SIC1, ORC1, NTH1. These seed the interactome which will be based on all their interactors and the interactions between the interactors."/>
                                 <label class="error_label" for="gene" id="gene_error">This field is required</label>
                             </div>
                             <div class="col-md-3" data-toggle="tooltip" data-placement="top" 
-                                    title="Cluster nodes on compartment expression, function or not at all.">
+                                    title="Cluster nodes on compartment expression (CYCLoPs WT1-3, function (GO term 1,2) or not at all.">
                                 <select name="cluster" id="cluster" class="selectpicker" data-width="100%">
                                     <?php 
                                         $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No clustering");
@@ -67,7 +69,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Color nodes on compartment expression (CYCLoPs WT1-3, function (GO term 1,2) or not at all.">
                                 <select name="color" id="color" class="selectpicker" data-width="100%">
                                     <?php 
                                         $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No coloring");
@@ -78,7 +80,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select which types of interactions to consider. ">
                                 <select name="int_type" id="int_type" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
                                     <?php 
                                         $types = array("physical", "genetic", "regulation");
@@ -88,6 +90,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                         }
                                     ?>
                                 </select>
+                                <label class="error_label" for="int_type" id="int_type_error">Select at least 1 type of interaction.</label>
                             </div>
                         </div>
                     </div>
@@ -122,16 +125,20 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3">
-                                        <input type="number" name="experiments" id="experiments" style='width:100%;' value="<?php echo $experiments; ?>" class="text-input" />
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select the minimal number 
+                                    of experiments that need to have shown an interaction to consider it in your interaction network.">
+                                        <input type="number" name="experiments" id="experiments" style='width:100%;' value="<?php echo $experiments; ?>" />
                                         <label class="error_label" for="experiments" id="experiments_error">Cannot be lower than 1</label>
                                     </div>
-                                    <div class="col-md-3">
-                                        <input type="number" name="methods" id="methods" style='width:100%;' value="<?php echo $methods; ?>" class="text-input" />
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select the minimal number 
+                                    of unique experimental methods that need to have shown an interaction to consider it in your interaction network.">
+                                        <input type="number" name="methods" id="methods" style='width:100%;' value="<?php echo $methods; ?>" />
                                         <label class="error_label" for="methods" id="methods_error">Cannot be lower than 1</label>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select name="method_types" id="method_types" class="selectpicker" data-live-search="true" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select the types of experimental methods 
+                                    that need to have been used to show an interaction to consider it in your interaction network.">
+                                        <select name="method_types" id="method_types" class="selectpicker" data-live-search="true" multiple data-actions-box="true" 
+                                        data-selected-text-format="count" data-width="100%">
                                             <?php 
                                                 $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_experimental_methods.txt';
                                                 $compartments = file($file_loc);
@@ -151,9 +158,13 @@ $(document).on('click', '.text_data_toggle', function(e){
                                                 fclose($myfile);
                                             ?>
                                             </select>
+                                            <label class="error_label" for="method_types" id="method_types_error">Select at least 1 method.</label>
                                     </div>
                                     <div class="col-md-3">
-                                        <input type="number" name="publications" id="publications" style='width:100%;' value="<?php echo $publications; ?>" class="text-input" />
+                                        <input type="number" name="publications" id="publications" style='width:100%;' value="<?php echo $publications; ?>" 
+                                        class="text-input" data-toggle="tooltip" data-placement="top" title="Select the minimal number 
+                                    of publications that need to have shown an interaction to consider it in your interaction network. One publication
+                                    may contain multiple experiments and multiple methods." />
                                         <label class="error_label" for="publications" id="publications_error">Cannot be lower than 1</label>
                                     </div>
                                 </div>
@@ -173,8 +184,10 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-3">
-                                    <select name="process" id="process" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select which functions (based on GO terms) need to 
+                                    be either the primary or secondary function of a gene to consider it in your interaction network.">
+                                    <select name="process" id="process" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" 
+                                    data-width="100%">
                                         <?php 
                                             $types = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");
                                             foreach ($types as $value) {
@@ -182,8 +195,11 @@ $(document).on('click', '.text_data_toggle', function(e){
                                             }
                                         ?>
                                     </select>
+                                    <label class="error_label" for="process" id="process_error">Select at least 1 process.</label>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="If you select a specific compartment here, your interaction
+                                    network will only consider genes that are most abundantly expressed in that compartment. Where the data is based on either CYCLoPs or GFP
+                                    depending on which option you selected.">
                                         <select name="compartment" id="compartment" class="selectpicker" data-live-search="true" data-width="100%">
                                             <?php 
                                                 $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_compartments.txt';
@@ -199,9 +215,12 @@ $(document).on('click', '.text_data_toggle', function(e){
                                                 fclose($myfile);
                                             ?>
                                         </select>
+                                        <label class="error_label" for="compartment" id="compartment_error">Select at least 1 compartment.</label>
                                     </div>
-                                    <div class="col-md-3">
-                                        <select name="expression" id="expression" class="selectpicker" multiple data-actions-box="true" data-selected-text-format="count" data-width="100%">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select which cell cycle phase a gene needs to have its 
+                                    transcription peak in, in order to consider it in your interaction network.">
+                                        <select name="expression" id="expression" class="selectpicker" multiple data-actions-box="true" 
+                                        data-selected-text-format="count" data-width="100%">
                                             <?php 
                                                 $phases = array("G1(P)", "G1/S","S","G2","G2/M","M","M/G1","G1","No data");
                                                 foreach ($phases as $value) {
@@ -209,6 +228,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                                 }
                                             ?>
                                         </select>
+                                        <label class="error_label" for="expression" id="expression_error">Select at least 1 phase.</label>
                                     </div>
                                     <div class="col-md-3">
                                         
@@ -221,15 +241,18 @@ $(document).on('click', '.text_data_toggle', function(e){
                                         <label for="max_nodes" id="max_nodes">Max. number of nodes visualized</label>
                                     </div>
                                     <div class="col-md-3">
-                                        <label array("metabolism", "cell cycle","cell division","DNA replication","None") for="selection_criteria" id="selection_criteria">Node selection criteria</label>
+                                        <label for="selection_criteria" id="selection_criteria">Node selection criteria</label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-3">
-                                        <input type="number" name="max_nodes" id="max_nodes" style='width:100%;' value="<?php echo $max_nodes; ?>" class="text-input" />
-                                            <label class="error_label" for="max_nodes" id="max_nodes_error">Minimum: 10, Maximum: 100. See the full network link after submission.</label>
+                                        <input type="number" name="max_nodes" id="max_nodes" style='width:100%;' value="<?php echo $max_nodes; ?>" class="text-input" 
+                                        data-toggle="tooltip" data-placement="top" title="GEMMER visualizations are limited to a maximum number of nodes (absolute max. 100). 
+                                        Select how many nodes you want to display."/>
+                                            <label class="error_label" for="max_nodes" id="max_nodes_error">Minimum: 2. Maximum: 100. See the full network link after submission.</label>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="If your query returns more than the maximum number of nodes you selected,
+                                    this setting decides by which criteria the nodes are filtered out.">
                                         <select name="filter_condition" id="filter_condition" class="selectpicker" data-width="100%">
                                             <?php 
                                                 $types = array("Degree centrality", "Eigenvector centrality","Katz centrality");

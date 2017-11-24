@@ -95,12 +95,17 @@ def write_excel_file(df_user_input, df_network, df_nodes, df_interactome, file_i
 
     print('Completed generating the Excel file.')
 
-def calc_network_props(df_nodes, df_interactome, df_network, filter_condition):
+def calc_network_props(primary_nodes,df_nodes, df_interactome, df_network, filter_condition):
   ''' Use NetworkX to calculate degree centrality etc. '''
 
   start = timeit.default_timer()
 
-  G = nx.from_pandas_dataframe(df_interactome,'source','target',edge_attr=['type'])
+  G = nx.from_pandas_dataframe(df_interactome,'source','target',edge_attr=['type','#Experiments','#Methods','#Publications'])
+
+  # if the filtered network the primary nodes may end up not having edges and therefore be missing as nodes. Add them back here.
+  for p in primary_nodes:
+    if p not in G.nodes:
+      G.add_node(p)
 
   # The degree centrality for a node v is the fraction of nodes it is connected to
   d = nx.degree_centrality(G)
@@ -527,7 +532,7 @@ def main(arguments,output_filename):
     df_network['Number of edges'] = len(interactome)
 
     # use networkx
-    nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
+    nodes, interactome, df_network, G = calc_network_props(primary_nodes, nodes, interactome, df_network, filter_condition)
 
     df_network = df_network.to_frame()
     df_network = df_network.transpose()
@@ -580,10 +585,10 @@ def main(arguments,output_filename):
       interactome.reset_index(drop=True,inplace=True)
 
       # SHOW WARNING MESSAGE ABOUT FILTER STEP
-      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      s = filter_message
-      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      # s = filter_message
+      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 
@@ -598,7 +603,7 @@ def main(arguments,output_filename):
       df_network['Number of edges'] = len(interactome)
 
       # use networkx
-      nodes, interactome, df_network, G = calc_network_props(nodes, interactome, df_network, filter_condition)
+      nodes, interactome, df_network, G = calc_network_props(primary_nodes, nodes, interactome, df_network, filter_condition)
 
       timing['networkx properties calculation'] += timeit.default_timer() - start
 
@@ -762,37 +767,37 @@ def main(arguments,output_filename):
       ######################################################
       # Optional diagnostics
       ######################################################
-      print("""
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
-              Diagnostics: calculation time</a>
-            </h4>
-          </div>
-          <div id="collapse5" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="table-responsive">
-      """)
-      timing['print frames'] = timeit.default_timer() - start_print
-      timing['all'] = timeit.default_timer() - start_all
-      df_timing = pd.Series(timing)
-      df_timing = df_timing.to_frame()
-      df_timing.columns = ['Time']
-      df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
-      print(df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered']))
-      print("Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python.")
-      print("""
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        """)
+      # print("""
+      #   <div class="panel panel-default">
+      #     <div class="panel-heading">
+      #       <h4 class="panel-title">
+      #         <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
+      #         Diagnostics: calculation time</a>
+      #       </h4>
+      #     </div>
+      #     <div id="collapse5" class="panel-collapse collapse">
+      #       <div class="panel-body">
+      #         <div class="table-responsive">
+      # """)
+      # timing['print frames'] = timeit.default_timer() - start_print
+      # timing['all'] = timeit.default_timer() - start_all
+      # df_timing = pd.Series(timing)
+      # df_timing = df_timing.to_frame()
+      # df_timing.columns = ['Time']
+      # df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
+      # print(df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered']))
+      # print("Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python.")
+      # print("""
+      #           </div>
+      #         </div>
+      #       </div>
+      #     </div>
+      #   </div>
+      #   """)
 
 
       ######################################################
-      # Optional diagnostics
+      # Show algorithm output in an alert at the bottom of the page
       ######################################################
       if algorithm_output_str != '':
         print("<div class=\"alert alert-dismissable alert-info\">")

@@ -174,21 +174,6 @@ body { background:#eee;}
     margin-top: -20px;
     font-size: 15px;
 }
-
-/* CSS for the CYCLoPs tables  */
-#visualization .CYCLoPs-table {
-    font-size:10px;
-    padding:0;
-    margin:0;
-    border-spacing:0;
-    border-collapse: collapse; 
-}
-#visualization .CYCLoPs-table th {
-    padding:1px 1px 1px 1px;
-}
-#visualization .CYCLoPs-table td {
-    padding:1px 1px 1px 1px;
-}
 /* CSS FOR THE D3 TEMPLATE */
 #vis_inner {
     height: 700px;
@@ -231,25 +216,28 @@ body { background:#eee;}
     display: table-cell;
     vertical-align: middle;
 }
-#info-box #CYCLoPs_table {
-    /* slightly smaller text for the table */
-    font-size: 10px; 
-}
 #legend {
     z-index: 10;
     height: 255px;
     /* overflow:scroll; */
 }
-#python_output #CYCLoPs_table {
+
+/* CSS for the CYCLoPs tables  */
+.CYCLoPs-table {
     font-size: 10px; 
+    padding:0;
+    margin:0;
+    border-spacing:0;
+    border-collapse: collapse; 
 }
-#python_output #CYCLoPs_table > tbody td {
-    padding: 1px;
+table.CYCLoPs-table tbody tr td {
+    padding:1px 1px 1px 1px;
+    text-align: center;
 }
-#python_output #CYCLoPs_table > tbody th {
-    padding: 1px;
+.CYCLoPs-table tbody tr th {
+    padding:1px 1px 1px 1px;
 }
-#python_output #CYCLoPs_table > thead th {
-    padding: 1px;
+.CYCLoPs-table thead th {
+    padding:1px 1px 1px 1px;
 }
 .property-name span { color:#ffffff; }

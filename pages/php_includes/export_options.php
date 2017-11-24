@@ -57,13 +57,10 @@
         <td>
             <a href="index.php?id=tool&$php_args&layout=nxviz_matrix" class="alert-link">Nxviz matrix plot</a>
         </td>
-        <td>
-            <a href="index.php?id=tool&$php_args&layout=circosjs" class="alert-link">Circos.js</a>
-        </td>
     </tr>
     </table>
 
-    EOT;
+EOT;
 
     echo "<h3>Export options</h3>";
     // SVG export for D3

@@ -69,14 +69,14 @@ $(document).ready(function() {
             $("input#gene").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case
         }
+        if (int_type == "") {
+            $("label#int_type_error").show();
+            $("select#int_type").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
         if (experiments < 1) {
             $("label#experiments_error").show();
             $("input#experiments").focus(); // show error message if blank and focus on the field
-            return false; // do not submit in this case
-        }
-        if (publications < 1) {
-            $("label#publications_error").show();
-            $("input#publications").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case
         }
         if (methods < 1) {
@@ -84,7 +84,32 @@ $(document).ready(function() {
             $("input#methods").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case
         }
-        if (max_nodes < 1 || max_nodes > 100) {
+        if (method_types == "") {
+            $("label#method_types_error").show();
+            $("select#method_types").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
+        if (publications < 1) {
+            $("label#publications_error").show();
+            $("input#publications").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
+        if (process == "") {
+            $("label#process_error").show();
+            $("select#process").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
+        if (compartment == "") {
+            $("label#compartment_error").show();
+            $("select#compartment").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
+        if (expression == "") {
+            $("label#expression_error").show();
+            $("select#expression").focus(); // show error message if blank and focus on the field
+            return false; // do not submit in this case
+        }
+        if (max_nodes < 2 || max_nodes > 100) {
             $("label#max_nodes_error").show();
             $("input#max_nodes").focus(); // show error message if blank and focus on the field
             return false; // do not submit in this case

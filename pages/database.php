@@ -27,63 +27,6 @@ $(document).ready(function() {
 });
 </script>
 
-<!-- hidden inputs for visualisation -->
-<!-- row1 -->
-<input type="hidden" id="gene" value="<?php echo $_GET['gene']; ?>" />
-<select id="cluster" style="display:none">
-    <option value="No clustering">empty</option>
-</select>
-<select id="color" style="display:none" />
-    <option value="No coloring">empty</option>
-</select>
-<select id="int_type" style="display:none" />
-    <option value="physical_genetic_regulation">empty</option>
-</select>
-<!-- row 2 -->
-<input type="hidden" id="experiments" value="1" />
-<input type="hidden" id="publications" value="1" />
-<input type="hidden" id="methods" value="1" />
-<select id="method_types" multiple="multiple" style="display:none" />
-<?php 
-    $file_loc = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/unique_experimental_methods.txt';
-    $compartments = file($file_loc);
-    $myfile = fopen($file_loc, "r") or die("Unable to open file!");
-
-    while(!feof($myfile)) {
-        $value = trim(fgets($myfile));
-        $value_proc = str_replace(': ',':',$value);
-        $value_proc = str_replace(' ','_',$value_proc);
-        echo '<option value=' . $value_proc . " selected=\"selected\">$value</option>";
-    }
-    fclose($myfile);
-?>
-</select>
-<!-- row 3 -->
-<select id="process"  multiple="multiple" style="display:none" />
-<?php 
-    $types = array("Cell cycle","Cell division","DNA replication","Metabolism","Signal transduction","None");
-    foreach ($types as $value) {
-        echo "<option value=\"" . $value . "\"" . " selected=\"selected\")" . ">$value</option>";
-    }
-?>
-</select>
-<select id="compartment" style="display:none" />
-    <option value="Any">empty</option>
-</select>
-<select id="expression" multiple="multiple" style="display:none" />
-<?php 
-    $phases = array("G1(P)", "G1/S","S","G2","G2/M","M","M/G1","G1","No data");
-    foreach ($phases as $value) {
-        echo "<option value=\"" . $value . "\"" . " selected=\"selected\")" . ">$value</option>";
-    }
-?>
-</select>
-<!-- row 4 -->
-<input type="hidden" id="max_nodes" value="25" />
-<select id="filter_condition" style="display:none" />
-    <option value="Eigenvector centrality">empty</option>
-</select>
-
 <?php
 
 $dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/DB_genes_and_interactions.db';
@@ -304,6 +247,29 @@ EOT;
 }
 
 ?>
+
+<script>
+// data array to submit when clicking the visualize interactome button
+default_settings = {
+    'gene'                : <?php echo '"' . $gene . '"';?>,
+    'cluster'             : 'No_clustering',
+    'color'               : 'No_coloring',
+    'int_type'            : 'physical,genetic,regulation',
+    'experiments'         : 1,
+    'publications'        : 1,
+    'methods'             : 1,
+    'method_types'        : 'Affinity_Capture-Luminescence,Affinity_Capture-MS,Affinity_Capture-RNA,Affinity_Capture-Western,Biochemical_Activity,chromatin_immunoprecipitation_evidence,chromatin_immunoprecipitation-chip_evidence,chromatin_immunoprecipitation-seq_evidence,Co-crystal_Structure,Co-fractionation,Co-localization,Co-purification,combinatorial_evidence,computational_combinatorial_evidence,Dosage_Growth_Defect,Dosage_Lethality,Dosage_Rescue,Far_Western,FRET,microarray_RNA_expression_level_evidence,Negative_Genetic,PCA,Phenotypic_Enhancement,Phenotypic_Suppression,Positive_Genetic,Protein-peptide,Protein-RNA,Reconstituted_Complex,Synthetic_Growth_Defect,Synthetic_Haploinsufficiency,Synthetic_Lethality,Synthetic_Rescue,Two-hybrid',
+    'process'             : "Cell_cycle,Cell_division,DNA_replication,Metabolism,Signal_transduction,None",
+    'compartment'         : "all",
+    'expression'          : "G1(P),G1/S,S,G2,G2/M,M,M/G1,G1,No_data",
+    'max_nodes'           : 25,
+    'filter_condition'    : 'Eigenvector_centrality',
+    'unique_str'          : randomString(7, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
+    'layout'              : 'D3js', 
+}
+var default_visualization = document.getElementById('default_visualization');
+default_visualization.onclick = function() {return execute_visualization(default_settings);}
+</script>
 
 <script>
 

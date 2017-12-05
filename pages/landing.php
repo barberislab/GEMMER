@@ -11,11 +11,11 @@
                         <h1>GEMMER</h1>
                         <ul style="list-style-type:square">
                             <li>Complements the existing web-based databases and visualization tools for budding yeast</li>
-                            <li>Provides <i>high-quality</i> visualizations of interaction networks for user-specified genes</li>
-                            <li>Highlights within such visualizations information on function, expression, timing and network importance.</li>
-                            <li>Goes beyond "hairball" networks to provide meaningful, rational visualizations</li>
+                            <li>Provides <i>high-quality</i> visualizations of interaction networks for user-specified gene(s)</li>
+                            <li>Highlights within such visualizations information on function, expression, timing and network importance</li>
+                            <li>Goes beyond "hairball" networks to provide rational visualizations</li>
                         </ul>
-                        See the <a href="index.php?id=documentation">documentation</a> for more detailed information.
+                        See the <a href="index.php?id=documentation">documentation</a> for more detailed information
                     </div>
                 </div>
 
@@ -37,7 +37,7 @@
                                     <a href="http://cyclops.ccbr.utoronto.ca/" target="blank">CYCLoPs</a>
                                 </span>
                                 <span style="display:inline-block; width: 330px;">
-                                    Abundance and localization
+                                    Relative abundance and localization
                                 </span>
                             </li>
                             <li>
@@ -45,7 +45,7 @@
                                     <a href="https://yeastgfp.yeastgenome.org/" target="blank">YeastGFP</a>
                                 </span>
                                 <span style="display:inline-block; width: 330px;">
-                                Abundance and localization
+                                Absolute abundance and localization
                                 </span>
                             </li>
                             <li>
@@ -61,7 +61,7 @@
                                     <a href="#" target="blank">Yeast 7.6</a>
                                 </span>
                                 <span style="display:inline-block; width: 330px;">
-                                    Flag enzymes
+                                    List of metabolic enzymes
                                 </span>
                             </li>
                         </ul>
@@ -83,8 +83,8 @@
                     <div class="col-md-12">
                         <div class="row landing-row red">
                             <h1>Network visualizations</h1>
-                            User queries result in interactomes that may be visualized with various layouts. <br/>
-                            See the <a href="index.php?id=documentation">examples</a> for more inspiration.
+                            User queries result in interactomes that may be visualized with various layouts <br/>
+                            See the <a href="index.php?id=documentation">examples</a> for more inspiration
                         </div>
 
                         <div class="row landing-box demo">
@@ -134,7 +134,7 @@
                     <div class="col-md-12">
                         <div class="row landing-row purple">
                             <h1>Data export and modeling</h1>
-                            Visualized interactomes may be exported in a variety of formats for further analysis.
+                            Visualized interactomes may be exported in a variety of formats for further analysis
                         </div>
 
                         <div class="row landing-box demo">

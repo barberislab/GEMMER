@@ -58,7 +58,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                 <label class="error_label" for="gene" id="gene_error">This field is required</label>
                             </div>
                             <div class="col-md-3" data-toggle="tooltip" data-placement="top" 
-                                    title="Cluster nodes on compartment expression (CYCLoPs WT1-3, function (GO term 1,2) or not at all.">
+                                    title="Cluster nodes on compartment expression (CYCLoPs WT1-3), function (GO term 1,2) or not at all.">
                                 <select name="cluster" id="cluster" class="selectpicker" data-width="100%">
                                     <?php 
                                         $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No clustering");
@@ -69,7 +69,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Color nodes on compartment expression (CYCLoPs WT1-3, function (GO term 1,2) or not at all.">
+                            <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Color nodes on compartment expression (CYCLoPs WT1-3), function (GO term 1,2) or not at all.">
                                 <select name="color" id="color" class="selectpicker" data-width="100%">
                                     <?php 
                                         $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No coloring");
@@ -217,8 +217,8 @@ $(document).on('click', '.text_data_toggle', function(e){
                                         </select>
                                         <label class="error_label" for="compartment" id="compartment_error">Select at least 1 compartment.</label>
                                     </div>
-                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select which cell cycle phase a gene needs to have its 
-                                    transcription peak in, in order to consider it in your interaction network.">
+                                    <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Select in which cell cycle phase a gene needs to have its 
+                                    peak of transcription, in order to consider it in your interaction network.">
                                         <select name="expression" id="expression" class="selectpicker" multiple data-actions-box="true" 
                                         data-selected-text-format="count" data-width="100%">
                                             <?php 

@@ -8,7 +8,8 @@ These examples use our interactive D3.js layout which allows node clustering and
 
 <ul>
   <li><a href="" id="ex_clb1">Clb1 minimal example</a></li>
-  The simplest use case: just visualize the interactome of a single gene (CLB1) and don't do any clustering or coloring. 
+  The simplest use case: just visualize the interactome of a single gene (CLB1) and without clustering or coloring. 
+  This results in the typical "hairball" network.
   <li><a href="" id="ex_clb1_clustering">Clb1 + clustering</a></li>
   This example shows the same data while additionally clustering the nodes on the compartment they are most abundant 
   in according to the CYCLoPs measurements and coloring the nodes based on their predicted function. 
@@ -20,7 +21,7 @@ These examples use our interactive D3.js layout which allows node clustering and
     GEMMER returns a visualization with only a couple nodes. These are all nodes that have a physical or regulatory interaction with Clb1 with at least 2 publications reporting on them. 
   <li><a href="" id="ex_FKH12_reg">FKH1,2 multi-node example</a></li>
     This example highlights the option to build an interaction network by seeding with more than 1 gene. In this case, we choose the closely related FKH1,2 (Forkhead) transcription factors. 
-    For transcription factors like these, we might be particularly interested in the regulatory interactions. So we select those interactions only. 
+    For such genes, we might be particularly interested in the regulatory interactions. So we select those interactions only. 
 </ul>
 
 <div id="script-text">

@@ -35,9 +35,9 @@ GEMMER predicts functions for protein-coding genes using GO term annotations in 
 * Signal transduction GO:0007165
 * DNA replication GO:0006260
 
-All these terms fall under the GO term cellular process and DNA replication falls under cellular metabolic process. 
+All these terms fall under the GO term cellular process, and DNA replication falls under cellular metabolic process. 
 
-We assign each such go term annotation to one of the high-level terms listed above. For each gene we add up how many annotations fall under each high-level GO term. The one with the highest count is then assigned as the gene's primary function, the second-highest count gets assigned as the secondary function. The pie chart below displays the distribution of the primary and secondary functions/GO terms across the genome-wide collection of ~6800 protein-coding genes.
+We assign each such GO term annotation to one of the high-level terms listed above. For each gene we add up how many annotations fall under each high-level GO term. The one with the highest count is then assigned as the gene's primary function, the second-highest count gets assigned as the secondary function. The pie chart below displays the distribution of the primary and secondary functions/GO terms across the genome-wide collection of ~6800 protein-coding genes.
 
 ![Pie chart of GO term distribution in the genome.](img/pie_chart_go_term_genome.png)
 

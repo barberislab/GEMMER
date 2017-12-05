@@ -137,12 +137,12 @@ body { background:#eee;}
 /* box specific settings */
 .blue {
     /* This box is colored with the bootstrap bg-info class */
-    height: 275px;
+    height: 250px;
     border: 1px dashed darkblue;
 }
 .green {
     background-color: rgb(210, 252, 210);
-    height: 275px;
+    height: 250px;
     border: 1px dashed darkgreen;
 }
 .red {
@@ -222,22 +222,40 @@ body { background:#eee;}
     /* overflow:scroll; */
 }
 
-/* CSS for the CYCLoPs tables  */
-.CYCLoPs-table {
+/* CSS for the CYCLoPs tables  
+have to set this for specific divs because the database page should contain the big version*/
+#visualization .CYCLoPs-table {
     font-size: 10px; 
     padding:0;
     margin:0;
     border-spacing:0;
     border-collapse: collapse; 
 }
-table.CYCLoPs-table tbody tr td {
+#visualization .CYCLoPs-table tbody tr td {
     padding:1px 1px 1px 1px;
     text-align: center;
 }
-.CYCLoPs-table tbody tr th {
+#visualization .CYCLoPs-table tbody tr th {
     padding:1px 1px 1px 1px;
 }
-.CYCLoPs-table thead th {
+#visualization .CYCLoPs-table thead th {
+    padding:1px 1px 1px 1px;
+}
+#python_output .CYCLoPs-table {
+    font-size: 10px; 
+    padding:0;
+    margin:0;
+    border-spacing:0;
+    border-collapse: collapse; 
+}
+#python_output .CYCLoPs-table tbody tr td {
+    padding:1px 1px 1px 1px;
+    text-align: center;
+}
+#python_output .CYCLoPs-table tbody tr th {
+    padding:1px 1px 1px 1px;
+}
+#python_output .CYCLoPs-table thead th {
     padding:1px 1px 1px 1px;
 }
 .property-name span { color:#ffffff; }

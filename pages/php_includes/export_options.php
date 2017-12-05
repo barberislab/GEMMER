@@ -41,7 +41,7 @@
     </tr>
     <tr>
         <th>
-            Interactive Cytoscape.js (experimental) 
+            Interactive Cytoscape.js (work in progress) 
         </th>
         <td>
             <a href="index.php?id=tool&$php_args&layout=circular" class="alert-link">Circular layout</a>
@@ -99,8 +99,8 @@ EOT;
     // GEFX
     echo '<span style="display:inline-block; width: 350px;">';
     echo '<img style="vertical-align:middle" src="img/noun/graph_orange.svg" width=16%>';
-    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gexf\" target=\"blank\">GEXF full network</a> | ";
-    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gexf\" target=\"blank\">GEXF visualized network</a></span>";
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}.gexf\" target=\"blank\">GEXF visualized network</a> | ";    
+    echo "<a download href=\"output/networkx/{$gene}_{$unique_str}_full.gexf\" target=\"blank\">GEXF full network</a></span>";
 ?>
 
 <!-- Hidden <FORM> to submit the SVG data to the server, which will convert it to SVG/PDF/PNG downloadable file.

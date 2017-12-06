@@ -46,9 +46,6 @@
         <td>
             <a href="index.php?id=tool&$php_args&layout=circular" class="alert-link">Circular layout</a>
         </td>
-        <td>
-            <a href="index.php?id=tool&$php_args&layout=cytoscape_colajs" class="alert-link">CytoscapeJS-Cola layout</a>
-        </td>
     </tr>
     <tr>
         <th>
@@ -73,20 +70,6 @@ EOT;
         echo '<span style="display:inline-block; width: 180px;">';
         echo '<button id="png_download_button" type="button" class="button btn btn-primary"><span class="glyphicon glyphicon-download-alt"></span>Download PNG</button>';
         echo '</span>';
-
-        // script to download the png through cytoscape.js API
-        // see: https://stackoverflow.com/questions/39168928/cytoscape-save-graph-as-image-by-button
-//         echo <<<EOT
-//         <script>
-//             var png_download_button = document.getElementById('png_download_button');
-//             png_download_button.onclick = function() {
-//                 var b64key = 'base64,';
-//                 var b64 = cy.png().substring( cy.png().indexOf(b64key) + b64key.length );
-//                 var imgBlob = base64ToBlob( b64, 'image/png' );
-//                 saveAs( imgBlob, 'graph.png' );
-//             }
-//         </script>
-// EOT;
     }
 
     // relative to the pages/php_includes folder

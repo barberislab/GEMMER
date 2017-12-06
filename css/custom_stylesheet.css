@@ -259,3 +259,15 @@ have to set this for specific divs because the database page should contain the 
     padding:1px 1px 1px 1px;
 }
 .property-name span { color:#ffffff; }
+
+.popover { /* limit popover size */
+    max-width: 750px;
+    max-height: 400px;
+  }
+.popover img { /* make sure image stays within bounds */
+    max-width: 700px;
+    max-height: 380px;
+}
+.spacer-200 {
+    height:200px;
+}

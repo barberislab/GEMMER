@@ -7,25 +7,48 @@ Click the links to launch the visualization.
 These examples use our interactive D3.js layout which allows node clustering and coloring.
 
 <ul>
-  <li><a href="" id="ex_clb1">Clb1 minimal example</a></li>
-  The simplest use case: just visualize the interactome of a single gene (CLB1) and without clustering or coloring. 
-  This results in the typical "hairball" network.
-  <li><a href="" id="ex_clb1_clustering">Clb1 + clustering</a></li>
-  This example shows the same data while additionally clustering the nodes on the compartment they are most abundant 
-  in according to the CYCLoPs measurements and coloring the nodes based on their predicted function. 
-  <li><a href="" id="ex_clb1_invert_clustering">Clb1 invert clustering and coloring</a></li>
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_clb1.svg">
+            <a href="" id="ex_clb1">Clb1 minimal example</a>
+        </span>
+    </li>
+    The simplest use case: just visualize the interactome of a single gene (CLB1) and without clustering or coloring. 
+    This results in the typical "hairball" network.
+    
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_clb1_clustering.svg">
+            <a href="" id="ex_clb1_clustering">Clb1 with clustering and coloring</a>
+        </span>
+    </li>
+    This example shows the same data while additionally clustering the nodes on the compartment they are most abundant 
+    in according to the CYCLoPs measurements and coloring the nodes based on their predicted function. 
+    
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_clb1_invert_clustering.svg">
+            <a href="" id="ex_clb1_invert_clustering">Clb1 invert clustering and coloring</a>
+        </span>
+    </li>
     This example inverts the clustering and coloring: cluster by function, color by compartment. 
-  <li><a href="" id="ex_clb1_phyreg_75_2pub">Clb1 physical and regulatory interactions only, 75 nodes, minimum of 2 publications</a></li>
+    
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_clb1_phyreg_75_2pub.svg">
+            <a href="" id="ex_clb1_phyreg_75_2pub">Clb1 physical and regulatory interactions only, 75 nodes, minimum of 2 publications</a>
+        </span>
+    </li>
     This is a more advanced example. Suppose we wish to filter out (not show) genetic interactions, and only consider interactions that have 
     been reported in a minimum of 2 publications. We also want to see more than 25 nodes, up to 75 nodes for instance. 
     GEMMER returns a visualization with only a couple nodes. These are all nodes that have a physical or regulatory interaction with Clb1 with at least 2 publications reporting on them. 
-  <li><a href="" id="ex_FKH12_reg">FKH1,2 multi-node example</a></li>
+
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_FKH12_reg.svg">
+            <a href="" id="ex_FKH12_reg">FKH1,2 multi-node example</a>
+        </span>
+    </li>
     This example highlights the option to build an interaction network by seeding with more than 1 gene. In this case, we choose the closely related FKH1,2 (Forkhead) transcription factors. 
     For such genes, we might be particularly interested in the regulatory interactions. So we select those interactions only. 
 </ul>
 
-<div id="script-text">
-</div>
+
 
 <h2>Alternative network layouts</h2>
 We illustrated the use of the various menu options on GEMMER's custom D3.js layout. 
@@ -35,15 +58,47 @@ We include links to examples of these below. Through the tool each query may be 
 to the "Alternative visualizations" header and clicking the layout of your choice. 
 
 <ul>
-    <li><a href="" id="ex_heb_FKH12_reg">FKH1,2 multi-node example</a></li>
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_cola_FKH12_reg.svg">
+            <a href="#" id="ex_cola_FKH12_reg">[D3.js + Cola.js] FKH1,2 multi-node example</a>
+        </span>
+    </li>
+    The same example for the FKH1,2 transcription factors as introduced above.
+
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_heb_FKH12_reg.svg">
+            <a href="" id="ex_heb_FKH12_reg">[Hierarchical edge bundling] FKH1,2 multi-node example</a>
+        </span>
+    </li>
+    The same example for the FKH1,2 transcription factors as introduced above.
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_large_FKH12_reg.svg">
+            <a href="" id="ex_large_FKH12_reg">[Up to 250 nodes] FKH1,2 multi-node example</a>
+        </span>
+    </li>
+    The same example for the FKH1,2 transcription factors as introduced above.
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_circ_FKH12_reg.png">
+            <a href="" id="ex_circ_FKH12_reg">[Cytoscape.js circular] FKH1,2 multi-node example</a>
+        </span>
+    </li>
+    The same example for the FKH1,2 transcription factors as introduced above.
+    <li>
+        <span data-toggle="popover" data-full="img/examples/ex_matrix_FKH12_reg.png">
+            <a href="" id="ex_matrix_FKH12_reg">[Matrix] FKH1,2 multi-node example</a>
+        </span>
+    </li>
     The same example for the FKH1,2 transcription factors as introduced above.
 </ul>
 
+<div id="script-text">
+</div>
 
+<div class="row spacer-200"></div>
 
 <script>
 // save writing by saving the default settings 
-default_settings = {
+var default_settings = {
     'cluster'             : 'No_clustering',
     'color'               : 'No_coloring',
     'int_type'            : 'physical,genetic,regulation',
@@ -55,11 +110,11 @@ default_settings = {
     'compartment'         : "all",
     'expression'          : "G1(P),G1/S,S,G2,G2/M,M,M/G1,G1,No_data",
     'max_nodes'           : 25,
-    'filter_condition'    : 'Eigenvector_centrality',
+    'filter_condition'    : 'Degree_centrality',
 }
 
 // ###########################
-data_ex_clb1 = {// create object
+var data_ex_clb1 = {// create object
     gene                : 'CLB1',
     cluster             : default_settings['cluster'],
     color               : default_settings['color'],
@@ -82,7 +137,7 @@ ex_clb1.onclick = function() {return execute_visualization(data_ex_clb1);}
 // ###########################
 
 // ###########################
-data_ex_clb1_clustering = {// create object
+var data_ex_clb1_clustering = {// create object
     gene                : 'CLB1',
     cluster             : 'CYCLoPs_WT1',
     color               : 'GO_term_1',
@@ -105,7 +160,7 @@ ex_clb1_clustering.onclick = function() {return execute_visualization(data_ex_cl
 // ###########################
 
 // ###########################
-data_ex_clb1_invert_clustering = {// create object
+var data_ex_clb1_invert_clustering = {// create object
     gene                : 'CLB1',
     cluster             : 'GO_term_1',
     color               : 'CYCLoPs_WT1',
@@ -128,7 +183,7 @@ ex_clb1_invert_clustering.onclick = function() {return execute_visualization(dat
 // ###########################
 
 // ###########################
-data_ex_clb1_phyreg_75_2pub = {// create object
+var data_ex_clb1_phyreg_75_2pub = {// create object
     gene                : 'CLB1',
     cluster             : 'GO_term_1',
     color               : 'CYCLoPs_WT1',
@@ -152,7 +207,7 @@ ex_clb1_phyreg_75_2pub.onclick = function() {return execute_visualization(data_e
 
 
 // ###########################
-data_ex_FKH12_reg = {// create object
+var data_ex_FKH12_reg = {// create object
     gene                : 'FKH1_FKH2',
     cluster             : 'GO_term_1',
     color               : 'CYCLoPs_WT1',
@@ -175,25 +230,59 @@ ex_FKH12_reg.onclick = function() {return execute_visualization(data_ex_FKH12_re
 // ###########################
 
 // ###########################
-data_ex_heb_FKH12_reg = {// create object
-    gene                : 'FKH1_FKH2',
-    cluster             : 'GO_term_1',
-    color               : 'CYCLoPs_WT1',
-    int_type            : 'regulation',
-    experiments         : default_settings['experiments'],
-    publications        : default_settings['publications'],
-    methods             : default_settings['methods'],
-    method_types        : default_settings['method_types'],
-    process             : default_settings['process'],
-    compartment         : default_settings['compartment'],
-    expression          : default_settings['expression'],
-    max_nodes           : default_settings['max_nodes'],
-    filter_condition    : default_settings['filter_condition'],
-    unique_str          : randomString(7, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'),
-    layout              : 'd3_heb', 
-}
+var data_ex_cola_FKH12_reg = $.extend(true, {}, data_ex_FKH12_reg); // copy previous object
+data_ex_cola_FKH12_reg['layout'] = 'd3_cola';
+
+var ex_cola_FKH12_reg = document.getElementById('ex_cola_FKH12_reg');
+ex_cola_FKH12_reg.onclick = function() {return execute_visualization(data_ex_cola_FKH12_reg);}
+// ###########################
+
+// ###########################
+var data_ex_heb_FKH12_reg = $.extend(true, {}, data_ex_FKH12_reg); // copy previous object
+data_ex_heb_FKH12_reg['layout'] = 'd3_heb';
 
 var ex_heb_FKH12_reg = document.getElementById('ex_heb_FKH12_reg');
 ex_heb_FKH12_reg.onclick = function() {return execute_visualization(data_ex_heb_FKH12_reg);}
 // ###########################
+
+var data_ex_large_FKH12_reg = $.extend(true, {}, data_ex_heb_FKH12_reg); // copy previous object
+data_ex_large_FKH12_reg['layout'] = 'd3_large';
+
+var ex_large_FKH12_reg = document.getElementById('ex_large_FKH12_reg');
+ex_large_FKH12_reg.onclick = function() {return execute_visualization(data_ex_large_FKH12_reg);}
+// ###########################
+
+var data_ex_circ_FKH12_reg = $.extend({}, data_ex_heb_FKH12_reg);;
+data_ex_circ_FKH12_reg['layout'] = 'circular';
+
+var ex_circ_FKH12_reg = document.getElementById('ex_circ_FKH12_reg');
+ex_circ_FKH12_reg.onclick = function() {return execute_visualization(data_ex_circ_FKH12_reg);}
+// ###########################
+
+var data_ex_matrix_FKH12_reg = $.extend({}, data_ex_heb_FKH12_reg);;
+data_ex_matrix_FKH12_reg['layout'] = 'nxviz_matrix';
+
+var ex_matrix_FKH12_reg = document.getElementById('ex_matrix_FKH12_reg');
+ex_matrix_FKH12_reg.onclick = function() {return execute_visualization(data_ex_matrix_FKH12_reg);}
+// ###########################
+
+// ###########################
+</script>
+
+<script>
+// Wait for the web page to be ready
+$(document).ready(function() {
+  // grab all thumbnails and add bootstrap popovers
+  // https://getbootstrap.com/javascript/#popovers
+  $('[data-toggle="popover"]').popover({
+    html: true,
+    placement: 'right',
+    trigger: 'hover',
+    content: function() {
+      // get the url for the full size img
+      var url = $(this).data('full');
+      return '<img src="' + url + '">'
+    }
+  });
+});
 </script>

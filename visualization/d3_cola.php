@@ -49,7 +49,7 @@
             .attr("height", height)
 
         d3.json(<?php 
-                    echo "\"output/json_files/interactome_{$gene}_{$unique_str}{$full}.json\""; 
+                    echo "\"output/json_files/interactome_{$gene}_{$unique_str}.json\""; 
                 ?>, function(error, graph) {   
 
             // define clusters and nodes

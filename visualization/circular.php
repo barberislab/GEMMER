@@ -1,4 +1,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
+<script src="js/base64toBlob.js"></script>
+<script src="js/FileSaver.js"></script>
+
+
 
 <?php
   $link_to_json = '../../output/json_files/interactome_' . $gene . '_' . $unique_str . '_csjs.json';
@@ -117,6 +121,14 @@ fetch(<?php echo "'$link_to_json'"; ?>, {mode: 'no-cors'})
       document.getElementById("info-box").style.display = "block";
       document.getElementById("info-box").innerHTML = table;
   });
+
+  var png_download_button = document.getElementById('png_download_button');
+  png_download_button.onclick = function() {
+    var b64key = 'base64,';
+    var b64 = cy.png().substring( cy.png().indexOf(b64key) + b64key.length );
+    var imgBlob = base64toBlob( b64, 'image/png' );
+    saveAs( imgBlob, 'graph.png' );
+  }
 
   // Legend
   // set the color schemes d3 style

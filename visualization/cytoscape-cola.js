@@ -85,6 +85,9 @@ SOFTWARE.
       layout.manuallyStopped = false;
 
       var cy = options.cy; // cy is automatically populated for us in the constructor
+
+      cy.userZoomingEnabled( false ); // no zooming with mouse
+
       var eles = options.eles;
       var nodes = eles.nodes();
       var edges = eles.edges();

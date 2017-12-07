@@ -404,7 +404,8 @@ blockquote {
 <li>With various filtering possibilities</li>
 </ul>
 </li>
-<li>Data export for interaction networks to SVG and Excel</li>
+<li>Data export for interaction networks to SVG, JSON, GEXF and Excel</li>
+<li>Excel and GEXF export formats may be imported for further analysis into Gephi and Cytoscape.</li>
 </ul>
 <h2>GEMMER Workflow</h2>
 <p><img src="img/GEMMER_workflow.png" alt="Workflow"></p>
@@ -429,23 +430,22 @@ blockquote {
 <h4>Information for a specific gene</h4>
 <p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown.</p>
 <h2>Visualizing a network</h2>
+<h3>Technical details</h3>
 <p>The central access hub for the tool is formed by the index.php webpage. The form on this page allows user input, e.g. which gene(s) to center the visualization around. An AJAX script submits the form for processing and displays a brief message to the user. Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a Python script 'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization. The user is then automatically forwarded to a new page with a &quot;box&quot; for the visualization with an embedded D3 visualization based on the JSON file. This page also contains download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
 interactions. Furthermore various tables with this information are also displayed on the page.</p>
-<!-- ### The form (basic)
-![Basic form input](img/input_form_basic.png)
-
-### The form (advanced)
-![Advanced form input](img/input_form_advanced.png)
-
-### The visualization page and output
-
-
-### Exporting the image
-
-
-### Exporting the data in Excel format
-
-### Visualizing multiple genes together -->
+<h3>Using the form to build an interaction network visualization</h3>
+<p>The <a href="index.php?id=tool">visualization page</a> contains a form that is to be used to query the database for a specific interaction network satisfying your requirements.</p>
+<h3>The form</h3>
+<p><img src="img/input_form_advanced.png" alt="Advanced form input"></p>
+<h3>Example visualizations</h3>
+<p>We gathered together a <a href="index.php?id=examples">set of example visualizations</a> that highlight many of the settings and visualizations that GEMMER provides.</p>
+<h2>Data export and further analysis</h2>
+<p>GEMMER provides export of the data for each visualized network in JSON, Excel and GEXF formats. These are available below the visualized network under the &quot;Export options&quot; header.</p>
+<h3>Further analysis in Cytoscape</h3>
+<p><a href="http://cytoscape.org/">Cytoscape</a> is a desktop application that provides many additional functionalities beyond those present in GEMMER, especially through its plugin apps. To that end, it is useful to do exploratory analysis and visualization with GEMMER, export the data and import them in Cytoscape.</p>
+<p>To import a visualized network in Cytoscape: download the Excel file through GEMMER from the visualization page, then in Cytoscape click “import &gt; network &gt; file”. This yields the same network in Cytoscape. Crucially, the user has to select the “interactome” sheet to import.</p>
+<h3>Further analysis in Gephi</h3>
+<p><a href="http://www.gephi.org">Gephi</a> is another desktop application providing advanced network analysis capabilities. To open networks visualized with GEMMER in Gephi both the Excel and GEXF export formats may be used. To import an Excel file in Gephi: go to &quot;Import spreadsheet&quot; &gt; click the Excel file downloaded from GEMMER &gt; select the interactome sheet &gt; import as edges table.</p>
 <h2>Dependencies</h2>
 <p>GEMMER would not be possible without the following open-source projects:</p>
 <ul>

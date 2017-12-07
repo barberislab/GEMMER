@@ -617,7 +617,7 @@ def main(arguments,output_filename):
       timing['networkx export'] += timeit.default_timer() - start
 
       ######################################################
-      # Nxviz image generation: circos, arcplot, matrixplot
+      # Nxviz image generation: matrixplot
       ######################################################
       start = timeit.default_timer()
 
@@ -767,33 +767,33 @@ def main(arguments,output_filename):
       ######################################################
       # Optional diagnostics
       ######################################################
-      # print("""
-      #   <div class="panel panel-default">
-      #     <div class="panel-heading">
-      #       <h4 class="panel-title">
-      #         <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
-      #         Diagnostics: calculation time</a>
-      #       </h4>
-      #     </div>
-      #     <div id="collapse5" class="panel-collapse collapse">
-      #       <div class="panel-body">
-      #         <div class="table-responsive">
-      # """)
-      # timing['print frames'] = timeit.default_timer() - start_print
-      # timing['all'] = timeit.default_timer() - start_all
-      # df_timing = pd.Series(timing)
-      # df_timing = df_timing.to_frame()
-      # df_timing.columns = ['Time']
-      # df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
-      # print(df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered']))
-      # print("Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python.")
-      # print("""
-      #           </div>
-      #         </div>
-      #       </div>
-      #     </div>
-      #   </div>
-      #   """)
+      print("""
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">
+              Diagnostics: calculation time</a>
+            </h4>
+          </div>
+          <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="table-responsive">
+      """)
+      timing['print frames'] = timeit.default_timer() - start_print
+      timing['all'] = timeit.default_timer() - start_all
+      df_timing = pd.Series(timing)
+      df_timing = df_timing.to_frame()
+      df_timing.columns = ['Time']
+      df_timing['Percentage'] = [v/timing['all']*100 for v in df_timing['Time'] ]
+      print(df_timing.sort_values('Percentage').to_html(classes=['table','table-condensed','table-bordered']))
+      print("Accounted for:", sum([timing[k] for k in timing if k != 'all' ])/timing['all'] * 100, "percent of the time spent in Python.")
+      print("""
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        """)
 
 
       ######################################################

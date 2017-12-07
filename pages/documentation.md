@@ -18,7 +18,8 @@ GEMMER aids (modeling) research by providing:
     - Centered around one or more genes
 - Data visualization using interactive D3 (not 3D!) drawings
     - With various filtering possibilities
-- Data export for interaction networks to SVG and Excel
+- Data export for interaction networks to SVG, JSON, GEXF and Excel
+- Excel and GEXF export formats may be imported for further analysis into Gephi and Cytoscape.
 
 ## GEMMER Workflow
 ![Workflow](img/GEMMER_workflow.png)
@@ -49,24 +50,32 @@ Through the [database page](index.php?id=database) users may inspect the data GE
 On the page for a specific gene, i.e. [SIC1](index.php?id=database&gene=SIC1), users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown. 
 
 ## Visualizing a network
+
+### Technical details
 The central access hub for the tool is formed by the index.php webpage. The form on this page allows user input, e.g. which gene(s) to center the visualization around. An AJAX script submits the form for processing and displays a brief message to the user. Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a Python script 'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization. The user is then automatically forwarded to a new page with a "box" for the visualization with an embedded D3 visualization based on the JSON file. This page also contains download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
 interactions. Furthermore various tables with this information are also displayed on the page. 
 
-<!-- ### The form (basic)
-![Basic form input](img/input_form_basic.png)
+### Using the form to build an interaction network visualization
+The [visualization page](index.php?id=tool) contains a form that is to be used to query the database for a specific interaction network satisfying your requirements.
 
-### The form (advanced)
+### The form
 ![Advanced form input](img/input_form_advanced.png)
 
-### The visualization page and output
+
+### Example visualizations
+We gathered together a [set of example visualizations](index.php?id=examples) that highlight many of the settings and visualizations that GEMMER provides. 
 
 
-### Exporting the image
+## Data export and further analysis
+GEMMER provides export of the data for each visualized network in JSON, Excel and GEXF formats. These are available below the visualized network under the "Export options" header.
 
+### Further analysis in Cytoscape
+[Cytoscape](http://cytoscape.org/) is a desktop application that provides many additional functionalities beyond those present in GEMMER, especially through its plugin apps. To that end, it is useful to do exploratory analysis and visualization with GEMMER, export the data and import them in Cytoscape. 
 
-### Exporting the data in Excel format
+To import a visualized network in Cytoscape: download the Excel file through GEMMER from the visualization page, then in Cytoscape click “import > network > file”. This yields the same network in Cytoscape. Crucially, the user has to select the “interactome” sheet to import. 
 
-### Visualizing multiple genes together -->
+### Further analysis in Gephi
+[Gephi](http://www.gephi.org) is another desktop application providing advanced network analysis capabilities. To open networks visualized with GEMMER in Gephi both the Excel and GEXF export formats may be used. To import an Excel file in Gephi: go to "Import spreadsheet" > click the Excel file downloaded from GEMMER > select the interactome sheet > import as edges table.
 
 
 ## Dependencies

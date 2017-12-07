@@ -1,6 +1,22 @@
 ## News on GEMMER development
 ---
 
+#### December 7th 2017: v1.0 beta VI
+This release includes many updates performed after reviewer comments. 
+
+- Github repository public
+- New hierarchical edge bundling layout
+- Better working layouts with: cytoscape.js (circular), nxviz (matrixplot) and Cola.js (constraint-based, clustered with boxes)
+- New export options: JSON + GEXF
+- We added a landing page when opening GEMMER that briefly explains what GEMMER is
+- We added an examples page to showcase GEMMER's options and utility
+- Redesigned side-bar with info for clicked genes and interactions
+- We added tooltips to the menu options to explain what they do
+- Many documentation updates
+
+---
+
+
 #### November 12th 2017: v1 beta V
 We are working on integration with CytoscapeJS and ColaJS
 - We have a functioning circular layout from cytoscapeJS. This required adding a new JSON output file that cytoscape understands

@@ -84,7 +84,7 @@
                             <li><a href="index.php?id=documentation">Documentation</a></li>
                             <li><a href="index.php?id=examples">Examples</a></li>
                             <li><a href="index.php?id=news">News</a></li>
-                            <li><a href="https://github.com/ThierryMondeel/GEMMER">Github repository</a></li>
+                            <li><a href="https://github.com/barberislab/GEMMER">Github repository</a></li>
                             <li><a href="index.php?id=contact">Contact</a></li>
                         </ul>
                     </div>

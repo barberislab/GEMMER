@@ -570,7 +570,7 @@ def main(arguments,output_filename):
     ######################################################
     # FILTER NODES TO MANAGEABLE VISUALIZATION
 
-    if (filter_flag) and (len(nodes) > max_nodes):
+    if (filter_flag):
       start_filter = timeit.default_timer()
       len_interactome = len(interactome)
 

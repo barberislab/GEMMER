@@ -182,3 +182,13 @@
     </div>
 
 </div>
+
+
+<h3>GEMMER runs best on modern, up-to-date browsers</h3>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-2"><img src="img/browsers/chrome.png" width="100px"></div>
+    <div class="col-md-2"><img src="img/browsers/firefox.png" width="100px"></div>
+    <div class="col-md-2"><img src="img/browsers/safari.png" width="100px"></div>
+    <div class="col-md-3"></div>
+</div> 

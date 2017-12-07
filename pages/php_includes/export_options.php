@@ -41,7 +41,7 @@
     </tr>
     <tr>
         <th>
-            Interactive Cytoscape.js (work in progress) 
+            Interactive Cytoscape.js 
         </th>
         <td>
             <a href="index.php?id=tool&$php_args&layout=circular" class="alert-link">Circular layout</a>

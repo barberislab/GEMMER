@@ -363,16 +363,16 @@ def main(arguments,output_filename):
       query = """SELECT standard_name,systematic_name,name_desc,desc,go_term_1,go_term_2,\
                             GFP_abundance,GFP_localization,CYCLoPs_Excel_string,CYCLoPs_html,expression_peak_phase,\
                             expression_peak_time,CYCLoPs_dict FROM genes \
-                            WHERE standard_name in (%s) AND (expression_peak_phase in (%s) OR expression_peak_phase is NULL) AND (go_term_1 in (%s) OR go_term_2 in (%s))""" \
-                            % (', '.join('?' for _ in node_list),', '.join('?' for _ in expression),', '.join('?' for _ in process),', '.join('?' for _ in process))
+                            WHERE standard_name in (%s) AND (standard_name in (%s) OR expression_peak_phase in (%s) OR expression_peak_phase is NULL) AND (standard_name in (%s) OR go_term_1 in (%s) OR go_term_2 in (%s))""" \
+                            % (', '.join('?' for _ in node_list), ', '.join('?' for _ in primary_nodes), ', '.join('?' for _ in expression), ', '.join('?' for _ in primary_nodes),', '.join('?' for _ in process),', '.join('?' for _ in process))
     
     else:
       query = """SELECT standard_name,systematic_name,name_desc,desc,go_term_1,go_term_2,\
                             GFP_abundance,GFP_localization,CYCLoPs_Excel_string,CYCLoPs_html,expression_peak_phase,\
                             expression_peak_time,CYCLoPs_dict FROM genes \
-                            WHERE standard_name in (%s) AND expression_peak_phase in (%s) AND (go_term_1 in (%s) OR go_term_2 in (%s))""" \
-                            % (', '.join('?' for _ in node_list),', '.join('?' for _ in expression),', '.join('?' for _ in process),', '.join('?' for _ in process))
-    cursor = conn.execute(query,node_list+expression+process+process)
+                            WHERE standard_name in (%s) AND (standard_name in (%s) OR expression_peak_phase in (%s)) AND (standard_name in (%s) OR go_term_1 in (%s) OR go_term_2 in (%s))""" \
+                            % (', '.join('?' for _ in node_list), ', '.join('?' for _ in primary_nodes), ', '.join('?' for _ in expression), ', '.join('?' for _ in primary_nodes), ', '.join('?' for _ in process),', '.join('?' for _ in process))
+    cursor = conn.execute(query,node_list+primary_nodes+expression+primary_nodes+process+process)
 
     data = [list(l) for l in cursor] # cursor itself is a generator, this is a list of lists
     nodes = pd.DataFrame(data,columns=['Standard name','Systematic name','Name description','Description',
@@ -541,7 +541,7 @@ def main(arguments,output_filename):
 
 
     ######################################################
-    # Export full networkx graph to graph formats (GEFX)
+    # Export visualized networkx graph to graph formats (GEFX)
     ######################################################
     start = timeit.default_timer()
 
@@ -585,10 +585,10 @@ def main(arguments,output_filename):
       interactome.reset_index(drop=True,inplace=True)
 
       # SHOW WARNING MESSAGE ABOUT FILTER STEP
-      # filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
-      #                 All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
-      # s = filter_message
-      # print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+      filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
+                      All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
+      s = filter_message
+      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
 

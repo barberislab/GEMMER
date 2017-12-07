@@ -510,11 +510,12 @@
             // Legend
             var legendWidth = document.getElementById("legend-nodes").offsetWidth
                 legendHeight = 20 * color.domain().length;
+            console.log(color.domain().length, legendHeight);
 
             // ******* Node legend ************
             var svgLegend = d3.select("#legend-nodes").append("svg")
-            .style("width",legendWidth)
-            .style("height",legendHeight);
+                .style("width",legendWidth)
+                .style("height",legendHeight);
 
             var legend = svgLegend.selectAll(".legend")
             .data(color.domain()) // determines the contents of the legend

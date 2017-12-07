@@ -81,8 +81,8 @@
                             <li><a href="index.php">Home</a></li>
                             <li><a href="index.php?id=tool">Visualize</a></li>
                             <li><a href="index.php?id=database">Database</a></li>
-                            <li><a href="index.php?id=examples">Examples</a></li>
                             <li><a href="index.php?id=documentation">Documentation</a></li>
+                            <li><a href="index.php?id=examples">Examples</a></li>
                             <li><a href="index.php?id=news">News</a></li>
                             <li><a href="https://github.com/ThierryMondeel/GEMMER">Github repository</a></li>
                             <li><a href="index.php?id=contact">Contact</a></li>

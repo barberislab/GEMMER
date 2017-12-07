@@ -1,8 +1,8 @@
 <h1>Examples</h1>
 <p>
     Below we highlight a collection of examples and test cases with brief descriptions. 
-    These serve to showcase the utitlity of GEMMER and how the menu settings can be used to create different network visualizations that help
-    to answer varying biological questions. 
+    These serve to showcase the utitlity of GEMMER, and how the menu settings can be used to create different network 
+    visualizations that help to answer biological questions. 
 </p>
 <p>
     <b>Note:</b> Hovering over the links for each example generates a "popover" that shows what the output will look like. 
@@ -85,7 +85,7 @@ These examples use our interactive D3.js layout which allows node clustering and
         Suppose the user wants to see all interactors. 
     </p>
     <p>
-        <b>Settings:</b> We increase the "max. number of nodes" to 80. 
+        <b>Settings:</b> We increase the "Max. number of nodes" to 80. 
         
     </p>
     <p>
@@ -132,7 +132,7 @@ These examples use our interactive D3.js layout which allows node clustering and
     <p>
         <b>Result:</b> GEMMER returns a network with 2 nodes: FKH1 and FKH2. Indeed, there is a regulatory interaction between them. 
         The tables on the bottom of the visualization page point the user to the literature: computational combinatorial evidence through
-        MacIsaac et al. study.
+        the MacIsaac et al. study from 2006..
     </p>
 
     <li>
@@ -142,7 +142,7 @@ These examples use our interactive D3.js layout which allows node clustering and
     </li>
 
     <p>
-        <b>Biological query:</b> Which interactors do the forkhead transcription factors have that function in DNA replication and 
+        <b>Biological query:</b> Which interactors do the Forkhead transcription factors have that function in DNA replication, and 
         have their peak of transcription in the S phase?
         </p>
     <p>
@@ -150,8 +150,8 @@ These examples use our interactive D3.js layout which allows node clustering and
         reduce the "peak expression phase" option to only "S".
     </p>
     <p>
-        <b>Result:</b> We see an interaction network with only ORC1 and TDA7. From the table of information on the nodes we gather that ORC1'scandir
-        primary function is in DNA replication whereas TDA7's secondary function is in DNA replication. Note that the FKH2 itself peaks in G1(P) phase
+        <b>Result:</b> We see an interaction network with only ORC1 and TDA7. From the table of information on the nodes we gather that ORC1's
+        primary function is in DNA replication, whereas TDA7's secondary function is in DNA replication. Note that the FKH2 peaks in G1(P) phase
         and that FKH1 only has a small DNA replication role according to its GO terms (3rd function when counted, see the database page).
     </p>
 </ul>
@@ -164,7 +164,7 @@ a D3 layout using Cola.js, an nxviz matrix plot and a circular layout provided t
 We include links to examples of these below. Through the tool each query may be visualized with the alternative layouts by scrolling down 
 to the "Alternative visualizations" header and clicking the layout of your choice. 
 
-Each example shown here considers a different layout but queries for FKH1 and FKH2 interactome with clustering and coloring but only considering
+Each example shown here considers a different layout but queries for FKH1 and FKH2 interactome with clustering and coloring, but only considering
 regulatory interactions.
 
 <ul>

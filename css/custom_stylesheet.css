@@ -271,3 +271,6 @@ have to set this for specific divs because the database page should contain the 
 .spacer-200 {
     height:200px;
 }
+#legend-nodes svg {
+    min-height: 340px;
+}

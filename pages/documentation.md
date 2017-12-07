@@ -60,34 +60,32 @@ The [visualization page](index.php?id=tool) contains a form that is to be used t
 
 ![Advanced form input](img/input_form_advanced.png)
 
-The form is split in two parts: the core "visualization query" and the "Advanced query options". 
+The form is split in two parts: the core "Visualization query" and the "Advanced query options". 
 
-In the "Visualiations query" area users select the genes they wish to base the interaction network on. Note that if one fills in one gene, e.g. SIC1, the result is a network of up to 25 genes that interact with SIC1. If one fills in two genes, e.g. SIC1 and NTH1, the result is a network of up to 25 genes that might interact with either or both of these genes. GEMMER selects which genes end up in the ultimate visualization based on a "node filter criteria" under the "Advanced query options". 
+In the "Visualiations query" area users select the genes they wish to base the interaction network on. Note that if one fills in one gene, e.g. SIC1, the result is a network of up to 25 genes that interact with SIC1. If one fills in two genes, e.g. SIC1 and NTH1, the result is a network of up to 25 genes that might interact with either or both of these genes. GEMMER selects which genes end up in the ultimate visualization based on a "node selection criteria" under the "Advanced query options". 
 
-The rest of the "Visualization query" deals with whether or not to cluster ("Cluster by") and color ("Color by") the nodes in the visualization and which types of interactions to consider. Without clustering, the visualized network will resemble the famous "hairball" networks. If clustering is enabled this may be done on functional assignment, e.g. metabolism (see above) or on localization according to the CYCLoPs database. The CYCLoPs database contains records for 3 wild-type experiments referred to in GEMMER as WT1, WT2 and WT3. 
+The rest of the "Visualization query" deals with whether or not to cluster ("Cluster by") and color ("Color by") the nodes in the visualization, and which types of interactions to consider. Without clustering, the visualized network will resemble the "hairball" networks. If clustering is enabled, this may be done on functional assignment, e.g. metabolism (see above) or on localization according to the CYCLoPs database. The CYCLoPs database contains records for 3 wild type experiments referred to in GEMMER as WT1, WT2 and WT3. 
 
 The "Color by" option is similar to the "Cluster by" option. 
 
 The interaction type dropdown menu allows users to filter out genetic interactions for example. Or, to focus only on regulatory interactions. 
 
-
 The "Advanced query options" contains various ways to filter out results. 
 
 In the first row users may filter either by the specific experimental method that was used to show an interaction or by the number of experiments (one or more per publication), publications or the number of unique different methods that were used in the literature to show an interaction.
 
-The second row of the "Advanced query options" contain further filtering approaches based on the functional process of the interacors, the compartments they are expressed in or the phase of their peak expression. For the "Compartment" users may select any of the CYCLoPs or YeastGFP compartments to filter for. For example, using this option a user may build a query which will only return interactors that are expressed in the nucleus according to any of the three wild-type CYCLoPS experiments.
+The second row of the "Advanced query options" contain further filtering approaches based on the functional process of the interactors, the compartments they are expressed in or the phase of their peak expression. For the "Compartment" option, users may select any of the CYCLoPs or YeastGFP compartments to filter for. For example, using this option a user may build a query which will only return interactors that are expressed in the nucleus according to any of the three wild type CYCLoPS experiments.
 
-Finally, the last row contains node filtering criteria. The first option "max. number of nodes visualized" sets the maximum number of genes that will be shown in the visualization. This is by default set to 25, and can be increased to 100. We limit this because past this point the strain on the browser becomes quite significant and the screen becomes to crowded to clearly show the gene names in the nodes. If more nodes are required, users may click on the "D3.js max. 250 nodes" layout under the heading "Alternative network visualizations" below the visualization. This layout will shown up to 250 genes but lacks gene identifiers within the visualization to make space for more nodes. However, the genes may still be identified by clicking on them in the visualization, after which their information will show up in the sidebar. 
+Finally, the last row contains node filtering criteria. The first option "Max. number of nodes visualized" sets the maximum number of genes that will be shown in the visualization. This is by default set to 25, and can be increased to 100. We limit this because past this point the strain on the browser becomes quite significant and the screen becomes too crowded to clearly show the gene names in the nodes. If more nodes are required, users may click on the "D3.js max. 250 nodes" layout under the heading "Alternative network visualizations" below the visualization. This layout will shown up to 250 genes but lacks gene identifiers within the visualization to make space for more nodes. However, the genes may still be identified by clicking on them in the visualization, after which their information will show up in the sidebar. 
 
 When a query returns more than the max. number of nodes set in the form, GEMMER needs to decide which genes NOT to show. GEMMER does not do this randomly. The last option in the form allows users to choose how GEMMER filters such genes: based on [degree centrality](https://en.wikipedia.org/wiki/Centrality#Degree_centrality), [eigenvector centrality](https://en.wikipedia.org/wiki/Eigenvector_centrality) or [Katz centrality](https://en.wikipedia.org/wiki/Katz_centrality). 
 
 All these filters may be used together to build very complex queries.  
 
-
 ### Example visualizations
-Once the form discussed above has been filled in to the user's desire, clicking submit will launch the visualization. This might take somehwere in the range of 1-10 seconds based on the number of genes and interactions that satisfy the requirements specified in the form. 
+Once the form discussed above has been filled, clicking "Submit query" will launch the visualization. This might take somewhere in the range of 1-10 seconds based on the number of genes and interactions that satisfy the requirements specified in the form. 
 
-To illustrate the potential networks, layouts and biological questions GEMMER supports, we gathered together a [set of example visualizations](index.php?id=examples) that highlight many of the settings and visualizations that GEMMER provides. 
+To illustrate the potential networks, layouts and biological questions GEMMER supports, we gathered together a [set of example visualizations](index.php?id=examples) that highlights many of the settings and visualizations that GEMMER provides. 
 
 
 ## Data export and further analysis
@@ -107,7 +105,7 @@ GEMMER would not be possible without the following open-source projects:
 * [YeastMine](https://yeastmine.yeastgenome.org/yeastmine/begin.do)
 * [D3.js](https://d3js.org/)
 * [Cytoscape.js](http://js.cytoscape.org/)
-* [Cola](http://marvl.infotech.monash.edu/webcola/)
+* [Cola.js](http://marvl.infotech.monash.edu/webcola/)
 * [PHP](http://php.net/)
 * [APACHE](https://www.apache.org/)
 * [SQLite](https://www.sqlite.org/)

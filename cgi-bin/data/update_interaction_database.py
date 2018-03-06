@@ -48,9 +48,7 @@ def create_table(conn, create_table_sql):
 def find_metabolic_enzymes(conn,gene_names):
     import cobra
 
-
-    model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml')
-
+    model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml');
 
     matches = [g for g in gene_names if g in model.genes ]
     print 'Found', len(matches), 'metabolic enzymes in the yeast metabolic reconstruction.'
@@ -460,16 +458,21 @@ def find_all_interactions(conn,gene_symbols):
 
     # Type constraints should come early - before all mentions of the paths they constrain
     query.add_constraint("regulatoryRegions", "TFBindingSite")
-    query.add_constraint("organism.shortName", "=", "S. cerevisiae", code = "A")
 
     # The view specifies the output columns
     query.add_view(
-        "secondaryIdentifier", "symbol",
-        "regulatoryRegions.factor.secondaryIdentifier",
-        "regulatoryRegions.factor.symbol",
-        "regulatoryRegions.regEvidence.ontologyTerm.name",
-        "regulatoryRegions.publications.pubMedId"
+        "secondaryIdentifier", "symbol", # target
+        "regulatoryRegions.regulator.secondaryIdentifier", # source
+        "regulatoryRegions.regulator.symbol", # source
+        "regulatoryRegions.regEvidence.ontologyTerm.name", # evidence
+        "regulatoryRegions.publications.pubMedId" # evidence
     )
+
+    # has to come after setting the view
+    # the code has to be separate from previous constraints and by default uses AND logic
+    query.add_constraint("organism.shortName", "=", "S. cerevisiae", code = "A")
+    query.add_constraint("regulatoryRegions.regEvidence.ontologyTerm.name", "IS NOT NULL", code = "B")
+
 
     interactome = {}
     for row in query.rows():
@@ -481,10 +484,10 @@ def find_all_interactions(conn,gene_symbols):
             print 'Strange case with None IDs:', row
             continue
         
-        if row["regulatoryRegions.factor.symbol"] not in ['None',None]:
-            s = row["regulatoryRegions.factor.symbol"]
-        elif row["regulatoryRegions.factor.secondaryIdentifier"] not in ['None',None]:
-            s =  row["regulatoryRegions.factor.secondaryIdentifier"]
+        if row["regulatoryRegions.regulator.symbol"] not in ['None',None]:
+            s = row["regulatoryRegions.regulator.symbol"]
+        elif row["regulatoryRegions.regulator.secondaryIdentifier"] not in ['None',None]:
+            s =  row["regulatoryRegions.regulator.secondaryIdentifier"]
         else: 
             print 'Strange case with None IDs:', row
             continue

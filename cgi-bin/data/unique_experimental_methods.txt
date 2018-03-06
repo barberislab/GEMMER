@@ -5,29 +5,38 @@ Affinity Capture-Western
 Biochemical Activity
 chromatin immunoprecipitation evidence
 chromatin immunoprecipitation-chip evidence
+chromatin immunoprecipitation-PCR evidence
+chromatin immunoprecipitation-qPCR evidence
 chromatin immunoprecipitation-seq evidence
 Co-crystal Structure
 Co-fractionation
 Co-localization
 Co-purification
-combinatorial evidence
-computational combinatorial evidence
 Dosage Growth Defect
 Dosage Lethality
 Dosage Rescue
+electrophoretic mobility shift assay evidence
 Far Western
 FRET
+LacZ transcript localization evidence
 microarray RNA expression level evidence
 Negative Genetic
+Northern assay evidence
 PCA
 Phenotypic Enhancement
 Phenotypic Suppression
 Positive Genetic
 Protein-peptide
 Protein-RNA
+quantitative polymerase chain reaction evidence
 Reconstituted Complex
+reverse transcription polymerase chain reaction evidence
+RNA protection assay evidence
 Synthetic Growth Defect
 Synthetic Haploinsufficiency
 Synthetic Lethality
 Synthetic Rescue
+transcript expression level evidence
+transcriptional activation assay
 Two-hybrid
+Western blot evidence

@@ -1,6 +1,16 @@
 ## News on GEMMER development
 ---
 
+#### March 6th 2018: Database update
+The database has been updated to reflect the Februari 26th update of SGD. 
+
+---
+
+#### Februari 1st 2018: Publication out!
+We are pleased to announce that GEMMER has been accepted for publication in Bioinformatics. You can find the publication [here](https://doi.org/10.1093/bioinformatics/bty052).  
+
+---
+
 #### December 7th 2017: v1.0 beta VI
 This release includes many updates performed after reviewer comments. 
 

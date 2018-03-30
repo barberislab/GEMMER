@@ -97,10 +97,11 @@ if($status == 0) {
     window.location.href = "{$excel_link}";
 </script>
 EOT;
+
+echo $javascript;
 }
 else {
     echo '<p>Something went wrong in the Excel file generation!</p>';
 }
 
-echo $javascript;
 ?>

@@ -558,6 +558,15 @@ def main(arguments,output_filename):
     interactome_full = interactome.copy()
     timing['Save full network'] = timeit.default_timer() - start
 
+    # temporary pickle test
+    start = timeit.default_timer()
+    filename_base = os.path.abspath(SCRIPT_DIR+'/../output/excel_files/')
+    file_id = primary_nodes_str+'_'+unique_str
+    
+    nodes_full.to_pickle(filename_base+'/nodes_'+file_id)
+    interactome_full.to_pickle(filename_base+'/interactome_'+file_id)
+    timing['Pickle full network'] = timeit.default_timer() - start
+
 
     # ######################################################
     # # WRITE "FULL" NETWORK TO JSON

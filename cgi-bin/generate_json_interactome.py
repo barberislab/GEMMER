@@ -478,7 +478,7 @@ def main(arguments,output_filename):
     ### GET ALL INTERACTIONS BETWEEN ALL NODES
     ######################################################
     start_final_sql = timeit.default_timer()
-    max_interactions = 25000
+    max_interactions = 100000 
     placeholders = ', '.join('?' for unused in node_list) # '?, ?, ?, ...'
 
     # Multiple query options

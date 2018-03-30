@@ -231,6 +231,7 @@ EOT;
     echo "</tbody></table>";
 }
 else {
+    $gene = ''; // set empty for default settings below
 
         echo <<<EOT
         <table id="database_content" class="table table-hover table-bordered table-condensed results">

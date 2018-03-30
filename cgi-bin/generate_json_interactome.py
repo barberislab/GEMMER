@@ -47,9 +47,19 @@ def convert(data):
     else:
         return data
 
-def write_excel_file(df_user_input, df_network, df_nodes, df_interactome, file_id):
+def write_excel_file(file_id):
 
     filename_base = os.path.abspath(SCRIPT_DIR+'/../output/excel_files/')
+
+    # load data
+    df_user_input = pd.read_pickle(filename_base+'/user_input_'+file_id)
+    df_interactome = pd.read_pickle(filename_base+'/interactome_'+file_id)
+    df_nodes = pd.read_pickle(filename_base+'/nodes_'+file_id)
+
+    # make df_network
+    df_network = pd.Series()
+    df_network['Number of nodes'] = len(df_nodes)
+    df_network['Number of edges'] = len(df_interactome)
 
     writer = pd.ExcelWriter(filename_base+'/interactome_'+file_id+'.xlsx', engine='xlsxwriter')
     workbook = writer.book
@@ -328,6 +338,22 @@ def main(arguments,output_filename):
     compartment = compartment.replace('_',' ')
 
     timing['input'] = timeit.default_timer() - start_all
+
+
+    if excel_flag:
+      ######################################################
+      # WRITE TO EXCEL
+      ######################################################
+      # THIS HAS TO HAPPEN BEFORE HTML REPLACEMENTS
+      start_excel = timeit.default_timer()
+
+      write_excel_file(primary_nodes_str+'_'+unique_str)
+
+      timing['excel'] = timeit.default_timer() - start_excel
+
+      print(timing)
+
+      return
     
     ######################################################
     ### get all interactions related to the input IDs
@@ -558,11 +584,14 @@ def main(arguments,output_filename):
     interactome_full = interactome.copy()
     timing['Save full network'] = timeit.default_timer() - start
 
-    # temporary pickle test
+    ######################################################
+    # Pickle the dataframes
+    ######################################################
     start = timeit.default_timer()
     filename_base = os.path.abspath(SCRIPT_DIR+'/../output/excel_files/')
     file_id = primary_nodes_str+'_'+unique_str
-    
+
+    df_user_input.to_pickle(filename_base+'/user_input_'+file_id)
     nodes_full.to_pickle(filename_base+'/nodes_'+file_id)
     interactome_full.to_pickle(filename_base+'/interactome_'+file_id)
     timing['Pickle full network'] = timeit.default_timer() - start
@@ -643,17 +672,6 @@ def main(arguments,output_filename):
     start_json = timeit.default_timer()
     write_network_to_json(nodes,interactome,filter_condition,output_filename,G)
     timing['json'] = timeit.default_timer() - start_json
-
-    if excel_flag:
-      ######################################################
-      # WRITE TO EXCEL
-      ######################################################
-      # THIS HAS TO HAPPEN BEFORE HTML REPLACEMENTS
-      start_excel = timeit.default_timer()
-
-      write_excel_file(df_user_input, df_network, nodes, interactome, primary_nodes_str+'_'+unique_str)
-
-      timing['excel'] = timeit.default_timer() - start_excel
 
     # remove the Evidence HTML column
     interactome = interactome.drop('Evidence',1)

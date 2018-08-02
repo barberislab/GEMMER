@@ -58,7 +58,7 @@ def find_metabolic_enzymes(conn,gene_names):
         model_gene = model.genes.get_by_id(g)
         catalyzed_rxns = ', '.join([r.id+' ('+r.name+')' for r in model_gene.reactions])
 
-        conn.execute('UPDATE genes SET is_enzyme = ?, catalyzed_reactions = ?  WHERE systematic_name = ?',(1,catalyzed_rxns,g))
+        conn.execute('UPDATE genes SET yeast7 = ?, catalyzed_reactions = ?  WHERE systematic_name = ?',(1,catalyzed_rxns,g))
     
     conn.commit()
 
@@ -311,7 +311,7 @@ def find_go_annotations(conn,gene_symbols):
             "goAnnotation.evidence.publications.pubMedId", # each publication
             "goAnnotation.evidence.code.code" # each method within a publication
         )
-        # query.add_constraint("goAnnotation.evidence.code.annotType", "=", "manually curated", code = "A")
+        query.add_constraint("goAnnotation.evidence.code.annotType", "=", "manually curated", code = "A")
         query.add_constraint("goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.parents.identifier", "=", go_terms[term], code = "B")
 
         # The query.rows() will contain all genes with such a parent go term but one entry for each actual go term with that parent
@@ -372,18 +372,32 @@ def find_go_annotations(conn,gene_symbols):
         gene_cat_counts[gene] = {k:(go_dict[k][gene] if gene in go_dict[k] else 0 ) for k in go_dict}
         
         # find the maximum one and use that as majority category
+        # print [gene_cat_counts[gene][k] for k in gene_cat_counts[gene]]
+        # print [gene_cat_counts[gene][k] == 0 for k in gene_cat_counts[gene]]
+        # print all([gene_cat_counts[gene][k] == 0 for k in gene_cat_counts[gene]])
+
         if all([gene_cat_counts[gene][k] == 0 for k in gene_cat_counts[gene]]):
-            maj_cat = 'None'
+            cat1 = 'None'
+            cat2 = 'None'
         else:
-            # maj_cat = max(gene_cat_counts, key=gene_cat_counts.get) # get max
-            sorted_cats = sorted(gene_cat_counts[gene].items(), key=operator.itemgetter(1),reverse=True)
-            cat1 = sorted_cats[0][0] # first element has most counts and take the key
+            sorted_cats = sorted(gene_cat_counts[gene].items(), key=operator.itemgetter(1),reverse=True) # list of tuples: ('GO term':count)
+
             if sorted_cats[1][1] > 0: # check if there is a second non-zero category 
-                cat2 = sorted_cats[1][0] # second element has 2nd most counts and take the key
+                if sorted_cats[0][1] == sorted_cats[1][1]: # equal GO term count
+                    if sorted_cats[0][0] == 'Metabolism':
+                        cat1 = sorted_cats[1][0] # avoid catch-all nature of metabolism
+                        cat2 = sorted_cats[0][0]
+                    else: # primary GO is not metabolism
+                        cat1 = sorted_cats[0][0] # avoid catch-all nature of metabolism
+                        cat2 = sorted_cats[1][0]
+                else:
+                    cat1 = sorted_cats[0][0]
+                    cat2 = sorted_cats[1][0] 
             else: 
+                cat1 = sorted_cats[0][0] # first element has most counts and take the key
                 cat2 = 'None'
 
-        list_data_tuples.append(['',cat1,cat2,gene])
+        list_data_tuples.append(['',cat1,cat2,gene]) # the first element is a placeholder
 
     # generate df and export to html the GO terms for each gene
     df_cat_count = pd.DataFrame.from_dict(gene_cat_counts).transpose()
@@ -426,9 +440,9 @@ def find_all_genes(conn):
         dict_id_to_sysname[symbol] = secondary
 
         # INSERT GENE INTO DATABASE IF IT DOES NOT EXIST YET
-        list_data_tuples.append((symbol,secondary,name_desc,desc,0))
+        list_data_tuples.append((symbol,secondary,name_desc,desc,0,0))
     
-    conn.executemany('INSERT into genes(standard_name, systematic_name, name_desc, desc, is_enzyme) VALUES (?,?,?,?,?)',list_data_tuples)
+    conn.executemany('INSERT into genes(standard_name, systematic_name, name_desc, desc, yeast7, is_enzyme) VALUES (?,?,?,?,?,?)',list_data_tuples)
 
     df = pd.DataFrame(dict_id_to_sysname.items(), columns = ['Standard name','Systematic name'])
     df.to_excel("SGD_standard_name_to_systematic_name.xlsx")
@@ -550,6 +564,10 @@ def find_all_interactions(conn,gene_symbols):
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("Interaction")
 
+    # Constraints
+    query.add_constraint("participant1", "ProteinCodingGene")
+    query.add_constraint("participant2", "ProteinCodingGene")
+
     # The view specifies the output columns
     query.add_view(
         "participant1.secondaryIdentifier", "participant1.symbol", "participant2.symbol",
@@ -558,10 +576,6 @@ def find_all_interactions(conn,gene_symbols):
         "details.experiment.interactionDetectionMethods.identifier",
         "details.experiment.publication.pubMedId"
     )
-
-    # You can edit the constraint values below
-    query.add_constraint("participant1", "ProteinCodingGene")
-    query.add_constraint("participant2", "ProteinCodingGene")
 
     print 'Query returned:',len(query.rows()),'physical/genetic interactions'
     print 'Making tuples of query output now'
@@ -772,6 +786,7 @@ def get_KEGG_info_genes(conn):
             kegg_dict[gene] = None
 
         count += 1
+    
 
     # save updated dictionary and list
     with open('kegg_gene_dict.json', 'w') as fp:
@@ -790,8 +805,9 @@ def get_KEGG_info_genes(conn):
     # build tuples of data to store
     list_data_tuples = []
     for gene in kegg_dict:
-        d = kegg_dict[gene]
-        list_data_tuples.append((d['KEGG gene names'],d['KO'],d['KEGG description'],d['KEGG pathway'],gene))
+        if type(kegg_dict[gene]) == dict:
+            d = kegg_dict[gene]
+            list_data_tuples.append((d['KEGG gene names'],d['KO'],d['KEGG description'],d['KEGG pathway'],gene))
 
     conn.executemany('UPDATE genes SET KEGG_name = ?, KEGG_KO = ?, KEGG_description = ?, KEGG_pathway = ? WHERE systematic_name = ?',list_data_tuples)
 
@@ -823,6 +839,7 @@ def main():
                                         GFP_localization TEXT,
                                         expression_peak_phase TEXT,
                                         expression_peak_time INT,
+                                        yeast7 INT NOT NULL,
                                         is_enzyme INT NOT NULL,
                                         catalyzed_reactions TEXT,
                                         KEGG_name TEXT, 
@@ -875,11 +892,32 @@ def main():
     # Incorporate KEGG info: KO, description, gene names, pathway maps they are a part
     get_KEGG_info_genes(conn)
 
+    # Assign boolean state: enzyme
+    # based on yeast7 reaction catalysis
+    find_metabolic_enzymes(conn, gene_names)
+
+    # Also assign enzyme == True based on presence of EC number in KEGG description
+    cursor = conn.execute("SELECT * from genes")
+    gene_record = [x for x in cursor]
+    yeast7_enzymes = [x for x in gene_record if x[14] == True ]
+    print 'Enzymes in Yeast7:', len(yeast7_enzymes)
+    has_kegg_name = [x for x in gene_record if x[19] != None ]
+    has_EC = [x[1] for x in has_kegg_name if '[EC' in x[19] ]
+    print 'Genes with EC:', len(has_EC)
+    # enzymes are either with EC or in yeast 7
+    enzymes = [x for x in has_EC]
+    enzymes.extend([x[1] for x in yeast7_enzymes])
+    enzymes = list(set(enzymes))
+    print 'Genes considered enzymes:', len(enzymes)
+    list_data_tuples = [(1,g) for g in enzymes]
+
+    # switch these to enzymes in database
+    conn.executemany('UPDATE genes SET is_enzyme = ? WHERE systematic_name = ?',list_data_tuples)
+    conn.commit()
+
     # assign categories based on GO terms
     go_dict = find_go_annotations(conn,gene_symbols)
     conn.commit()
-
-    find_metabolic_enzymes(conn, gene_names)
 
     # store sceptrans data
     store_sceptrans_data(conn)

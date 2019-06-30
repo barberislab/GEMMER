@@ -28,6 +28,7 @@ Phenotypic Suppression
 Positive Genetic
 Protein-peptide
 Protein-RNA
+Proximity Label-MS
 quantitative polymerase chain reaction evidence
 Reconstituted Complex
 reverse transcription polymerase chain reaction evidence

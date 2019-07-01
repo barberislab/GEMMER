@@ -366,7 +366,7 @@ def main(arguments,output_filename):
     # get all interactions in which the given genes takes part
     placeholders = ', '.join('?' for unused in primary_nodes) # '?, ?, ?, ...'
 
-    # Multiple query options
+    # The query differs based on whether we need to subselect on the 'type' of interaction
     if len(split_types) == 3:
       query = "SELECT source,target FROM interactions WHERE ( (source IN (%s) or target IN (%s)) and num_experiments >= (%s) \
         and num_publications >= (%s) and num_methods >= (%s))" % (placeholders,placeholders,min_exp,min_pub,min_methods)
@@ -379,7 +379,7 @@ def main(arguments,output_filename):
       cursor = conn.execute(query,primary_nodes+primary_nodes+split_types)
 
     # construct dataframe of interacting genes: the nodes
-    node_list = [x for y in cursor for x in y]
+    node_list = list(set([x for y in cursor for x in y])) # get rid of duplicates of which there will be many
 
     if len(node_list) == 0:
       raise ValueError('No interactions matching these conditions.')
@@ -404,6 +404,7 @@ def main(arguments,output_filename):
     nodes = pd.DataFrame(data,columns=['Standard name','Systematic name','Name description','Description',
                         'GO term 1','GO term 2','GFP abundance','GFP localization','CYCLoPs_Excel_string',
                         'CYCLoPs_html','Expression peak phase','Expression peak time','CYCLoPs_dict'])
+    
     timing['Get node information from database'] = timeit.default_timer() - start_initial
 
     ### make actual dictionaries out of CYCLoPs_dict column

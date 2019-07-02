@@ -110,7 +110,7 @@ def calc_network_props(primary_nodes,df_nodes, df_interactome, df_network, filte
 
   start = timeit.default_timer()
 
-  G = nx.from_pandas_dataframe(df_interactome,'source','target',edge_attr=['type','#Experiments','#Methods','#Publications'])
+  G = nx.from_pandas_edgelist(df_interactome,'source','target',edge_attr=['type','#Experiments','#Methods','#Publications'])
 
   # if the filtered network the primary nodes may end up not having edges and therefore be missing as nodes. Add them back here.
   for p in primary_nodes:
@@ -272,6 +272,13 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, G, cas
 
   return
 
+def find_methods_in_evidence(evidence, methods):
+
+  for m in methods:
+    if m in evidence:
+      return True
+    
+  return False
 
 def main(arguments,output_filename):
     ''' Parse user input, query SQL database, generate pandas dataframes, export JSON for D3 and print HTML code '''
@@ -539,8 +546,11 @@ def main(arguments,output_filename):
     total_methods = len(read_methods)
     if len(method_types) < total_methods: # some have been deselected
       algorithm_output_str += '<p>' + 'We have on file: ' + str(total_methods) + ' methods. User queried for: ' + str(len(method_types)) + '</p>'
+      
       len_before = len(interactome)
-      interactome = interactome[interactome.apply(lambda x: any([m in x['Evidence'] for m in method_types]),1)]
+
+      interactome = interactome[interactome.apply(lambda x: find_methods_in_evidence(x['Evidence'],method_types),1)]
+
       algorithm_output_str += '<p>' + 'We dropped: ' + str(len_before - len(interactome)) + ' interactions based on the methods.' + '</p>'
 
     if len(interactome) == 0:

@@ -1,490 +1,191 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<h1 id="gemmerdocumentation">GEMMER Documentation</h1>
 
-<style>
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+<h2 id="introduction">Introduction</h2>
 
-body {
-	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
-	font-size: 14px;
-	padding: 0 12px;
-	line-height: 22px;
-	word-wrap: break-word;
-}
+<p>GEMMER (<strong>GE</strong>nome-wide tool for <strong>M</strong>ulti-scale <strong>M</strong>odeling data <strong>E</strong>xtraction and <strong>R</strong>epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in <a href="https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae">Saccharomyces cerevisiae</a> and serve as a data-integration hub. </p>
 
-#code-csp-warning {
-	position: fixed;
-	top: 0;
-	right: 0;
-	color: white;
-	margin: 16px;
-	text-align: center;
-	font-size: 12px;
-	font-family: sans-serif;
-	background-color:#444444;
-	cursor: pointer;
-	padding: 6px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
-}
+<p>In addition to being an acronym as described above, the word "gemmer" refers to mining of gems (<a href="https://www.merriam-webster.com/dictionary/gemmer">see the Merriam-webster definition</a>), e.g. precious stones, which we thought apt to the process of discovering new biological insights which we hope GEMMER facilitates. </p>
 
-#code-csp-warning:hover {
-	text-decoration: none;
-	background-color:#007acc;
-	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
-}
-
-
-body.scrollBeyondLastLine {
-	margin-bottom: calc(100vh - 22px);
-}
-
-body.showEditorSelection .code-line {
-	position: relative;
-}
-
-body.showEditorSelection .code-active-line:before,
-body.showEditorSelection .code-line:hover:before {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 0;
-	left: -12px;
-	height: 100%;
-}
-
-body.showEditorSelection li.code-active-line:before,
-body.showEditorSelection li.code-line:hover:before {
-	left: -30px;
-}
-
-.vscode-light.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.15);
-}
-
-.vscode-light.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.40);
-}
-
-.vscode-dark.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.4);
-}
-
-.vscode-dark.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.60);
-}
-
-.vscode-high-contrast.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 160, 0, 0.7);
-}
-
-.vscode-high-contrast.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 160, 0, 1);
-}
-
-img {
-	max-width: 100%;
-	max-height: 100%;
-}
-
-a {
-	color: #4080D0;
-	text-decoration: none;
-}
-
-a:focus,
-input:focus,
-select:focus,
-textarea:focus {
-	outline: 1px solid -webkit-focus-ring-color;
-	outline-offset: -1px;
-}
-
-hr {
-	border: 0;
-	height: 2px;
-	border-bottom: 2px solid;
-}
-
-h1 {
-	padding-bottom: 0.3em;
-	line-height: 1.2;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
-h1, h2, h3 {
-	font-weight: normal;
-}
-
-h1 code,
-h2 code,
-h3 code,
-h4 code,
-h5 code,
-h6 code {
-	font-size: inherit;
-	line-height: auto;
-}
-
-a:hover {
-	color: #4080D0;
-	text-decoration: underline;
-}
-
-table {
-	border-collapse: collapse;
-}
-
-table > thead > tr > th {
-	text-align: left;
-	border-bottom: 1px solid;
-}
-
-table > thead > tr > th,
-table > thead > tr > td,
-table > tbody > tr > th,
-table > tbody > tr > td {
-	padding: 5px 10px;
-}
-
-table > tbody > tr + tr > td {
-	border-top: 1px solid;
-}
-
-blockquote {
-	margin: 0 7px 0 5px;
-	padding: 0 16px 0 10px;
-	border-left: 5px solid;
-}
-
-code {
-	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
-	font-size: 14px;
-	line-height: 19px;
-}
-
-body.wordWrap pre {
-	white-space: pre-wrap;
-}
-
-.mac code {
-	font-size: 12px;
-	line-height: 18px;
-}
-
-pre:not(.hljs),
-pre.hljs code > div {
-	padding: 16px;
-	border-radius: 3px;
-	overflow: auto;
-}
-
-/** Theming */
-
-.vscode-light,
-.vscode-light pre code {
-	color: rgb(30, 30, 30);
-}
-
-.vscode-dark,
-.vscode-dark pre code {
-	color: #DDD;
-}
-
-.vscode-high-contrast,
-.vscode-high-contrast pre code {
-	color: white;
-}
-
-.vscode-light code {
-	color: #A31515;
-}
-
-.vscode-dark code {
-	color: #D7BA7D;
-}
-
-.vscode-light pre:not(.hljs),
-.vscode-light code > div {
-	background-color: rgba(220, 220, 220, 0.4);
-}
-
-.vscode-dark pre:not(.hljs),
-.vscode-dark code > div {
-	background-color: rgba(10, 10, 10, 0.4);
-}
-
-.vscode-high-contrast pre:not(.hljs),
-.vscode-high-contrast code > div {
-	background-color: rgb(0, 0, 0);
-}
-
-.vscode-high-contrast h1 {
-	border-color: rgb(0, 0, 0);
-}
-
-.vscode-light table > thead > tr > th {
-	border-color: rgba(0, 0, 0, 0.69);
-}
-
-.vscode-dark table > thead > tr > th {
-	border-color: rgba(255, 255, 255, 0.69);
-}
-
-.vscode-light h1,
-.vscode-light hr,
-.vscode-light table > tbody > tr + tr > td {
-	border-color: rgba(0, 0, 0, 0.18);
-}
-
-.vscode-dark h1,
-.vscode-dark hr,
-.vscode-dark table > tbody > tr + tr > td {
-	border-color: rgba(255, 255, 255, 0.18);
-}
-
-.vscode-light blockquote,
-.vscode-dark blockquote {
-	background: rgba(127, 127, 127, 0.1);
-	border-color: rgba(0, 122, 204, 0.5);
-}
-
-.vscode-high-contrast blockquote {
-	background: transparent;
-	border-color: #fff;
-}
-</style>
-
-<style>
-/* Tomorrow Theme */
-/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
-/* Original theme - https://github.com/chriskempson/tomorrow-theme */
-
-/* Tomorrow Comment */
-.hljs-comment,
-.hljs-quote {
-	color: #8e908c;
-}
-
-/* Tomorrow Red */
-.hljs-variable,
-.hljs-template-variable,
-.hljs-tag,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class,
-.hljs-regexp,
-.hljs-deletion {
-	color: #c82829;
-}
-
-/* Tomorrow Orange */
-.hljs-number,
-.hljs-built_in,
-.hljs-builtin-name,
-.hljs-literal,
-.hljs-type,
-.hljs-params,
-.hljs-meta,
-.hljs-link {
-	color: #f5871f;
-}
-
-/* Tomorrow Yellow */
-.hljs-attribute {
-	color: #eab700;
-}
-
-/* Tomorrow Green */
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-addition {
-	color: #718c00;
-}
-
-/* Tomorrow Blue */
-.hljs-title,
-.hljs-section {
-	color: #4271ae;
-}
-
-/* Tomorrow Purple */
-.hljs-keyword,
-.hljs-selector-tag {
-	color: #8959a8;
-}
-
-.hljs {
-	display: block;
-	overflow-x: auto;
-	color: #4d4d4c;
-	padding: 0.5em;
-}
-
-.hljs-emphasis {
-	font-style: italic;
-}
-
-.hljs-strong {
-	font-weight: bold;
-}
-</style>
-
-<style>
-/*
- * Markdown PDF CSS
- */
-
-pre {
-	background-color: #f8f8f8;
-	border: 1px solid #cccccc;
-	border-radius: 3px;
-	overflow-x: auto;
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
-}
-
-pre:not(.hljs) {
-	padding: 23px;
-	line-height: 19px;
-}
-
-blockquote {
-	background: rgba(127, 127, 127, 0.1);
-	border-color: rgba(0, 122, 204, 0.5);
-}
-
-.emoji {
-	height: 1.4em;
-}
-
-/* for inline code */
-:not(pre):not(.hljs) > code {
-	color: #A31515;
-	font-size: inherit;
-	font-family: inherit;
-}
-
-</style>
-
-</head>
-<body>
-<h1>GEMMER Documentation</h1>
-<h2>Introduction</h2>
-<p>GEMMER (<strong>GE</strong>nome-wide tool for <strong>M</strong>ulti-scale <strong>M</strong>odeling data <strong>E</strong>xtraction and <strong>R</strong>epresentation) aims to generate publication-quality visualizations of interactions between protein-coding genes in <a href="https://en.wikipedia.org/wiki/Saccharomyces_cerevisiae">Saccharomyces cerevisiae</a> and serve as a data-integration hub.</p>
-<p>In addition to being an acronym as described above, the word &quot;gemmer&quot; refers to mining of gems (<a href="https://www.merriam-webster.com/dictionary/gemmer">see the Merriam-webster definition</a>), e.g. precious stones, which we thought apt to the process of discovering new biological insights which we hope GEMMER facilitates.</p>
 <p>The visualizations are genome-wide and multi-scale in the sense that the visualizations allow compartment localization, cell cycle transcription and functional data to be projected onto the network using data from various other databases. Furthermore, all this data may be inspected online and downloaded at the user's convienence. After generating datasets and visualizations using GEMMER, the user may download the data and readily import it into for example <a href="http://cytoscape.org">Cytoscape</a> for further analysis and ultimately model building.</p>
+
 <p>GEMMER aids (modeling) research by providing:</p>
+
 <ul>
 <li>Effortless data integration from 3 databases
+
+
 <ul>
 <li><a href="https://www.yeastgenome.org/" target="blank">SGD</a> (Saccharomyces Genome Database)</li>
+
 <li><a href="http://cyclops.ccbr.utoronto.ca/" target="blank">CYCLoPs</a> (Collection of Yeast Cells Localization Patterns)</li>
+
 <li><a href="https://yeastgfp.yeastgenome.org/" target="blank">YeastGFP</a> (Yeast GFP Fusion Localization Database)</li>
+
 <li><a href="http://www.sceptrans.org" target="blank">SCEPTRANS</a> (Saccharomyces Cerevisiae Periodic Transcription Server)
+
+
 <ul>
-<li>Specifically, we use the peak cell cycle phase transcription data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu &amp; Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007). <a href="http://doi.org/10.1073/pnas.0706022104" target="blank">doi: 10.1073/pnas.0706022104</a></li>
-</ul>
+<li>Specifically, we use the peak cell cycle phase transcription data from: M. Rowicka, A. Kudlicki (equal author), B. P. Tu &amp; Z. Otwinowski:  'High-resolution timing of the cell-cycle regulated gene expression', PNAS 104, 16892 (2007). <a href="http://doi.org/10.1073/pnas.0706022104" target="blank">doi: 10.1073/pnas.0706022104</a></li></ul>
+</li></ul>
 </li>
-</ul>
-</li>
-<li>Interaction networks with localization, abundance and transcription timing information incorporated
+
+<li>Interaction networks with localization, abundance and transcription timing information incorporated 
+
+
 <ul>
-<li>Centered around one or more genes</li>
-</ul>
+<li>Centered around one or more genes</li></ul>
 </li>
+
 <li>Data visualization using interactive D3 (not 3D!) drawings
+
+
 <ul>
-<li>With various filtering possibilities</li>
-</ul>
+<li>With various filtering possibilities</li></ul>
 </li>
+
 <li>Data export for interaction networks to SVG, JSON, GEXF and Excel</li>
+
 <li>Excel and GEXF export formats may be imported for further analysis into Gephi and Cytoscape.</li>
 </ul>
-<h2>GEMMER Workflow</h2>
-<p><img src="img/GEMMER_workflow.png" alt="Workflow"></p>
-<h2>The database</h2>
-<p>All of the data GEMMER uses to visualize interaction networks is stored in an SQLite database.</p>
-<h3>Building the database</h3>
-<h4>Assignment of primary and secondary function through GO terms</h4>
-<p>GEMMER predicts functions for protein-coding genes using GO term annotations in SGD. Using YeastMine we collect all GO term annotations for each protein-coding gene in SGD that trace back to one of the following &quot;high-level&quot; GO terms:</p>
+
+<h2 id="gemmerworkflow">GEMMER Workflow</h2>
+
+<p><img src="img/GEMMER_workflow.png" alt="Workflow" width="100%" /></p>
+
+<h2 id="thedatabase">The database</h2>
+
+<p>All of the data GEMMER uses to visualize interaction networks is stored in an SQLite database. </p>
+
+<h3 id="buildingthedatabase">Building the database</h3>
+
+<h4 id="assignmentofprimaryandsecondaryfunctionthroughgoterms">Assignment of primary and secondary function through GO terms</h4>
+
+<p>GEMMER predicts functions for protein-coding genes using GO term annotations in SGD. Using YeastMine we collect all GO term annotations for each protein-coding gene in SGD that trace back to one of the following "high-level" GO terms:</p>
+
 <ul>
 <li>Cellular metabolic process GO:0044237</li>
+
 <li>Cell cycle GO:0007049</li>
+
 <li>Cell division GO:0051301</li>
+
 <li>Signal transduction GO:0007165</li>
+
 <li>DNA replication GO:0006260</li>
 </ul>
-<p>All these terms fall under the GO term cellular process, and DNA replication falls under cellular metabolic process.</p>
+
+<p>All these terms fall under the GO term cellular process, and DNA replication falls under cellular metabolic process. </p>
+
 <p>We assign each such GO term annotation to one of the high-level terms listed above. For each gene we add up how many annotations fall under each high-level GO term. The one with the highest count is then assigned as the gene's primary function, the second-highest count gets assigned as the secondary function. The pie chart below displays the distribution of the primary and secondary functions/GO terms across the genome-wide collection of ~6800 protein-coding genes.</p>
-<p><img src="img/pie_chart_go_term_genome.png" alt="Pie chart of GO term distribution in the genome."></p>
-<h3>Interacting with the database</h3>
-<h4>Genome-wide search</h4>
-<p>Through the <a href="index.php?id=database">database page</a> users may inspect the data GEMMER collected from SGD, CYCLoPs, YeastGFP and SCEPTRANS on a per gene basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page.</p>
-<h4>Information for a specific gene</h4>
-<p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown.</p>
-<h2>Visualizing a network</h2>
-<h3>Technical details</h3>
-<p>The central access hub for the tool is formed by the index.php webpage. The form on this page allows user input, e.g. which gene(s) to center the visualization around. An AJAX script submits the form for processing and displays a brief message to the user. Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a Python script 'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization. The user is then automatically forwarded to a new page with a &quot;box&quot; for the visualization with an embedded D3 visualization based on the JSON file. This page also contains download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
-interactions. Furthermore various tables with this information are also displayed on the page.</p>
-<h3>Using the form to build an interaction network visualization</h3>
+
+<p><img src="img/pie_chart_go_term_genome.png" alt="Pie chart of GO term distribution in the genome." width=70% /></p>
+
+<h3 id="interactingwiththedatabase">Interacting with the database</h3>
+
+<h4 id="genomewidesearch">Genome-wide search</h4>
+
+<p>Through the <a href="index.php?id=database">database page</a> users may inspect the data GEMMER collected from SGD, CYCLoPs, YeastGFP and SCEPTRANS on a per gene basis. The entire genome-wide collection of protein-coding genes may be searched through the search form on the database page. </p>
+
+<h4 id="informationforaspecificgene">Information for a specific gene</h4>
+
+<p>On the page for a specific gene, i.e. <a href="index.php?id=database&amp;gene=SIC1">SIC1</a>, users have access to descriptions of the gene (from SGD), GEMMER's functionality predictions based on GO terms from SGD, CYCLoPs/YeastGFP localization and abundance data if available, timing and cell cycle phase of peak transcription from SCEPTRANS and the set of genes it interacts with. The table of interactions allows the user to move on to pages specific for the interactors, search the interactors, and links directly to PubMed to retrieve the original publication where the interaction was shown. </p>
+
+<h2 id="visualizinganetwork">Visualizing a network</h2>
+
+<h3 id="technicaldetails">Technical details</h3>
+
+<p>The central access hub for the tool is formed by the index.php webpage. The form on this page allows user input, e.g. which gene(s) to center the visualization around. An AJAX script submits the form for processing and displays a brief message to the user. Once submitted a PHP processing page makes sure the input is not faulty and if everything checks out executes a Python script 'gen_visualization'. Once this script is done it will have generated a JSON file with the necessary information for the visualization. The user is then automatically forwarded to a new page with a "box" for the visualization with an embedded D3 visualization based on the JSON file. This page also contains download links for an SVG image of the visualization and an Excel file with all the information on the visualized genes and their
+interactions. Furthermore various tables with this information are also displayed on the page. </p>
+
+<h3 id="usingtheformtobuildaninteractionnetworkvisualization">Using the form to build an interaction network visualization</h3>
+
 <p>The <a href="index.php?id=tool">visualization page</a> contains a form that is to be used to query the database for a specific interaction network satisfying your requirements.</p>
-<p><img src="img/input_form_advanced.png" alt="Advanced form input"></p>
-<p>The form is split in two parts: the core &quot;Visualization query&quot; and the &quot;Advanced query options&quot;.</p>
-<p>In the &quot;Visualiations query&quot; area users select the genes they wish to base the interaction network on. Note that if one fills in one gene, e.g. SIC1, the result is a network of up to 25 genes that interact with SIC1. If one fills in two genes, e.g. SIC1 and NTH1, the result is a network of up to 25 genes that might interact with either or both of these genes. GEMMER selects which genes end up in the ultimate visualization based on a &quot;node selection criteria&quot; under the &quot;Advanced query options&quot;.</p>
-<p>The rest of the &quot;Visualization query&quot; deals with whether or not to cluster (&quot;Cluster by&quot;) and color (&quot;Color by&quot;) the nodes in the visualization, and which types of interactions to consider. Without clustering, the visualized network will resemble the &quot;hairball&quot; networks. If clustering is enabled, this may be done on functional assignment, e.g. metabolism (see above) or on localization according to the CYCLoPs database. The CYCLoPs database contains records for 3 wild type experiments referred to in GEMMER as WT1, WT2 and WT3.</p>
-<p>The &quot;Color by&quot; option is similar to the &quot;Cluster by&quot; option.</p>
-<p>The interaction type dropdown menu allows users to filter out genetic interactions for example. Or, to focus only on regulatory interactions.</p>
-<p>The &quot;Advanced query options&quot; contains various ways to filter out results.</p>
+
+<p><img src="img/input_form_advanced.png" alt="Advanced form input" width="100%"/></p>
+
+<p>The form is split in two parts: the core "Visualization query" and the "Advanced query options". </p>
+
+<p>In the "Visualiations query" area users select the genes they wish to base the interaction network on. Note that if one fills in one gene, e.g. SIC1, the result is a network of up to 25 genes that interact with SIC1. If one fills in two genes, e.g. SIC1 and NTH1, the result is a network of up to 25 genes that might interact with either or both of these genes. GEMMER selects which genes end up in the ultimate visualization based on a "node selection criteria" under the "Advanced query options". </p>
+
+<p>The rest of the "Visualization query" deals with whether or not to cluster ("Cluster by") and color ("Color by") the nodes in the visualization, and which types of interactions to consider. Without clustering, the visualized network will resemble the "hairball" networks. If clustering is enabled, this may be done on functional assignment, e.g. metabolism (see above) or on localization according to the CYCLoPs database. The CYCLoPs database contains records for 3 wild type experiments referred to in GEMMER as WT1, WT2 and WT3. </p>
+
+<p>The "Color by" option is similar to the "Cluster by" option. </p>
+
+<p>The interaction type dropdown menu allows users to filter out genetic interactions for example. Or, to focus only on regulatory interactions. </p>
+
+<p>The "Advanced query options" contains various ways to filter out results. </p>
+
 <p>In the first row users may filter either by the specific experimental method that was used to show an interaction or by the number of experiments (one or more per publication), publications or the number of unique different methods that were used in the literature to show an interaction.</p>
-<p>The second row of the &quot;Advanced query options&quot; contain further filtering approaches based on the functional process of the interactors, the compartments they are expressed in or the phase of their peak expression. For the &quot;Compartment&quot; option, users may select any of the CYCLoPs or YeastGFP compartments to filter for. For example, using this option a user may build a query which will only return interactors that are expressed in the nucleus according to any of the three wild type CYCLoPS experiments.</p>
-<p>Finally, the last row contains node filtering criteria. The first option &quot;Max. number of nodes visualized&quot; sets the maximum number of genes that will be shown in the visualization. This is by default set to 25, and can be increased to 100. We limit this because past this point the strain on the browser becomes quite significant and the screen becomes too crowded to clearly show the gene names in the nodes. If more nodes are required, users may click on the &quot;D3.js max. 250 nodes&quot; layout under the heading &quot;Alternative network visualizations&quot; below the visualization. This layout will shown up to 250 genes but lacks gene identifiers within the visualization to make space for more nodes. However, the genes may still be identified by clicking on them in the visualization, after which their information will show up in the sidebar.</p>
-<p>When a query returns more than the max. number of nodes set in the form, GEMMER needs to decide which genes NOT to show. GEMMER does not do this randomly. The last option in the form allows users to choose how GEMMER filters such genes: based on <a href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">degree centrality</a>, <a href="https://en.wikipedia.org/wiki/Eigenvector_centrality">eigenvector centrality</a> or <a href="https://en.wikipedia.org/wiki/Katz_centrality">Katz centrality</a>.</p>
-<p>All these filters may be used together to build very complex queries.</p>
-<h3>Example visualizations</h3>
-<p>Once the form discussed above has been filled, clicking &quot;Submit query&quot; will launch the visualization. This might take somewhere in the range of 1-10 seconds based on the number of genes and interactions that satisfy the requirements specified in the form.</p>
-<p>To illustrate the potential networks, layouts and biological questions GEMMER supports, we gathered together a <a href="index.php?id=examples">set of example visualizations</a> that highlights many of the settings and visualizations that GEMMER provides.</p>
-<h2>Data export and further analysis</h2>
-<p>GEMMER provides export of the data for each visualized network in JSON, Excel and GEXF formats. These are available below the visualized network under the &quot;Export options&quot; header.</p>
-<h3>Further analysis in Cytoscape</h3>
-<p><a href="http://cytoscape.org/">Cytoscape</a> is a desktop application that provides many additional functionalities beyond those present in GEMMER, especially through its plugin apps. To that end, it is useful to do exploratory analysis and visualization with GEMMER, export the data and import them in Cytoscape.</p>
-<p>To import a visualized network in Cytoscape: download the Excel file through GEMMER from the visualization page, then in Cytoscape click “import &gt; network &gt; file”. This yields the same network in Cytoscape. Crucially, the user has to select the “interactome” sheet to import.</p>
-<h3>Further analysis in Gephi</h3>
-<p><a href="http://www.gephi.org">Gephi</a> is another desktop application providing advanced network analysis capabilities. To open networks visualized with GEMMER in Gephi both the Excel and GEXF export formats may be used. To import an Excel file in Gephi: go to &quot;Import spreadsheet&quot; &gt; click the Excel file downloaded from GEMMER &gt; select the interactome sheet &gt; import as edges table.</p>
-<h2>Dependencies</h2>
+
+<p>The second row of the "Advanced query options" contain further filtering approaches based on the functional process of the interactors, the compartments they are expressed in or the phase of their peak expression. For the "Compartment" option, users may select any of the CYCLoPs or YeastGFP compartments to filter for. For example, using this option a user may build a query which will only return interactors that are expressed in the nucleus according to any of the three wild type CYCLoPS experiments.</p>
+
+<p>Finally, the last row contains node filtering criteria. The first option "Max. number of nodes visualized" sets the maximum number of genes that will be shown in the visualization. This is by default set to 25, and can be increased to 100. We limit this because past this point the strain on the browser becomes quite significant and the screen becomes too crowded to clearly show the gene names in the nodes. If more nodes are required, users may click on the "D3.js max. 250 nodes" layout under the heading "Alternative network visualizations" below the visualization. This layout will shown up to 250 genes but lacks gene identifiers within the visualization to make space for more nodes. However, the genes may still be identified by clicking on them in the visualization, after which their information will show up in the sidebar. </p>
+
+<p>When a query returns more than the max. number of nodes set in the form, GEMMER needs to decide which genes NOT to show. GEMMER does not do this randomly. The last option in the form allows users to choose how GEMMER filters such genes: based on <a href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">degree centrality</a>, <a href="https://en.wikipedia.org/wiki/Eigenvector_centrality">eigenvector centrality</a> or <a href="https://en.wikipedia.org/wiki/Katz_centrality">Katz centrality</a>. </p>
+
+<p>All these filters may be used together to build very complex queries.  </p>
+
+<h3 id="examplevisualizations">Example visualizations</h3>
+
+<p>Once the form discussed above has been filled, clicking "Submit query" will launch the visualization. This might take somewhere in the range of 1-10 seconds based on the number of genes and interactions that satisfy the requirements specified in the form. </p>
+
+<p>To illustrate the potential networks, layouts and biological questions GEMMER supports, we gathered together a <a href="index.php?id=examples">set of example visualizations</a> that highlights many of the settings and visualizations that GEMMER provides. </p>
+
+<h2 id="dataexportandfurtheranalysis">Data export and further analysis</h2>
+
+<p>GEMMER provides export of the data for each visualized network in JSON, Excel and GEXF formats. These are available below the visualized network under the "Export options" header.</p>
+
+<h3 id="furtheranalysisincytoscape">Further analysis in Cytoscape</h3>
+
+<p><a href="http://cytoscape.org/">Cytoscape</a> is a desktop application that provides many additional functionalities beyond those present in GEMMER, especially through its plugin apps. To that end, it is useful to do exploratory analysis and visualization with GEMMER, export the data and import them in Cytoscape. </p>
+
+<p>To import a visualized network in Cytoscape: download the Excel file through GEMMER from the visualization page, then in Cytoscape click “import > network > file”. This yields the same network in Cytoscape. Crucially, the user has to select the “interactome” sheet to import. </p>
+
+<h3 id="furtheranalysisingephi">Further analysis in Gephi</h3>
+
+<p><a href="http://www.gephi.org">Gephi</a> is another desktop application providing advanced network analysis capabilities. To open networks visualized with GEMMER in Gephi both the Excel and GEXF export formats may be used. To import an Excel file in Gephi: go to "Import spreadsheet" > click the Excel file downloaded from GEMMER > select the interactome sheet > import as edges table.</p>
+
+<h2 id="dependencies">Dependencies</h2>
+
 <p>GEMMER would not be possible without the following open-source projects:</p>
+
 <ul>
 <li><a href="https://yeastmine.yeastgenome.org/yeastmine/begin.do">YeastMine</a></li>
+
 <li><a href="https://d3js.org/">D3.js</a></li>
+
 <li><a href="http://js.cytoscape.org/">Cytoscape.js</a></li>
+
 <li><a href="http://marvl.infotech.monash.edu/webcola/">Cola.js</a></li>
+
 <li><a href="http://php.net/">PHP</a></li>
+
 <li><a href="https://www.apache.org/">APACHE</a></li>
+
 <li><a href="https://www.sqlite.org/">SQLite</a></li>
+
 <li><a href="http://python.org">Python</a>
+
+
 <ul>
 <li><a href="http://pandas.pydata.org/">Pandas</a></li>
-<li><a href="https://networkx.github.io/">NetworkX</a></li>
-<li><a href="https://nxviz.readthedocs.io/en/latest/index.html">Nxviz</a></li>
-</ul>
-</li>
-<li><a href="http://getbootstrap.com/">Bootstrap</a>
-<ul>
-<li><a href="https://silviomoreto.github.io/bootstrap-select/">Bootstrap-select</a></li>
-</ul>
-</li>
-<li><a href="https://jquery.com/">jQuery</a>
-<ul>
-<li><a href="https://datatables.net/">DataTables</a></li>
-</ul>
-</li>
-</ul>
 
-</body>
-</html>
+<li><a href="https://networkx.github.io/">NetworkX</a></li>
+
+<li><a href="https://nxviz.readthedocs.io/en/latest/index.html">Nxviz</a></li></ul>
+</li>
+
+<li><a href="http://getbootstrap.com/">Bootstrap</a>
+
+
+<ul>
+<li><a href="https://silviomoreto.github.io/bootstrap-select/">Bootstrap-select</a></li></ul>
+</li>
+
+<li><a href="https://jquery.com/">jQuery</a>
+
+
+<ul>
+<li><a href="https://datatables.net/">DataTables</a></li></ul>
+</li>
+</ul>

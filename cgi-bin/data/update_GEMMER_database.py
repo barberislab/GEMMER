@@ -1031,26 +1031,26 @@ def main():
     find_all_interactions(conn,gene_symbols)
 
     ### GENERATE A MATRIX OF O'S AND 1'S INDICATING INTERACTIONS BETWEEN PROTEINS
-    print 'Generating an interactome matrix.'
-    cursor = conn.execute("SELECT standard_name from genes")
-    gene_record = [x for x in cursor]
-    gene_symbols = [str(x[0]) for x in gene_record]
+    # print 'Generating an interactome matrix.'
+    # cursor = conn.execute("SELECT standard_name from genes")
+    # gene_record = [x for x in cursor]
+    # gene_symbols = [str(x[0]) for x in gene_record]
 
-    # start interactome with all protein coding genes and all zeros
-    index = gene_symbols; columns = gene_symbols
-    df_yeast_interactome = pd.DataFrame(index=index, columns=columns)
-    df_yeast_interactome = df_yeast_interactome.fillna(0)
+    # # start interactome with all protein coding genes and all zeros
+    # index = gene_symbols; columns = gene_symbols
+    # df_yeast_interactome = pd.DataFrame(index=index, columns=columns)
+    # df_yeast_interactome = df_yeast_interactome.fillna(0)
 
-    print df_yeast_interactome.iloc[1990:2000][:10]
+    # print df_yeast_interactome.iloc[1990:2000][:10]
 
-    cursor = conn.execute("SELECT source,target from interactions")
-    ints = [x for x in cursor]
-    for interaction in ints:
-        if str(interaction[1]) in gene_symbols and str(interaction[0]) in gene_symbols:
-            df_yeast_interactome.loc[str(interaction[0])][str(interaction[1])] = 1
-            df_yeast_interactome.loc[str(interaction[1])][str(interaction[0])] = 1
+    # cursor = conn.execute("SELECT source,target from interactions")
+    # ints = [x for x in cursor]
+    # for interaction in ints:
+    #     if str(interaction[1]) in gene_symbols and str(interaction[0]) in gene_symbols:
+    #         df_yeast_interactome.loc[str(interaction[0])][str(interaction[1])] = 1
+    #         df_yeast_interactome.loc[str(interaction[1])][str(interaction[0])] = 1
 
-    df_yeast_interactome.to_csv('export/SGD_proteinCodingGenes_interactome.csv')
+    # df_yeast_interactome.to_csv('export/SGD_proteinCodingGenes_interactome.csv')
 
     conn.commit()
     print "Records created successfully"

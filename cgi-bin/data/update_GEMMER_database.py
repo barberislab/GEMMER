@@ -68,8 +68,8 @@ def store_sceptrans_data(conn):
 
     sceptrans_data = pd.read_excel('./expression_time_phase_primary.xlsx',index_col=False)
     sceptrans_data.columns = ['Systematic name', 'Standard name', 'Phase', 'Time']
+
     sceptrans_data = sceptrans_data.sort_values(['Time'])
-    print((sceptrans_data.iloc[:5]))
 
     cursor = conn.execute("SELECT systematic_name from genes")
     gene_record = [x for x in cursor]
@@ -79,11 +79,12 @@ def store_sceptrans_data(conn):
     for i in range(len(sceptrans_data)):
         row = sceptrans_data.iloc[i]
         if row['Systematic name'] in gene_names:
-            list_data_tuples.append((row['Phase'],row['Time'],row['Systematic name']))
+            list_data_tuples.append((row['Phase'],str(row['Time']),row['Systematic name']))
         else:
             print('We do not have/consider:', row['Systematic name'])
 
     conn.executemany('UPDATE genes SET expression_peak_phase = ?, expression_peak_time = ? WHERE systematic_name = ?',list_data_tuples)
+
 
 def store_gfp_data(conn,gene_symbols,d={}):
     ''' Build a dictionary of gene_symbols to dictionaries of database data
@@ -133,11 +134,12 @@ def store_gfp_data(conn,gene_symbols,d={}):
             d[gene] = rows
 
     for gene in gene_symbols:
-        conn.execute('UPDATE genes SET GFP_abundance = ?, GFP_localization = ? WHERE standard_name = ?',(d[gene]['abundance'],str(d[gene]['localization']), gene))
+        conn.execute('UPDATE genes SET GFP_abundance = ?, GFP_localization = ? WHERE standard_name = ?',(d[gene]['abundance'],d[gene]['localization'], gene))
 
     print('Completed storing GFP data')
 
     return d
+
 
 def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     ''' Read the three WT datasets for each gene. 
@@ -266,6 +268,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     print('Completed storing CYCLoPs data')
 
     return CYCLoPs_dict
+
 
 def find_go_annotations(conn,gene_symbols):
     # The GO term tree: http://amigo.geneontology.org/amigo/dd_browse
@@ -415,6 +418,7 @@ def find_go_annotations(conn,gene_symbols):
 
     return go_dict
 
+
 def find_all_genes(conn):
     service = Service("https://yeastmine.yeastgenome.org:443/yeastmine/service")
 
@@ -423,7 +427,7 @@ def find_all_genes(conn):
     query.add_view("secondaryIdentifier", "symbol","description","briefDescription")
 
     rows =  [row for row in query.rows()]
-    print('Found',len(rows),'protein coding genes in SGD\n')
+    print('Found records for',len(rows),'protein coding genes in SGD\n')
 
     dict_id_to_sysname = {} # also store the mappings in a dictionary to write to excel for handy refs
     list_data_tuples = []
@@ -448,8 +452,6 @@ def find_all_genes(conn):
     df = pd.DataFrame(list(dict_id_to_sysname.items()), columns = ['Standard name','Systematic name'])
     df.to_excel("SGD_standard_name_to_systematic_name.xlsx")
     
-    print('Completed storing all gene records.')
-
     return
 
 
@@ -466,7 +468,7 @@ def find_all_interactions(conn,gene_symbols):
     # Retrieving regulator genes #
     ##############################
     # query description - Retrieve <a href = "https://www.yeastgenome.org/yeastmine-help-page#gene">genes</a> that are regulators of a given target gene.
-    print("retrieving all regulators")
+    print("Retrieving all regulators from SGD")
 
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("ProteinCodingGene")
@@ -716,11 +718,13 @@ def find_all_interactions(conn,gene_symbols):
     # That's all folks!
     print("done!")
 
+
 def query_kegg(kegg_gene):
     ''' query kegg with gene identifier and return the parsed result. '''
     res = KEGG().get(kegg_gene)
     parsed_res = KEGG().parse(res)
     return parsed_res
+
 
 def get_KEGG_info_genes(conn):    
     print("""
@@ -836,10 +840,10 @@ def main():
                                         CYCLoPs_dict TEXT,
                                         CYCLoPs_Excel_string TEXT,
                                         CYCLoPs_html TEXT,
-                                        GFP_abundance INT,
+                                        GFP_abundance TEXT,
                                         GFP_localization TEXT,
                                         expression_peak_phase TEXT,
-                                        expression_peak_time INT,
+                                        expression_peak_time TEXT,
                                         yeast7 INT NOT NULL,
                                         is_enzyme INT NOT NULL,
                                         catalyzed_reactions TEXT,
@@ -862,7 +866,6 @@ def main():
                                     FOREIGN KEY (target) REFERENCES genes (standard_name),
                                     PRIMARY KEY (source,target,type,evidence)
                                 );"""
-    print("definitions made")
  
     # create a database connection
     conn = create_connection(database)
@@ -870,10 +873,10 @@ def main():
     if conn is not None:
         # create projects table
         create_table(conn, sql_create_genes_table)
-        print("Genes table made")
+        print("Genes table initialised.")
         # create tasks table
         create_table(conn, sql_create_interactions_table)
-        print("Interactions table made")
+        print("Interactions table initialised.")
     else:
         print("Error! cannot create the database connection.") 
 
@@ -882,43 +885,15 @@ def main():
     find_all_genes(conn)
     conn.commit()
 
+
     # find the genes in the database NOW
     cursor = conn.execute("SELECT * from genes")
     gene_record = [x for x in cursor]
     gene_symbols = [str(x[0]) for x in gene_record]
     gene_names = [str(x[1]) for x in gene_record]
-    print('We have records for',len(gene_symbols),'genes')
+    print('Stored records for',len(gene_symbols),'genes. Here are the first 10:')
     print(gene_symbols[:10])
 
-    # Incorporate KEGG info: KO, description, gene names, pathway maps they are a part
-    get_KEGG_info_genes(conn)
-
-    # Assign boolean state: enzyme
-    # based on yeastGEM reaction catalysis
-    find_metabolic_enzymes(conn, gene_names)
-
-    # Also assign enzyme == True based on presence of EC number in KEGG description
-    cursor = conn.execute("SELECT * from genes")
-    gene_record = [x for x in cursor]
-    yeastGEM_enzymes = [x for x in gene_record if x[14] == True ]
-    print('Enzymes in YeastGEM:', len(yeastGEM_enzymes))
-    has_kegg_name = [x for x in gene_record if x[19] != None ]
-    has_EC = [x[1] for x in has_kegg_name if '[EC' in x[19] ]
-    print('Genes with EC:', len(has_EC))
-    # enzymes are either with EC or in yeast 7
-    enzymes = [x for x in has_EC]
-    enzymes.extend([x[1] for x in yeastGEM_enzymes])
-    enzymes = list(set(enzymes))
-    print('Genes considered enzymes:', len(enzymes))
-    list_data_tuples = [(1,g) for g in enzymes]
-
-    # switch these to enzymes in database
-    conn.executemany('UPDATE genes SET is_enzyme = ? WHERE systematic_name = ?',list_data_tuples)
-    conn.commit()
-
-    # assign categories based on GO terms
-    go_dict = find_go_annotations(conn,gene_symbols)
-    conn.commit()
 
     # store sceptrans data
     store_sceptrans_data(conn)
@@ -948,6 +923,37 @@ def main():
         CYCLoPs_dict = store_CYCLoPs_data(conn,gene_symbols)
         with open(SCRIPT_DIR+'/CYCLoPs_dict.json', 'w') as fp:
             json.dump(CYCLoPs_dict, fp)
+    conn.commit()
+
+
+    # Incorporate KEGG info: KO, description, gene names, pathway maps they are a part
+    get_KEGG_info_genes(conn)
+
+    # Assign boolean state: enzyme
+    # based on yeastGEM reaction catalysis
+    find_metabolic_enzymes(conn, gene_names)
+
+    # Also assign enzyme == True based on presence of EC number in KEGG description
+    cursor = conn.execute("SELECT * from genes")
+    gene_record = [x for x in cursor]
+    yeastGEM_enzymes = [x for x in gene_record if x[14] == True ]
+    print('Enzymes in YeastGEM:', len(yeastGEM_enzymes))
+    has_kegg_name = [x for x in gene_record if x[19] != None ]
+    has_EC = [x[1] for x in has_kegg_name if '[EC' in x[19] ]
+    print('Number of genes with EC:', len(has_EC))
+    # enzymes are either with EC or in yeast 7
+    enzymes = [x for x in has_EC]
+    enzymes.extend([x[1] for x in yeastGEM_enzymes])
+    enzymes = list(set(enzymes))
+    print('Number of genes considered enzymes:', len(enzymes))
+    list_data_tuples = [(1,g) for g in enzymes]
+
+    # switch these to enzymes in database
+    conn.executemany('UPDATE genes SET is_enzyme = ? WHERE systematic_name = ?',list_data_tuples)
+    conn.commit()
+
+    # assign categories based on GO terms
+    go_dict = find_go_annotations(conn,gene_symbols)
     conn.commit()
 
 

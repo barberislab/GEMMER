@@ -167,7 +167,7 @@ EOT;
                 <h4>Enzyme information</h4>
                 <table id="enzyme_table" class="table table-bordered table-condensed table-striped">
                     <thead>
-                        <th>Catalyzed reactions in Yeast 7.6</th>  
+                        <th>Catalyzed reactions in Yeast8</th>  
                     </thead>
                     <tbody>
                         <tr>

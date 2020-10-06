@@ -10,29 +10,44 @@ chromatin immunoprecipitation-qPCR evidence
 chromatin immunoprecipitation-seq evidence
 Co-crystal Structure
 Co-fractionation
+co-immunoprecipitation evidence
 Co-localization
 Co-purification
 Dosage Growth Defect
 Dosage Lethality
 Dosage Rescue
 electrophoretic mobility shift assay evidence
+enzyme assay evidence
 Far Western
 FRET
+functional complementation evidence
+green fluorescent protein fusion protein localization evidence
+green fluorescent protein immunolocalization evidence
+immunoprecipitation evidence
+in vitro assay evidence
 LacZ transcript localization evidence
 microarray RNA expression level evidence
+mutant phenotype evidence
 Negative Genetic
 Northern assay evidence
+nucleic acid binding evidence
+nucleic acid hybridization evidence
 PCA
 Phenotypic Enhancement
 Phenotypic Suppression
+physical interaction evidence
 Positive Genetic
+protein separation followed by direct sequencing evidence
 Protein-peptide
 Protein-RNA
 Proximity Label-MS
 quantitative polymerase chain reaction evidence
 Reconstituted Complex
+reporter gene assay evidence
 reverse transcription polymerase chain reaction evidence
 RNA protection assay evidence
+RNA-seq evidence
+sodium dodecyl sulfate polyacrylamide gel electrophoresis evidence
 Synthetic Growth Defect
 Synthetic Haploinsufficiency
 Synthetic Lethality

@@ -14,9 +14,9 @@ import numpy as np
 import pandas as pd
 from bioservices import KEGG
 from intermine.webservice import Service
-from orderedset import OrderedSet
+from ordered_set import OrderedSet
 
-from json_load import *
+import json
 
 
 def create_connection(db_file):
@@ -29,7 +29,7 @@ def create_connection(db_file):
         conn = sqlite3.connect(db_file)
         return conn
     except Exception as e:
-        print e.message, e.args
+        print((e.message, e.args))
  
     return None
 
@@ -43,17 +43,18 @@ def create_table(conn, create_table_sql):
         c = conn.cursor()
         c.execute(create_table_sql)
     except Exception as e:
-        print "ERROR: ",e.message, e.args
+        print(("ERROR: ",e.message, e.args))
 
 def find_metabolic_enzymes(conn,gene_names):
     import cobra
 
-    model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml');
+    #model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml')
+    model = cobra.io.read_sbml_model('./yeast_GEMM/yeastGEM_v8.xml')
 
     matches = [g for g in gene_names if g in model.genes ]
-    print 'Found', len(matches), 'metabolic enzymes in the yeast metabolic reconstruction.'
+    print(('Found', len(matches), 'metabolic enzymes in the yeast metabolic reconstruction.'))
 
-    print "### Storing whether gene is a metabolic enzyme"
+    print("### Storing whether gene is a metabolic enzyme")
     for g in matches:
         model_gene = model.genes.get_by_id(g)
         catalyzed_rxns = ', '.join([r.id+' ('+r.name+')' for r in model_gene.reactions])
@@ -68,7 +69,7 @@ def store_sceptrans_data(conn):
     sceptrans_data = pd.read_excel('./expression_time_phase_primary.xlsx',index_col=False)
     sceptrans_data.columns = ['Systematic name', 'Standard name', 'Phase', 'Time']
     sceptrans_data = sceptrans_data.sort_values(['Time'])
-    print sceptrans_data.iloc[:5]
+    print((sceptrans_data.iloc[:5]))
 
     cursor = conn.execute("SELECT systematic_name from genes")
     gene_record = [x for x in cursor]
@@ -80,7 +81,7 @@ def store_sceptrans_data(conn):
         if row['Systematic name'] in gene_names:
             list_data_tuples.append((row['Phase'],row['Time'],row['Systematic name']))
         else:
-            print 'We do not have/consider:', row['Systematic name']
+            print('We do not have/consider:', row['Systematic name'])
 
     conn.executemany('UPDATE genes SET expression_peak_phase = ?, expression_peak_time = ? WHERE systematic_name = ?',list_data_tuples)
 
@@ -114,7 +115,7 @@ def store_gfp_data(conn,gene_symbols,d={}):
         for g in nomatches:
             d[g] = {'abundance':'no data','localization':'no data'}
 
-        print '\nFound',len(matches),'matching genes in the Ghaemmaghami dataset.\n'
+        print('\nFound',len(matches),'matching genes in the Ghaemmaghami dataset.\n')
         
         for gene in matches:
             rows = gfp_data[gfp_data['gene name'].values == gene]
@@ -134,7 +135,7 @@ def store_gfp_data(conn,gene_symbols,d={}):
     for gene in gene_symbols:
         conn.execute('UPDATE genes SET GFP_abundance = ?, GFP_localization = ? WHERE standard_name = ?',(d[gene]['abundance'],str(d[gene]['localization']), gene))
 
-    print 'Completed storing GFP data'
+    print('Completed storing GFP data')
 
     return d
 
@@ -150,26 +151,26 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         CYCLoPs_data[2] = pd.read_excel("./CYCLoPs_WT3.xls",header=0)
         cols = list(CYCLoPs_data[0]) # or: my_dataframe.columns.values.tolist()
 
-        print 'Original columns:',cols
+        print('Original columns:',cols)
         cols = [str(x) for x in cols]
         for i in range(len(CYCLoPs_data)):
             CYCLoPs_data[i].columns = cols
         cols = list(CYCLoPs_data[0])
-        print 'Cleaned columns:',cols
+        print('Cleaned columns:',cols)
 
 
         ### ROUND to 3 
-        print CYCLoPs_data[0]['Cell Periphery'].dtype
-        print 'Rounding to 4 decimals'
+        print(CYCLoPs_data[0]['Cell Periphery'].dtype)
+        print('Rounding to 4 decimals')
         CYCLoPs_data[0] = CYCLoPs_data[0].round(4)
         CYCLoPs_data[1] = CYCLoPs_data[1].round(4)
         CYCLoPs_data[2] = CYCLoPs_data[2].round(4)
-        print CYCLoPs_data[0].values
+        print(CYCLoPs_data[0].values)
 
         count = 0
         for gene in gene_symbols:
             if count % 100 == 0:
-                print 'Finished storing CYCLoPs data for',count,'genes'
+                print('Finished storing CYCLoPs data for',count,'genes')
 
             found = False # track if gene is in these tables at all
             d = {'WT1':{},'WT2':{},'WT3':{}} # init
@@ -184,7 +185,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
 
                     continue
                 elif len(subdf) > 1:
-                    print "Found multiple hits in CYCLoPs data for",gene,'Taking the first hit.'
+                    print("Found multiple hits in CYCLoPs data for",gene,'Taking the first hit.')
                     subdf = subdf[:1]
                 found = True
                 
@@ -217,7 +218,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         if isinstance(d,dict):
             sql_CYCLoPs_dict['dict'] = str(d)
         else:
-            print gene, d
+            print(gene, d)
             raise SystemExit
 
         sql_CYCLoPs_dict['excel_string'] = ', '.join([k + ': ' + ( str(d[k]) if d[k] != {} else 'no data') for k in d]) # 'WT1' + '{Nucleus:0.1,Cytosol:0.8}', ....
@@ -238,7 +239,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         # color the highest compartment in each WT
         for WT_string in ['WT1','WT2','WT3']:
             if not_only_no_data and len(d[WT_string]) > 0:
-                max_key = max(d[WT_string].iteritems(), key=operator.itemgetter(1))[0]
+                max_key = max(iter(d[WT_string].items()), key=operator.itemgetter(1))[0]
                 s = str(d[WT_string][max_key]) 
 
                 # insert blue background in the correct table cell 
@@ -248,9 +249,9 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
                 elif s in html_string:
                     html_string = html_string.replace('<td>'+s+'</td>', '<td class="bg-info">'+s+'</td>')
                 else:
-                    print 'missing:', s 
-                    print 'dict:', d
-                    print d_df
+                    print('missing:', s) 
+                    print('dict:', d)
+                    print(d_df)
                     raise SystemExit
 
         # change table properties: full width within column
@@ -262,7 +263,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         d = sql_CYCLoPs_dict
         conn.execute('UPDATE genes SET CYCLoPs_dict = ?, CYCLoPs_Excel_string = ?, CYCLoPs_html = ?  WHERE standard_name = ?',(d['dict'],d['excel_string'],d['html_string'],gene))
 
-    print 'Completed storing CYCLoPs data'
+    print('Completed storing CYCLoPs data')
 
     return CYCLoPs_dict
 
@@ -287,8 +288,8 @@ def find_go_annotations(conn,gene_symbols):
 
     service = Service("https://yeastmine.yeastgenome.org:443/yeastmine/service")
 
-    query_results = {k:None for k in go_terms.keys()}
-    go_dict = {k:{} for k in go_terms.keys()}
+    query_results = {k:None for k in list(go_terms.keys())}
+    go_dict = {k:{} for k in list(go_terms.keys())}
 
     # NEW APPROACH
     # reproduce the numbers from the SGD pages for manually curated annotations
@@ -300,7 +301,7 @@ def find_go_annotations(conn,gene_symbols):
     # the values are lists of (gene, go term) pairs where the go term falls under this parent
     # these may contain multiple hits for each gene
     # make sure to assign each hit to only one category
-    print 'Querying SGD this may take a while...'
+    print('Querying SGD this may take a while...')
 
     for term in go_terms: 
         query = service.new_query("ProteinCodingGene")
@@ -318,7 +319,7 @@ def find_go_annotations(conn,gene_symbols):
         rows = [ {k:row[k] for k in ['symbol','secondaryIdentifier',"goAnnotation.ontologyTerm.ontologyAnnotations.ontologyTerm.identifier",
                 "goAnnotation.evidence.publications.pubMedId","goAnnotation.evidence.code.code"] } for row in query.rows() ] # each row is a dictionary
 
-        print term,'query returned',len(rows),'results'
+        print(term,'query returned',len(rows),'results')
 
         query_results[term] = rows
 
@@ -336,7 +337,7 @@ def find_go_annotations(conn,gene_symbols):
                                     and x not in query_results['Cell cycle']]
 
     for term in go_terms:
-        print term,'query returned',len(query_results[term]),'results after filtering'
+        print(term,'query returned',len(query_results[term]),'results after filtering')
 
     # Store list of unique genes for each go_term (post-filter) in 'go_dict' and count the results
     for term in go_terms:
@@ -356,9 +357,9 @@ def find_go_annotations(conn,gene_symbols):
             else:
                 go_dict[term][s] = 1
 
-        print "Found ", len(go_dict[term]), "genes with GO term ", term
+        print("Found ", len(go_dict[term]), "genes with GO term ", term)
 
-    print 'Assigning go terms for all genes...'
+    print('Assigning go terms for all genes...')
     gene_cat_counts = {}
     list_data_tuples = []
     for gene in gene_symbols:
@@ -380,7 +381,7 @@ def find_go_annotations(conn,gene_symbols):
             cat1 = 'None'
             cat2 = 'None'
         else:
-            sorted_cats = sorted(gene_cat_counts[gene].items(), key=operator.itemgetter(1),reverse=True) # list of tuples: ('GO term':count)
+            sorted_cats = sorted(list(gene_cat_counts[gene].items()), key=operator.itemgetter(1),reverse=True) # list of tuples: ('GO term':count)
 
             if sorted_cats[1][1] > 0: # check if there is a second non-zero category 
                 if sorted_cats[0][1] == sorted_cats[1][1]: # equal GO term count
@@ -406,7 +407,7 @@ def find_go_annotations(conn,gene_symbols):
         list_data_tuples[i][0] = df_cat_count.loc[gene].to_frame().transpose().to_html(classes=['table','table-condensed', 'table-bordered'])
         i += 1
 
-    list_data_tuples = map(tuple,list_data_tuples)
+    list_data_tuples = list(map(tuple,list_data_tuples))
 
     # store results in database
     conn.executemany('UPDATE genes SET go_terms = ?, go_term_1 = ?, go_term_2 = ? WHERE standard_name = ?',list_data_tuples)
@@ -422,7 +423,7 @@ def find_all_genes(conn):
     query.add_view("secondaryIdentifier", "symbol","description","briefDescription")
 
     rows =  [row for row in query.rows()]
-    print 'Found',len(rows),'protein coding genes in SGD\n'
+    print('Found',len(rows),'protein coding genes in SGD\n')
 
     dict_id_to_sysname = {} # also store the mappings in a dictionary to write to excel for handy refs
     list_data_tuples = []
@@ -444,10 +445,10 @@ def find_all_genes(conn):
     
     conn.executemany('INSERT into genes(standard_name, systematic_name, name_desc, desc, yeast7, is_enzyme) VALUES (?,?,?,?,?,?)',list_data_tuples)
 
-    df = pd.DataFrame(dict_id_to_sysname.items(), columns = ['Standard name','Systematic name'])
+    df = pd.DataFrame(list(dict_id_to_sysname.items()), columns = ['Standard name','Systematic name'])
     df.to_excel("SGD_standard_name_to_systematic_name.xlsx")
     
-    print 'Completed storing all gene records.'
+    print('Completed storing all gene records.')
 
     return
 
@@ -465,7 +466,7 @@ def find_all_interactions(conn,gene_symbols):
     # Retrieving regulator genes #
     ##############################
     # query description - Retrieve <a href = "https://www.yeastgenome.org/yeastmine-help-page#gene">genes</a> that are regulators of a given target gene.
-    print "retrieving all regulators"
+    print("retrieving all regulators")
 
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("ProteinCodingGene")
@@ -495,7 +496,7 @@ def find_all_interactions(conn,gene_symbols):
         elif row["secondaryIdentifier"] not in ['None',None]:
             t =  row["secondaryIdentifier"]
         else: 
-            print 'Strange case with None IDs:', row
+            print('Strange case with None IDs:', row)
             continue
         
         if row["regulatoryRegions.regulator.symbol"] not in ['None',None]:
@@ -503,7 +504,7 @@ def find_all_interactions(conn,gene_symbols):
         elif row["regulatoryRegions.regulator.secondaryIdentifier"] not in ['None',None]:
             s =  row["regulatoryRegions.regulator.secondaryIdentifier"]
         else: 
-            print 'Strange case with None IDs:', row
+            print('Strange case with None IDs:', row)
             continue
 
         row_tuple = (s,t,'regulation',row["regulatoryRegions.regEvidence.ontologyTerm.name"],row["regulatoryRegions.publications.pubMedId"] )
@@ -528,7 +529,7 @@ def find_all_interactions(conn,gene_symbols):
             interactome[row_tuple[0]] = {row_tuple[1]:{row_tuple[2]:{'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}}}
 
     ### Generate from the interactome the list of tuples to store
-    print 'Making tuples out of the interactome to store in SQL.'
+    print('Making tuples out of the interactome to store in SQL.')
     list_data_tuples = []
     for int1 in interactome:
         for int2 in interactome[int1]:
@@ -547,19 +548,19 @@ def find_all_interactions(conn,gene_symbols):
 
                 list_data_tuples.append( (int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth ))
 
-    print 'We have',len(list_data_tuples),'interactions to store.'
+    print('We have',len(list_data_tuples),'interactions to store.')
 
     # update database with one command
-    print 'Storing:',len(list_data_tuples),'physical/genetic interactions'
+    print('Storing:',len(list_data_tuples),'physical/genetic interactions')
     conn.executemany('insert or ignore into interactions values(?,?,?,?,?,?,?,?)',list_data_tuples)
 
-    print 'Unique methods so far:', unique_methods
+    print('Unique methods so far:', unique_methods)
 
     ####################################
     # Retrieving physical interactions #
     ####################################
     # query description - Retrieve all interactions for a specified <a href = "https://www.yeastgenome.org/yeastmine-help-page#gene">gene</a>.
-    print "retrieving all interactors"
+    print("retrieving all interactors")
 
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("Interaction")
@@ -577,8 +578,8 @@ def find_all_interactions(conn,gene_symbols):
         "details.experiment.publication.pubMedId"
     )
 
-    print 'Query returned:',len(query.rows()),'physical/genetic interactions'
-    print 'Making tuples of query output now'
+    print('Query returned:',len(query.rows()),'physical/genetic interactions')
+    print('Making tuples of query output now')
 
     # NOTE THAT THE SYSTEMATIC NAMES ARE NOT SAVED IN THE INTERACTIONS DATABASE
     interactome = {}
@@ -592,13 +593,13 @@ def find_all_interactions(conn,gene_symbols):
             if row["participant1.secondaryIdentifier"] not in ['None',None]:
                 row_tuple[0] = row["participant1.secondaryIdentifier"]
             else: 
-                print 'Strange case with None IDs:', row
+                print('Strange case with None IDs:', row)
                 continue
         if row_tuple[1] in ['None',None]:
             if row["participant2.secondaryIdentifier"] not in ['None',None]:
                 row_tuple[1] = row["participant2.secondaryIdentifier"]
             else: 
-                print 'Strange case with None IDs:', row
+                print('Strange case with None IDs:', row)
                 continue
 
         # make sure the source is first in the alphabetical order
@@ -626,7 +627,7 @@ def find_all_interactions(conn,gene_symbols):
 
 
     ### Generate from the interactome the list of tuples to store
-    print 'Making tuples out of the interactome to store in SQL.'
+    print('Making tuples out of the interactome to store in SQL.')
     list_data_tuples = []
     for int1 in interactome:
         for int2 in interactome[int1]:
@@ -651,9 +652,9 @@ def find_all_interactions(conn,gene_symbols):
                     # DID4 YER121W, the 2nd is unverified ORF
                     # AAD16 CRD1 (multiple AAD16) merged ORF
                     if not all([counts[x]>1 for x in counts]):
-                        print 'Cases where pubs are not duplicated:',int1,int2,int_type,counts
+                        print('Cases where pubs are not duplicated:',int1,int2,int_type,counts)
                     elif not all([counts[x]%2==0 for x in counts]): # each experiment is counted twice supposedly
-                        print 'Unexpected case!'
+                        print('Unexpected case!')
                         raise SystemExit
 
                     # I catch the count == 1 cases with the if and else statement and just count them once
@@ -669,7 +670,7 @@ def find_all_interactions(conn,gene_symbols):
                     temp = [] # all appropriate exp (pubmed id) strings
                     for x in list(OrderedSet(ev_pub)): # note: loop over uniques, this should preserve the order although its inconsequential
                         if counts[x]>1:
-                            temp.extend((counts[x]/2)*[x]) # add the list elements to the temp list
+                            temp.extend(int(counts[x]/2)*[x]) # add the list elements to the temp list
                         else:
                             temp.extend((counts[x])*[x])
                     ev_pub = ', '.join(temp)
@@ -680,7 +681,7 @@ def find_all_interactions(conn,gene_symbols):
                     counts = Counter(ev_pub_html)
                     for x in list(OrderedSet(ev_pub_html)): # note: loop over uniques, this should preserve the order although its inconsequential
                         if counts[x]>1:
-                            temp.extend((counts[x]/2)*[x]) # add the list elements to the temp list
+                            temp.extend(int(counts[x]/2)*[x]) # add the list elements to the temp list
                         else:
                             temp.extend((counts[x])*[x])
                     ev_pub_html = ', '.join(temp)
@@ -690,16 +691,16 @@ def find_all_interactions(conn,gene_symbols):
                     ev_pub_html = ', '.join(['<a href="https://www.ncbi.nlm.nih.gov/pubmed/' + pub[i] + '" target="blank" title="' + 'Pubmed ID: '+ pub[i] + '">' + ev[i]+'</a>' for i in range(len(ev))])
                     counts = Counter(ev_pub)
 
-                if not (isinstance(ev_pub,unicode) and isinstance(ev_pub_html,unicode)):
-                    print type(ev_pub), type(ev_pub_html)
-                    print 'string:', ev_pub
-                    print 'string html:', ev_pub_html
+                if not (isinstance(ev_pub,str) and isinstance(ev_pub_html,str)):
+                    print(type(ev_pub), type(ev_pub_html))
+                    print('string:', ev_pub)
+                    print('string html:', ev_pub_html)
                     raise SystemExit
 
                 list_data_tuples.append( (int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth ))
 
     # update database with one command
-    print 'Storing:',len(list_data_tuples),'regulatory interactions'
+    print('Storing:',len(list_data_tuples),'regulatory interactions')
     conn.executemany('insert or ignore into interactions values(?,?,?,?,?,?,?,?)',list_data_tuples)
 
     # save a list of experimental methods
@@ -713,7 +714,7 @@ def find_all_interactions(conn,gene_symbols):
     thefile.close()
 
     # That's all folks!
-    print "done!"
+    print("done!")
 
 def query_kegg(kegg_gene):
     ''' query kegg with gene identifier and return the parsed result. '''
@@ -722,20 +723,20 @@ def query_kegg(kegg_gene):
     return parsed_res
 
 def get_KEGG_info_genes(conn):    
-    print """
+    print("""
     #########################################
     # Part I: Get the data from KEGG. Store as JSON. 
     # Don't redo this unless files are emptied. 
     #########################################
-    """
+    """)
     # get any data we already saved
     # to reset this: make kegg_gene_dict an empty file with '{}'
     # and gene_not_found_list: '[]'
     kegg_dict = json.load(open('kegg_gene_dict.json'))
     kegg_not_found_list = json.load(open('kegg_gene_not_found_list.json'))
 
-    print('We loaded', len(kegg_dict), 'previously checked kegg pathways and', len(kegg_not_found_list),
-        'genes that do not exist in KEGG' )
+    print(('We loaded', len(kegg_dict), 'previously checked kegg pathways and', len(kegg_not_found_list),
+        'genes that do not exist in KEGG' ))
 
     cursor = conn.execute('SELECT systematic_name FROM genes')
     data = [list(x) for x in cursor]
@@ -749,13 +750,13 @@ def get_KEGG_info_genes(conn):
     num = len(l)
     nmax = min(1e6,len(l)) # limit number of genes to lookup each time the script is run
 
-    print('Attempting to add', nmax,
-        'genes to the KEGG gene dictionary. Could take a while...')
+    print(('Attempting to add', nmax,
+        'genes to the KEGG gene dictionary. Could take a while...'))
 
     count = 0.
     for gene in l[:nmax]:
         if ((count / nmax) * 100) % 10 == 0.:  # multiple of 10%
-            print((count / nmax) * 100, 'percent done.')
+            print(((count / nmax) * 100, 'percent done.'))
 
         parsed_res = query_kegg('sce:' + gene) # a dictionary
 
@@ -769,8 +770,8 @@ def get_KEGG_info_genes(conn):
                 kegg_dict[gene]['KEGG gene names'] = None
             if 'ORTHOLOGY' in parsed_res:
                 orth = parsed_res['ORTHOLOGY'] # a dictionary: key is the KO, value is a description
-                kegg_dict[gene]['KO'] = orth.keys()[0] # I assume there is 1
-                kegg_dict[gene]['KEGG description'] = orth.values()[0] # I assume there is 1
+                kegg_dict[gene]['KO'] = list(orth.keys())[0] # I assume there is 1
+                kegg_dict[gene]['KEGG description'] = list(orth.values())[0] # I assume there is 1
             else:
                 kegg_dict[gene]['KO'] = None
                 kegg_dict[gene]['KEGG description'] = None
@@ -781,7 +782,7 @@ def get_KEGG_info_genes(conn):
             else:
                 kegg_dict[gene]['KEGG pathway'] = None
         else:
-            print(gene, 'was not found in kegg')
+            print((gene, 'was not found in kegg'))
             kegg_not_found_list.append(gene)
             kegg_dict[gene] = None
 
@@ -794,11 +795,11 @@ def get_KEGG_info_genes(conn):
     with open('kegg_gene_not_found_list.json', 'w') as fp:
         json.dump(kegg_not_found_list, fp)
 
-    print """
+    print("""
     #########################################
     # Part II: Store data in SQL 
     #########################################
-    """
+    """)
     kegg_dict = json.load(open('kegg_gene_dict.json'))
     kegg_not_found_list = json.load(open('kegg_gene_not_found_list.json'))
 
@@ -861,20 +862,20 @@ def main():
                                     FOREIGN KEY (target) REFERENCES genes (standard_name),
                                     PRIMARY KEY (source,target,type,evidence)
                                 );"""
-    print "definitions made"
+    print("definitions made")
  
     # create a database connection
     conn = create_connection(database)
-    print "connection established"
+    print("connection established")
     if conn is not None:
         # create projects table
         create_table(conn, sql_create_genes_table)
-        print "Genes table made"
+        print("Genes table made")
         # create tasks table
         create_table(conn, sql_create_interactions_table)
-        print "Interactions table made"
+        print("Interactions table made")
     else:
-        print "Error! cannot create the database connection." 
+        print("Error! cannot create the database connection.") 
 
 
     # STORE ALL PROTEIN CODING GENES
@@ -886,29 +887,29 @@ def main():
     gene_record = [x for x in cursor]
     gene_symbols = [str(x[0]) for x in gene_record]
     gene_names = [str(x[1]) for x in gene_record]
-    print 'We have records for',len(gene_symbols),'genes'
-    print gene_symbols[:10]
+    print('We have records for',len(gene_symbols),'genes')
+    print(gene_symbols[:10])
 
     # Incorporate KEGG info: KO, description, gene names, pathway maps they are a part
     get_KEGG_info_genes(conn)
 
     # Assign boolean state: enzyme
-    # based on yeast7 reaction catalysis
+    # based on yeastGEM reaction catalysis
     find_metabolic_enzymes(conn, gene_names)
 
     # Also assign enzyme == True based on presence of EC number in KEGG description
     cursor = conn.execute("SELECT * from genes")
     gene_record = [x for x in cursor]
-    yeast7_enzymes = [x for x in gene_record if x[14] == True ]
-    print 'Enzymes in Yeast7:', len(yeast7_enzymes)
+    yeastGEM_enzymes = [x for x in gene_record if x[14] == True ]
+    print('Enzymes in YeastGEM:', len(yeastGEM_enzymes))
     has_kegg_name = [x for x in gene_record if x[19] != None ]
     has_EC = [x[1] for x in has_kegg_name if '[EC' in x[19] ]
-    print 'Genes with EC:', len(has_EC)
+    print('Genes with EC:', len(has_EC))
     # enzymes are either with EC or in yeast 7
     enzymes = [x for x in has_EC]
-    enzymes.extend([x[1] for x in yeast7_enzymes])
+    enzymes.extend([x[1] for x in yeastGEM_enzymes])
     enzymes = list(set(enzymes))
-    print 'Genes considered enzymes:', len(enzymes)
+    print('Genes considered enzymes:', len(enzymes))
     list_data_tuples = [(1,g) for g in enzymes]
 
     # switch these to enzymes in database
@@ -925,8 +926,9 @@ def main():
 
     # incorporate GFP data for all genes in the database
     if os.path.isfile('./gfp_dict.json'):
-        print 'Loading pre-existing GFP dataset'
-        gfp_dict = json_load_byteified(open(SCRIPT_DIR+'/gfp_dict.json'))
+        print('Loading pre-existing GFP dataset')
+        with open(SCRIPT_DIR+'/gfp_dict.json','r') as fp:
+            gfp_dict = json.load(fp)
         store_gfp_data(conn,gene_symbols,d=gfp_dict)
     else:
         gfp_dict = store_gfp_data(conn,gene_symbols)
@@ -938,8 +940,9 @@ def main():
     # incorporate CYCLoPs data for all genes in the database
     # don't always regenerate CYCLoPs data because it is slow
     if os.path.isfile('./CYCLoPs_dict.json'):
-        print 'Loading pre-existing CYCLoPs dataset'
-        CYCLoPs_dict = json_load_byteified(open(SCRIPT_DIR+'/CYCLoPs_dict.json'))
+        print('Loading pre-existing CYCLoPs dataset')
+        with open(SCRIPT_DIR+'/CYCLoPs_dict.json','r') as fp:
+            CYCLoPs_dict = json.load(fp)
         store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict)
     else:
         CYCLoPs_dict = store_CYCLoPs_data(conn,gene_symbols)
@@ -958,7 +961,7 @@ def main():
         if '{' in rec[0]: # it is a dictionary
             gfp_rec = ast.literal_eval(rec[0]) # dict {sysname:[comps]}
             if isinstance(gfp_rec,dict):
-                gfp_rec2 = list(set([gfp_rec[k] for k in gfp_rec.keys()]))
+                gfp_rec2 = list(set([gfp_rec[k] for k in list(gfp_rec.keys())]))
                 gfp_rec3 = []
                 for x in gfp_rec2:
                     if ', ' in x:
@@ -966,7 +969,7 @@ def main():
                     else:
                         y = x
                     if len(y) == 1:
-                        print 'Short:', y, x, gfp_rec3, gfp_rec2, gfp_rec, rec[0]
+                        print('Short:', y, x, gfp_rec3, gfp_rec2, gfp_rec, rec[0])
                         return
                     else:
                         if isinstance(y,list):
@@ -976,34 +979,32 @@ def main():
 
                 gfp_rec = gfp_rec3
             else:
-                print 'Not a dictionary:', type(gfp_rec), gfp_rec
+                print('Not a dictionary:', type(gfp_rec), gfp_rec)
         else: # just a string
             gfp_rec = rec[0].split(', ') # list of strings
-            gfp_rec = [x.encode('ascii','ignore') for x in gfp_rec]
-        
-        gfp_rec = ['GFP: '+x for x in gfp_rec] # add database ID
 
+        gfp_rec = ['GFP: ' + x for x in gfp_rec] # add database ID
         unique_comps.extend(gfp_rec)
 
         if rec[1] != 'no data':
             CYCLoPs_rec = ast.literal_eval(rec[1]) # dict {WT1:dict, WT2: dict ...} the keys are the compartments
             if not isinstance(CYCLoPs_rec,dict):
-                print 'Not a dictionary:', CYCLoPs_rec
+                print('Not a dictionary:', CYCLoPs_rec)
         else:
             continue
 
-        if all([k in ['WT1','WT2','WT3'] for k in CYCLoPs_rec.keys()]):
+        if all([k in ['WT1','WT2','WT3'] for k in list(CYCLoPs_rec.keys())]):
             for k in CYCLoPs_rec:
-                CYCLoPs_rec2 = [x.encode('ascii','ignore') for x in CYCLoPs_rec[k].keys()] # remove the unicode 
+                CYCLoPs_rec2 = [x for x in list(CYCLoPs_rec[k].keys())] # in py2 we used to remove the unicode: x.encode('ascii','ignore') 
         else:
-            print 'Unexpected keys:', CYCLoPs_rec
+            print('Unexpected keys:', CYCLoPs_rec)
             return
 
             # we have a dictionary with multiple systematic names on top of this
             for k_up in CYCLoPs_rec:
                 CYCLoPs_rec = CYCLoPs_rec[k_up]
                 for k in CYCLoPs_rec:
-                    CYCLoPs_rec2 = [x.encode('ascii','ignore') for x in CYCLoPs_rec[k].keys()] # remove the unicode 
+                    CYCLoPs_rec2 = [x for x in list(CYCLoPs_rec[k].keys())] # in py2 we used to remove the unicode: x.encode('ascii','ignore') 
 
         CYCLoPs_rec2 = ['CYCLoPs: '+x for x in CYCLoPs_rec2] # add database ID
 
@@ -1018,8 +1019,8 @@ def main():
     unique_comps = [str(x) for x in unique_comps] # unicode to string
     unique_comps = sorted(unique_comps, key=str.lower) # sort alphabetically regardless of capitalization
 
-    print 'Done storing a list of compartments in GFP and CYCLoPs.'
-    print unique_comps
+    print('Done storing a list of compartments in GFP and CYCLoPs.')
+    print(unique_comps)
 
     # write comps to file
     thefile = open('unique_compartments.txt', 'w')
@@ -1053,7 +1054,7 @@ def main():
     # df_yeast_interactome.to_csv('export/SGD_proteinCodingGenes_interactome.csv')
 
     conn.commit()
-    print "Records created successfully"
+    print("Records created successfully")
 
     # backup this DB
     # include the current time 

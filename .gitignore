@@ -10,3 +10,4 @@ cgi-bin/data/DB_genes_and_interactions.db
 
 output/excel_files/interactome_test.xlsx
 *.pyc
+*.py.bak

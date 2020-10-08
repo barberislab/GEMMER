@@ -147,32 +147,20 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         Level 2 being a dictionary for a WT with all non-zero compartment expression lvls. 
     '''
     if CYCLoPs_dict == {}: # no old data given
-        CYCLoPs_data = [0,0,0]
+        CYCLoPs_data = [0,0,0] # init
         CYCLoPs_data[0] = pd.read_excel("./CYCLoPs_WT1.xls",header=0)
         CYCLoPs_data[1] = pd.read_excel("./CYCLoPs_WT2.xls",header=0)
         CYCLoPs_data[2] = pd.read_excel("./CYCLoPs_WT3.xls",header=0)
-        cols = list(CYCLoPs_data[0]) # or: my_dataframe.columns.values.tolist()
 
-        print('Original columns:',cols)
-        cols = [str(x) for x in cols]
-        for i in range(len(CYCLoPs_data)):
-            CYCLoPs_data[i].columns = cols
-        cols = list(CYCLoPs_data[0])
-        print('Cleaned columns:',cols)
-
-
-        ### ROUND to 3 
-        print(CYCLoPs_data[0]['Cell Periphery'].dtype)
-        print('Rounding to 4 decimals')
+        ### ROUND to 3 decimals
         CYCLoPs_data[0] = CYCLoPs_data[0].round(4)
         CYCLoPs_data[1] = CYCLoPs_data[1].round(4)
         CYCLoPs_data[2] = CYCLoPs_data[2].round(4)
-        print(CYCLoPs_data[0].values)
 
         count = 0
         for gene in gene_symbols:
-            if count % 100 == 0:
-                print('Finished storing CYCLoPs data for',count,'genes')
+            if count % 1000 == 0:
+                print('Finished storing CYCLoPs data for',count,'out of',len(gene_symbols),'genes')
 
             found = False # track if gene is in these tables at all
             d = {'WT1':{},'WT2':{},'WT3':{}} # init
@@ -471,25 +459,17 @@ def find_all_interactions(conn,gene_symbols):
     print("Retrieving all regulators from SGD")
 
     # Get a new query on the class (table) you will be querying:
-    query = service.new_query("ProteinCodingGene")
+    query = service.new_query("ProteinCodingGene") 
 
     # Type constraints should come early - before all mentions of the paths they constrain
     query.add_constraint("regulatoryRegions", "TFBindingSite")
 
     # The view specifies the output columns
     query.add_view(
-        "secondaryIdentifier", "symbol", # target
-        "regulatoryRegions.regulator.secondaryIdentifier", # source
-        "regulatoryRegions.regulator.symbol", # source
-        "regulatoryRegions.regEvidence.ontologyTerm.name", # evidence
-        "regulatoryRegions.publications.pubMedId" # evidence
-    )
-
-    # has to come after setting the view
-    # the code has to be separate from previous constraints and by default uses AND logic
-    query.add_constraint("organism.shortName", "=", "S. cerevisiae", code = "A")
-    query.add_constraint("regulatoryRegions.regEvidence.ontologyTerm.name", "IS NOT NULL", code = "B")
-
+    "regulatoryRegions.regulator.symbol", "regulatoryRegions.regulator.secondaryIdentifier", # source
+    "symbol", "secondaryIdentifier", # target
+    "regulatoryRegions.regEvidence.ontologyTerm.name", # method used
+    "regulatoryRegions.publications.pubMedId") # publication
 
     interactome = {}
     for row in query.rows():
@@ -509,7 +489,13 @@ def find_all_interactions(conn,gene_symbols):
             print('Strange case with None IDs:', row)
             continue
 
-        row_tuple = (s,t,'regulation',row["regulatoryRegions.regEvidence.ontologyTerm.name"],row["regulatoryRegions.publications.pubMedId"] )
+        # Turn Missing "regulatoryRegions.regEvidence.ontologyTerm.name" into a string
+        if row["regulatoryRegions.regEvidence.ontologyTerm.name"] is None:
+            regEvidence_ontologyTerm_name = 'Unknown' # happened for our 2020 ChIP-exo paper listed under manually curated
+        else:
+            regEvidence_ontologyTerm_name = row["regulatoryRegions.regEvidence.ontologyTerm.name"]
+
+        row_tuple = (s,t,'regulation',regEvidence_ontologyTerm_name,row["regulatoryRegions.publications.pubMedId"] )
 
         # Update interactome
         # dict of lowest in alphabet interactors -> highest in alphabet interactor
@@ -739,8 +725,7 @@ def get_KEGG_info_genes(conn):
     kegg_dict = json.load(open('kegg_gene_dict.json'))
     kegg_not_found_list = json.load(open('kegg_gene_not_found_list.json'))
 
-    print(('We loaded', len(kegg_dict), 'previously checked kegg pathways and', len(kegg_not_found_list),
-        'genes that do not exist in KEGG' ))
+    print('We loaded', len(kegg_dict), 'previously checked kegg pathways and', len(kegg_not_found_list), 'genes that do not exist in KEGG' )
 
     cursor = conn.execute('SELECT systematic_name FROM genes')
     data = [list(x) for x in cursor]
@@ -754,13 +739,13 @@ def get_KEGG_info_genes(conn):
     num = len(l)
     nmax = min(1e6,len(l)) # limit number of genes to lookup each time the script is run
 
-    print(('Attempting to add', nmax,
-        'genes to the KEGG gene dictionary. Could take a while...'))
+    print('Attempting to add', nmax,
+        'genes to the KEGG gene dictionary. Could take a while...')
 
     count = 0.
     for gene in l[:nmax]:
         if ((count / nmax) * 100) % 10 == 0.:  # multiple of 10%
-            print(((count / nmax) * 100, 'percent done.'))
+            print((count / nmax) * 100, 'percent done.')
 
         parsed_res = query_kegg('sce:' + gene) # a dictionary
 
@@ -936,16 +921,19 @@ def main():
     # Also assign enzyme == True based on presence of EC number in KEGG description
     cursor = conn.execute("SELECT * from genes")
     gene_record = [x for x in cursor]
+
     yeastGEM_enzymes = [x for x in gene_record if x[14] == True ]
     print('Enzymes in YeastGEM:', len(yeastGEM_enzymes))
+
     has_kegg_name = [x for x in gene_record if x[19] != None ]
     has_EC = [x[1] for x in has_kegg_name if '[EC' in x[19] ]
     print('Number of genes with EC:', len(has_EC))
-    # enzymes are either with EC or in yeast 7
+
+    # enzymes either have an EC or are present in yeastGEM
     enzymes = [x for x in has_EC]
     enzymes.extend([x[1] for x in yeastGEM_enzymes])
     enzymes = list(set(enzymes))
-    print('Number of genes considered enzymes:', len(enzymes))
+    print('Number of genes we consider enzymes (EC or in YeastGEM):', len(enzymes))
     list_data_tuples = [(1,g) for g in enzymes]
 
     # switch these to enzymes in database

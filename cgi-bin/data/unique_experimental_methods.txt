@@ -2,9 +2,13 @@ Affinity Capture-Luminescence
 Affinity Capture-MS
 Affinity Capture-RNA
 Affinity Capture-Western
+beta-galactosidase reporter gene assay evidence
 Biochemical Activity
+caspase assay evidence
 chromatin immunoprecipitation evidence
+chromatin immunoprecipitation- exonuclease evidence
 chromatin immunoprecipitation-chip evidence
+chromatin immunoprecipitation-chip exonuclease evidence
 chromatin immunoprecipitation-PCR evidence
 chromatin immunoprecipitation-qPCR evidence
 chromatin immunoprecipitation-seq evidence
@@ -13,47 +17,67 @@ Co-fractionation
 co-immunoprecipitation evidence
 Co-localization
 Co-purification
+DNA to cDNA expression microarray evidence
+DNAse footprinting evidence
 Dosage Growth Defect
 Dosage Lethality
 Dosage Rescue
 electrophoretic mobility shift assay evidence
-enzyme assay evidence
+enzymatic activity assay evidence
 Far Western
+fluorescence in situ hybridization evidence
 FRET
 functional complementation evidence
 green fluorescent protein fusion protein localization evidence
 green fluorescent protein immunolocalization evidence
+green fluorescent protein reporter gene assay evidence
+immunodetection assay evidence
 immunoprecipitation evidence
 in vitro assay evidence
-LacZ transcript localization evidence
-microarray RNA expression level evidence
+in vitro deubiquitination assay evidence
+in vitro methylation assay evidence
+in vitro phosphatase assay evidence
+in vitro protein kinase assay evidence
+in vitro sumoylation assay evidence
+in vitro ubiquitination assay evidence
+mass spectrometry evidence
+methylation interference footprinting evidence
 mutant phenotype evidence
 Negative Genetic
-Northern assay evidence
+northern blot evidence
 nucleic acid binding evidence
-nucleic acid hybridization evidence
 PCA
 Phenotypic Enhancement
 Phenotypic Suppression
 physical interaction evidence
 Positive Genetic
+protein expression level evidence based on western blot
+protein kinase assay evidence
+protein mass spectrometry evidence
 protein separation followed by direct sequencing evidence
 Protein-peptide
 Protein-RNA
 Proximity Label-MS
+quantitative mass spectrometry evidence
 quantitative polymerase chain reaction evidence
+quantitative reverse transcription polymerase chain reaction evidence
+quantitative reverse transcription polymerase chain reaction evidence used in manual assertion
 Reconstituted Complex
 reporter gene assay evidence
 reverse transcription polymerase chain reaction evidence
 RNA protection assay evidence
-RNA-seq evidence
+RNA-sequencing evidence
+S1 nuclease protection assay evidence
 sodium dodecyl sulfate polyacrylamide gel electrophoresis evidence
 Synthetic Growth Defect
 Synthetic Haploinsufficiency
 Synthetic Lethality
 Synthetic Rescue
-transcript expression level evidence
-transcriptional activation assay
+transcriptional activation assay evidence
+translation assay evidence
+tryptic phosphopeptide mapping assay evidence
+two-dimensional polyacrylamide gel electrophoresis evidence
 Two-hybrid
+ubiquitination assay evidence
 Unknown
-Western blot evidence
+western blot evidence

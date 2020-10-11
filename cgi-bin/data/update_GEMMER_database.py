@@ -443,8 +443,31 @@ def find_all_genes(conn):
     return
 
 
-def find_all_interactions(conn,gene_symbols):
+def find_all_interactions(conn,gene_symbols, gene_names):
     ''' g (String) gene symbol, and con an sqlite database connection '''
+
+    def update_interactome_regulation(interactome, row_tuple):
+        """
+        Update interactome with new interaction row tuple
+        """
+        
+        if row_tuple[0] in interactome:
+            if row_tuple[1] in interactome[row_tuple[0]]:
+                d = interactome[row_tuple[0]][row_tuple[1]] # shorthand
+                if row_tuple[2] in d:
+                    # this does NOT account for the fact that this once may already be present, i.e. duplicates
+                    # that is taken care of with the Counter below
+                    d[row_tuple[2]]['evidence'].append(row_tuple[3])
+                    d[row_tuple[2]]['publication'].append(row_tuple[4])
+                else:
+                    d[row_tuple[2]] = {'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}
+            else:
+                interactome[row_tuple[0]][row_tuple[1]] = {row_tuple[2]:{'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}}
+        else:
+            interactome[row_tuple[0]] = {row_tuple[1]:{row_tuple[2]:{'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}}}
+
+        return interactome
+
 
     start_time = timeit.default_timer()
 
@@ -471,6 +494,9 @@ def find_all_interactions(conn,gene_symbols):
     "regulatoryRegions.regEvidence.ontologyTerm.name", # method used
     "regulatoryRegions.publications.pubMedId") # publication
 
+    print('Query returned:',len(query.rows()),'regulatory interactions')
+    print('Making tuples of query output now')
+
     interactome = {}
     for row in query.rows():
         if row["symbol"] not in ['None',None]:
@@ -491,32 +517,82 @@ def find_all_interactions(conn,gene_symbols):
 
         # Turn Missing "regulatoryRegions.regEvidence.ontologyTerm.name" into a string
         if row["regulatoryRegions.regEvidence.ontologyTerm.name"] is None:
-            regEvidence_ontologyTerm_name = 'Unknown' # happened for our 2020 ChIP-exo paper listed under manually curated
+            regEvidence_ontologyTerm_name = 'Unknown' 
         else:
             regEvidence_ontologyTerm_name = row["regulatoryRegions.regEvidence.ontologyTerm.name"]
 
-        row_tuple = (s,t,'regulation',regEvidence_ontologyTerm_name,row["regulatoryRegions.publications.pubMedId"] )
+        row_tuple = (s,t,'regulation',regEvidence_ontologyTerm_name,row["regulatoryRegions.publications.pubMedId"])
 
-        # Update interactome
-        # dict of lowest in alphabet interactors -> highest in alphabet interactor
-        # -> physical/genetic
-        # -> {evidence:..., publication: ...}
-        if row_tuple[0] in interactome:
-            if row_tuple[1] in interactome[row_tuple[0]]:
-                d = interactome[row_tuple[0]][row_tuple[1]] # shorthand
-                if row_tuple[2] in d:
-                    # this does NOT account for the fact that this once may already be present, i.e. duplicates
-                    # that is taken care of with the Counter below
-                    d[row_tuple[2]]['evidence'].append(row_tuple[3])
-                    d[row_tuple[2]]['publication'].append(row_tuple[4])
-                else:
-                    d[row_tuple[2]] = {'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}
-            else:
-                interactome[row_tuple[0]][row_tuple[1]] = {row_tuple[2]:{'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}}
-        else:
-            interactome[row_tuple[0]] = {row_tuple[1]:{row_tuple[2]:{'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}}}
+        interactome = update_interactome_regulation(interactome, row_tuple)
+    
+    
+    print('Making tuples of (Mondeel, 2019), (Ostrow, 2014) and (Venters, 2011) interactions')
 
-    ### Generate from the interactome the list of tuples to store
+    # Identify targets (Mondeel, 2019) Fkh1,2
+    df_mondeel_fkh1 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh1 log", index_col=0)
+    df_mondeel_fkh2 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh2 log", index_col=0)
+
+    for target in df_mondeel_fkh1.index.tolist():
+        if target not in gene_names:
+            continue
+
+        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '31299083')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
+    for target in df_mondeel_fkh2.index.tolist():
+        if target not in gene_names:
+            continue
+        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '31299083')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
+    # Identify targets (Ostrow, 2014) Fkh1,2
+    # Read in the table of targets from Ostrow et al.
+    df_ostrow = pd.read_excel("./Fkh12_additional_data/Ostrow_2014_Table_S4.xlsx", header=None)
+    df_ostrow.drop([0,1,2,4],axis=1,inplace=True)
+
+    # separate Fkh1,2 results
+    df_ostrow_fkh1 = df_ostrow[df_ostrow[5] == 'Fkh1'][3].values
+    df_ostrow_fkh2 = df_ostrow[df_ostrow[5] == 'Fkh2'][3].values
+
+    for target in df_ostrow_fkh1:
+        if target not in gene_names:
+            continue
+        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+    
+    for target in df_ostrow_fkh2:
+        if target not in gene_names:
+            continue
+        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '24504085')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
+    # Add additional (Venters, 2011) interactions not in SGD
+    df_venters = pd.read_excel('./Fkh12_additional_data/Venters_2011_25C_UTmax.xls', header=0, skiprows=[0,1,2,4,5,6,7,8,9,10,11,12,13], usecols=[0,8,9])
+    df_venters = df_venters.set_index('Factor')  
+
+    print(df_venters.head())
+
+    venters_fkh1 = df_venters[df_venters['Fkh1'] > 0.8].index.tolist()
+    venters_fkh2 = df_venters[df_venters['Fkh2'] > 1.13].index.tolist()
+
+    # remove these from the list
+    venters_fkh1 = [g for g in venters_fkh1 if g in gene_names]
+    venters_fkh2 = [g for g in venters_fkh2 if g in gene_names]
+
+    for target in venters_fkh1:
+        if target not in gene_names:
+            continue
+        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+    
+    for target in venters_fkh2:
+        if target not in gene_names:
+            continue
+        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '21329885')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
+
+    ### Generate the list of tuples to store from the interactome dictionary
     print('Making tuples out of the interactome to store in SQL.')
     list_data_tuples = []
     for int1 in interactome:
@@ -536,19 +612,16 @@ def find_all_interactions(conn,gene_symbols):
 
                 list_data_tuples.append( (int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth ))
 
-    print('We have',len(list_data_tuples),'interactions to store.')
-
     # update database with one command
-    print('Storing:',len(list_data_tuples),'physical/genetic interactions')
+    print('Storing:',len(list_data_tuples),'regulatory interactions')
     conn.executemany('insert or ignore into interactions values(?,?,?,?,?,?,?,?)',list_data_tuples)
 
-    print('Unique methods so far:', unique_methods)
 
     ####################################
     # Retrieving physical interactions #
     ####################################
     # query description - Retrieve all interactions for a specified <a href = "https://www.yeastgenome.org/yeastmine-help-page#gene">gene</a>.
-    print("retrieving all interactors")
+    print("retrieving all physical interactors")
 
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("Interaction")
@@ -567,7 +640,6 @@ def find_all_interactions(conn,gene_symbols):
     )
 
     print('Query returned:',len(query.rows()),'physical/genetic interactions')
-    print('Making tuples of query output now')
 
     # NOTE THAT THE SYSTEMATIC NAMES ARE NOT SAVED IN THE INTERACTIONS DATABASE
     interactome = {}
@@ -687,8 +759,8 @@ def find_all_interactions(conn,gene_symbols):
 
                 list_data_tuples.append( (int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth ))
 
-    # update database with one command
-    print('Storing:',len(list_data_tuples),'regulatory interactions')
+    # update database
+    print('Storing:',len(list_data_tuples),'physical/genetic interactions')
     conn.executemany('insert or ignore into interactions values(?,?,?,?,?,?,?,?)',list_data_tuples)
 
     # save a list of experimental methods
@@ -700,9 +772,6 @@ def find_all_interactions(conn,gene_symbols):
     for item in unique_methods:
         thefile.write("%s\n" % item)
     thefile.close()
-
-    # That's all folks!
-    print("done!")
 
 
 def query_kegg(kegg_gene):
@@ -879,6 +948,10 @@ def main():
     print('Stored records for',len(gene_symbols),'genes. Here are the first 10:')
     print(gene_symbols[:10])
 
+    
+    # communicate with SGD and get interactions
+    find_all_interactions(conn,gene_symbols,gene_names)
+
 
     # store sceptrans data
     store_sceptrans_data(conn)
@@ -1021,9 +1094,6 @@ def main():
     for item in unique_comps:
         thefile.write("%s\n" % item)
     thefile.close()
-
-    # communicate with SGD and get interactions
-    find_all_interactions(conn,gene_symbols)
 
     ### GENERATE A MATRIX OF O'S AND 1'S INDICATING INTERACTIONS BETWEEN PROTEINS
     # print 'Generating an interactome matrix.'

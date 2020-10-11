@@ -536,13 +536,14 @@ def find_all_interactions(conn,gene_symbols, gene_names):
         if target not in gene_names:
             continue
 
-        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '31299083')
+        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     for target in df_mondeel_fkh2.index.tolist():
         if target not in gene_names:
             continue
-        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '31299083')
+
+        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     # Identify targets (Ostrow, 2014) Fkh1,2
@@ -557,20 +558,20 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     for target in df_ostrow_fkh1:
         if target not in gene_names:
             continue
-        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
+
+        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     for target in df_ostrow_fkh2:
         if target not in gene_names:
             continue
-        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '24504085')
+
+        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     # Add additional (Venters, 2011) interactions not in SGD
     df_venters = pd.read_excel('./Fkh12_additional_data/Venters_2011_25C_UTmax.xls', header=0, skiprows=[0,1,2,4,5,6,7,8,9,10,11,12,13], usecols=[0,8,9])
     df_venters = df_venters.set_index('Factor')  
-
-    print(df_venters.head())
 
     venters_fkh1 = df_venters[df_venters['Fkh1'] > 0.8].index.tolist()
     venters_fkh2 = df_venters[df_venters['Fkh2'] > 1.13].index.tolist()
@@ -582,13 +583,15 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     for target in venters_fkh1:
         if target not in gene_names:
             continue
-        row_tuple = ('Fkh1',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
+
+        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     for target in venters_fkh2:
         if target not in gene_names:
             continue
-        row_tuple = ('Fkh2',target,'regulation',"chromatin immunoprecipitation-chip exonuclease evidence", '21329885')
+
+        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
 
@@ -608,9 +611,10 @@ def find_all_interactions(conn,gene_symbols, gene_names):
                 nummeth = len(list(set(ev)))
                 numexp = len(pub)
                 ev_pub = ', '.join([ev[i]+' ('+pub[i]+')' for i in range(len(ev))])
-                ev_pub_html = ', '.join(['<a href="https://www.ncbi.nlm.nih.gov/pubmed/' + pub[i] + '" target="blank" title="' + 'Pubmed ID: '+ pub[i] + '">'+ev[i]+'</a>' for i in range(len(ev))])
+                ev_pub_html = ', '.join(['<a href="https://www.ncbi.nlm.nih.gov/pubmed/' + pub[i] + '" target="blank" title="' \
+                    + 'Pubmed ID: '+ pub[i] + '">'+ev[i]+'</a>' for i in range(len(ev))])
 
-                list_data_tuples.append( (int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth ))
+                list_data_tuples.append((int1,int2,int_type,ev_pub,ev_pub_html,numexp,numpub,nummeth))
 
     # update database with one command
     print('Storing:',len(list_data_tuples),'regulatory interactions')
@@ -621,7 +625,7 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     # Retrieving physical interactions #
     ####################################
     # query description - Retrieve all interactions for a specified <a href = "https://www.yeastgenome.org/yeastmine-help-page#gene">gene</a>.
-    print("retrieving all physical interactors")
+    print("retrieving all physical/genetic interactors")
 
     # Get a new query on the class (table) you will be querying:
     query = service.new_query("Interaction")

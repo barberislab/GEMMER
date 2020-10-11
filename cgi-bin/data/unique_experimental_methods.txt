@@ -8,7 +8,6 @@ caspase assay evidence
 chromatin immunoprecipitation evidence
 chromatin immunoprecipitation- exonuclease evidence
 chromatin immunoprecipitation-chip evidence
-chromatin immunoprecipitation-chip exonuclease evidence
 chromatin immunoprecipitation-PCR evidence
 chromatin immunoprecipitation-qPCR evidence
 chromatin immunoprecipitation-seq evidence

@@ -45,13 +45,13 @@ def create_table(conn, create_table_sql):
     except Exception as e:
         print(("ERROR: ",e.message, e.args))
 
-def find_metabolic_enzymes(conn,gene_names):
+def find_metabolic_enzymes(conn,gene_sys_names):
     import cobra
 
     #model = cobra.io.read_sbml_model('./yeast_GEMM/yeast_7.6_recon.xml')
     model = cobra.io.read_sbml_model('./yeast_GEMM/yeastGEM_v8.xml')
 
-    matches = [g for g in gene_names if g in model.genes ]
+    matches = [g for g in gene_sys_names if g in model.genes ]
     print(('Found', len(matches), 'metabolic enzymes in the yeast metabolic reconstruction.'))
 
     print("### Storing whether gene is a metabolic enzyme")
@@ -73,12 +73,12 @@ def store_sceptrans_data(conn):
 
     cursor = conn.execute("SELECT systematic_name from genes")
     gene_record = [x for x in cursor]
-    gene_names = [str(x[0]) for x in gene_record]
+    gene_sys_names = [str(x[0]) for x in gene_record]
 
     list_data_tuples = []
     for i in range(len(sceptrans_data)):
         row = sceptrans_data.iloc[i]
-        if row['Systematic name'] in gene_names:
+        if row['Systematic name'] in gene_sys_names:
             list_data_tuples.append((row['Phase'],str(row['Time']),row['Systematic name']))
         else:
             print('We do not have/consider:', row['Systematic name'])
@@ -86,8 +86,8 @@ def store_sceptrans_data(conn):
     conn.executemany('UPDATE genes SET expression_peak_phase = ?, expression_peak_time = ? WHERE systematic_name = ?',list_data_tuples)
 
 
-def store_gfp_data(conn,gene_symbols,d={}):
-    ''' Build a dictionary of gene_symbols to dictionaries of database data
+def store_gfp_data(conn,gene_std_names,d={}):
+    ''' Build a dictionary of gene_std_names to dictionaries of database data
     Pickle the dictionary. If it exists do not redo the computation.'''
 
     if d == {}:
@@ -111,8 +111,8 @@ def store_gfp_data(conn,gene_symbols,d={}):
         gfp_data['abundance'] = [x if x != 'not visualized' else 'no data' for x in gfp_data['abundance']]
 
 
-        matches = [g for g in gene_symbols if g in gfp_data['gene name'].values]
-        nomatches = [g for g in gene_symbols if g not in gfp_data['gene name'].values]
+        matches = [g for g in gene_std_names if g in gfp_data['gene name'].values]
+        nomatches = [g for g in gene_std_names if g not in gfp_data['gene name'].values]
         for g in nomatches:
             d[g] = {'abundance':'no data','localization':'no data'}
 
@@ -133,7 +133,7 @@ def store_gfp_data(conn,gene_symbols,d={}):
 
             d[gene] = rows
 
-    for gene in gene_symbols:
+    for gene in gene_std_names:
         conn.execute('UPDATE genes SET GFP_abundance = ?, GFP_localization = ? WHERE standard_name = ?',(d[gene]['abundance'],d[gene]['localization'], gene))
 
     print('Completed storing GFP data')
@@ -141,7 +141,7 @@ def store_gfp_data(conn,gene_symbols,d={}):
     return d
 
 
-def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
+def store_CYCLoPs_data(conn,gene_std_names,CYCLoPs_dict={}):
     ''' Read the three WT datasets for each gene. 
         Save a dictionary with level 1 being the three WTs. 
         Level 2 being a dictionary for a WT with all non-zero compartment expression lvls. 
@@ -158,9 +158,9 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
         CYCLoPs_data[2] = CYCLoPs_data[2].round(4)
 
         count = 0
-        for gene in gene_symbols:
+        for gene in gene_std_names:
             if count % 1000 == 0:
-                print('Finished storing CYCLoPs data for',count,'out of',len(gene_symbols),'genes')
+                print('Finished storing CYCLoPs data for',count,'out of',len(gene_std_names),'genes')
 
             found = False # track if gene is in these tables at all
             d = {'WT1':{},'WT2':{},'WT3':{}} # init
@@ -196,7 +196,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
 
             count += 1
     
-    for gene in gene_symbols:
+    for gene in gene_std_names:
         sql_CYCLoPs_dict = {}
 
         d = ast.literal_eval(CYCLoPs_dict[gene])
@@ -258,7 +258,7 @@ def store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict={}):
     return CYCLoPs_dict
 
 
-def find_go_annotations(conn,gene_symbols):
+def find_go_annotations(conn,gene_std_names):
     # The GO term tree: http://amigo.geneontology.org/amigo/dd_browse
     # We have selected certain "high level" GO terms to classify genes 
     # This selection seems to provide complete coverage in the sense that each gene has a "primary" GO term
@@ -353,7 +353,7 @@ def find_go_annotations(conn,gene_symbols):
     print('Assigning go terms for all genes...')
     gene_cat_counts = {}
     list_data_tuples = []
-    for gene in gene_symbols:
+    for gene in gene_std_names:
         go = ''
         for term in go_terms: # store GO:****,GO:*****,....
             if gene in go_dict[term]:
@@ -394,7 +394,7 @@ def find_go_annotations(conn,gene_symbols):
     # generate df and export to html the GO terms for each gene
     df_cat_count = pd.DataFrame.from_dict(gene_cat_counts).transpose()
     i = 0
-    for gene in gene_symbols:
+    for gene in gene_std_names:
         list_data_tuples[i][0] = df_cat_count.loc[gene].to_frame().transpose().to_html(classes=['table','table-condensed', 'table-bordered'])
         i += 1
 
@@ -443,22 +443,27 @@ def find_all_genes(conn):
     return
 
 
-def find_all_interactions(conn,gene_symbols, gene_names):
+def find_all_interactions(conn,gene_std_names, gene_sys_names):
     ''' g (String) gene symbol, and con an sqlite database connection '''
+
+    gene_name_sys_to_std = {gene_sys_names[i]:gene_std_names[i] for i in range(len(gene_std_names))}
 
     def update_interactome_regulation(interactome, row_tuple):
         """
         Update interactome with new interaction row tuple
+        row tuple = (source, target, interaction type, evidence, pubmedID)
         """
         
         if row_tuple[0] in interactome:
             if row_tuple[1] in interactome[row_tuple[0]]:
                 d = interactome[row_tuple[0]][row_tuple[1]] # shorthand
                 if row_tuple[2] in d:
-                    # this does NOT account for the fact that this once may already be present, i.e. duplicates
-                    # that is taken care of with the Counter below
-                    d[row_tuple[2]]['evidence'].append(row_tuple[3])
-                    d[row_tuple[2]]['publication'].append(row_tuple[4])
+                    # do nothing if this interaction, with this type, publication and evidence already exists
+                    if row_tuple[4] in d[row_tuple[2]]['publication'] and row_tuple[3] in d[row_tuple[2]]['evidence']: 
+                        return interactome
+                    else:
+                        d[row_tuple[2]]['evidence'].append(row_tuple[3])
+                        d[row_tuple[2]]['publication'].append(row_tuple[4])
                 else:
                     d[row_tuple[2]] = {'evidence':[row_tuple[3]],'publication':[row_tuple[4]]}
             else:
@@ -494,9 +499,9 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     "regulatoryRegions.regEvidence.ontologyTerm.name", # method used
     "regulatoryRegions.publications.pubMedId") # publication
 
-    print('Query returned:',len(query.rows()),'regulatory interactions')
+    print('SGD query returned:',len(query.rows()),'regulatory interactions')
+    
     print('Making tuples of query output now')
-
     interactome = {}
     for row in query.rows():
         if row["symbol"] not in ['None',None]:
@@ -529,21 +534,21 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     print('Making tuples of (Mondeel, 2019), (Ostrow, 2014) and (Venters, 2011) interactions')
 
     # Identify targets (Mondeel, 2019) Fkh1,2
-    df_mondeel_fkh1 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh1 log", index_col=0)
-    df_mondeel_fkh2 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh2 log", index_col=0)
+    df_mondeel_fkh1 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh1 log", index_col=1) # index to standard name
+    df_mondeel_fkh2 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh2 log", index_col=1)
 
     for target in df_mondeel_fkh1.index.tolist():
-        if target not in gene_names:
+        if target not in gene_std_names:
             continue
 
-        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
+        row_tuple = ('FKH1',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     for target in df_mondeel_fkh2.index.tolist():
-        if target not in gene_names:
+        if target not in gene_std_names:
             continue
 
-        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
+        row_tuple = ('FKH2',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     # Identify targets (Ostrow, 2014) Fkh1,2
@@ -552,46 +557,42 @@ def find_all_interactions(conn,gene_symbols, gene_names):
     df_ostrow.drop([0,1,2,4],axis=1,inplace=True)
 
     # separate Fkh1,2 results
-    df_ostrow_fkh1 = df_ostrow[df_ostrow[5] == 'Fkh1'][3].values
+    df_ostrow_fkh1 = df_ostrow[df_ostrow[5] == 'Fkh1'][3].values # these are systematic names
     df_ostrow_fkh2 = df_ostrow[df_ostrow[5] == 'Fkh2'][3].values
 
     for target in df_ostrow_fkh1:
-        if target not in gene_names:
+        if target not in gene_sys_names:
             continue
 
-        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
+        row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     for target in df_ostrow_fkh2:
-        if target not in gene_names:
+        if target not in gene_sys_names:
             continue
 
-        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
+        row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
     # Add additional (Venters, 2011) interactions not in SGD
     df_venters = pd.read_excel('./Fkh12_additional_data/Venters_2011_25C_UTmax.xls', header=0, skiprows=[0,1,2,4,5,6,7,8,9,10,11,12,13], usecols=[0,8,9])
-    df_venters = df_venters.set_index('Factor')  
+    df_venters = df_venters.set_index('Factor') # pandas automatically labels the first column with systematic names 'Factor'
 
     venters_fkh1 = df_venters[df_venters['Fkh1'] > 0.8].index.tolist()
     venters_fkh2 = df_venters[df_venters['Fkh2'] > 1.13].index.tolist()
 
-    # remove these from the list
-    venters_fkh1 = [g for g in venters_fkh1 if g in gene_names]
-    venters_fkh2 = [g for g in venters_fkh2 if g in gene_names]
-
     for target in venters_fkh1:
-        if target not in gene_names:
+        if target not in gene_sys_names:
             continue
 
-        row_tuple = ('YIL131C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
+        row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     for target in venters_fkh2:
-        if target not in gene_names:
+        if target not in gene_sys_names:
             continue
 
-        row_tuple = ('YNL068C',target,'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
+        row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
 
 
@@ -947,14 +948,14 @@ def main():
     # find the genes in the database NOW
     cursor = conn.execute("SELECT * from genes")
     gene_record = [x for x in cursor]
-    gene_symbols = [str(x[0]) for x in gene_record]
-    gene_names = [str(x[1]) for x in gene_record]
-    print('Stored records for',len(gene_symbols),'genes. Here are the first 10:')
-    print(gene_symbols[:10])
+    gene_std_names = [str(x[0]) for x in gene_record]
+    gene_sys_names = [str(x[1]) for x in gene_record]
+    print('Stored records for',len(gene_std_names),'genes. Here are the first 10:')
+    print(gene_std_names[:10])
 
     
     # communicate with SGD and get interactions
-    find_all_interactions(conn,gene_symbols,gene_names)
+    find_all_interactions(conn,gene_std_names,gene_sys_names)
 
 
     # store sceptrans data
@@ -966,9 +967,9 @@ def main():
         print('Loading pre-existing GFP dataset')
         with open(SCRIPT_DIR+'/gfp_dict.json','r') as fp:
             gfp_dict = json.load(fp)
-        store_gfp_data(conn,gene_symbols,d=gfp_dict)
+        store_gfp_data(conn,gene_std_names,d=gfp_dict)
     else:
-        gfp_dict = store_gfp_data(conn,gene_symbols)
+        gfp_dict = store_gfp_data(conn,gene_std_names)
         with open(SCRIPT_DIR+'/gfp_dict.json', 'w') as fp:
             json.dump(gfp_dict, fp)
     conn.commit()
@@ -980,9 +981,9 @@ def main():
         print('Loading pre-existing CYCLoPs dataset')
         with open(SCRIPT_DIR+'/CYCLoPs_dict.json','r') as fp:
             CYCLoPs_dict = json.load(fp)
-        store_CYCLoPs_data(conn,gene_symbols,CYCLoPs_dict)
+        store_CYCLoPs_data(conn,gene_std_names,CYCLoPs_dict)
     else:
-        CYCLoPs_dict = store_CYCLoPs_data(conn,gene_symbols)
+        CYCLoPs_dict = store_CYCLoPs_data(conn,gene_std_names)
         with open(SCRIPT_DIR+'/CYCLoPs_dict.json', 'w') as fp:
             json.dump(CYCLoPs_dict, fp)
     conn.commit()
@@ -993,7 +994,7 @@ def main():
 
     # Assign boolean state: enzyme
     # based on yeastGEM reaction catalysis
-    find_metabolic_enzymes(conn, gene_names)
+    find_metabolic_enzymes(conn, gene_sys_names)
 
     # Also assign enzyme == True based on presence of EC number in KEGG description
     cursor = conn.execute("SELECT * from genes")
@@ -1018,7 +1019,7 @@ def main():
     conn.commit()
 
     # assign categories based on GO terms
-    go_dict = find_go_annotations(conn,gene_symbols)
+    go_dict = find_go_annotations(conn,gene_std_names)
     conn.commit()
 
 
@@ -1103,10 +1104,10 @@ def main():
     # print 'Generating an interactome matrix.'
     # cursor = conn.execute("SELECT standard_name from genes")
     # gene_record = [x for x in cursor]
-    # gene_symbols = [str(x[0]) for x in gene_record]
+    # gene_std_names = [str(x[0]) for x in gene_record]
 
     # # start interactome with all protein coding genes and all zeros
-    # index = gene_symbols; columns = gene_symbols
+    # index = gene_std_names; columns = gene_std_names
     # df_yeast_interactome = pd.DataFrame(index=index, columns=columns)
     # df_yeast_interactome = df_yeast_interactome.fillna(0)
 
@@ -1115,7 +1116,7 @@ def main():
     # cursor = conn.execute("SELECT source,target from interactions")
     # ints = [x for x in cursor]
     # for interaction in ints:
-    #     if str(interaction[1]) in gene_symbols and str(interaction[0]) in gene_symbols:
+    #     if str(interaction[1]) in gene_std_names and str(interaction[0]) in gene_std_names:
     #         df_yeast_interactome.loc[str(interaction[0])][str(interaction[1])] = 1
     #         df_yeast_interactome.loc[str(interaction[1])][str(interaction[0])] = 1
 

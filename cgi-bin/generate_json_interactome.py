@@ -527,11 +527,10 @@ def main(arguments,output_filename):
         WHERE ( (source IN (%s) AND target IN (%s)) \
         AND num_experiments >= (%s) AND num_publications >= (%s) AND num_methods >= (%s)) \
         ORDER BY \
-        CASE WHEN source IN (%s) THEN 1 ELSE 2 END, \
-        CASE WHEN target IN (%s) THEN 1 ELSE 2 END, \
-        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
+        CASE WHEN ((source IN (%s)) OR (target IN (%s))) THEN 1 ELSE 2 END ASC, \
+        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END ASC, \
         num_experiments DESC, num_publications DESC, num_methods DESC, \
-        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END \
+        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END ASC \
         limit (%s)" \
         % (placeholders,placeholders,min_exp,min_pub,min_methods,placeholders_primary_nodes,placeholders_primary_nodes,max_interactions)
       
@@ -543,11 +542,10 @@ def main(arguments,output_filename):
         WHERE ( (source IN (%s) AND target IN (%s)) AND type IN (%s) \
         AND num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s)) \
         ORDER BY \
-        CASE WHEN source IN (%s) THEN 1 ELSE 2 END, \
-        CASE WHEN target IN (%s) THEN 1 ELSE 2 END, \
-        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
+        CASE WHEN ((source IN (%s)) OR (target IN (%s))) THEN 1 ELSE 2 END ASC, \
+        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END ASC, \
         num_experiments DESC, num_publications DESC, num_methods DESC, \
-        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END \
+        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END ASC \
         limit (%s)" \
         % (placeholders, placeholders,placeholders_type,min_exp,min_pub,min_methods,placeholders_primary_nodes,placeholders_primary_nodes,max_interactions)
       

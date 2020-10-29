@@ -531,48 +531,7 @@ def find_all_interactions(conn,gene_std_names, gene_sys_names):
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     
-    print('Making tuples of (Mondeel, 2019), (Ostrow, 2014) and (Venters, 2011) interactions')
-
-    # Identify targets (Mondeel, 2019) Fkh1,2
-    df_mondeel_fkh1 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh1 log", index_col=1) # index to standard name
-    df_mondeel_fkh2 = pd.read_excel('./Fkh12_additional_data/Mondeel_2019_Supplementary Information Excel Table S2.xlsx', sheet_name="Fkh2 log", index_col=1)
-
-    for target in df_mondeel_fkh1.index.tolist():
-        if target not in gene_std_names:
-            continue
-
-        row_tuple = ('FKH1',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
-        interactome = update_interactome_regulation(interactome, row_tuple)
-
-    for target in df_mondeel_fkh2.index.tolist():
-        if target not in gene_std_names:
-            continue
-
-        row_tuple = ('FKH2',target,'regulation',"chromatin immunoprecipitation- exonuclease evidence", '31299083')
-        interactome = update_interactome_regulation(interactome, row_tuple)
-
-    # Identify targets (Ostrow, 2014) Fkh1,2
-    # Read in the table of targets from Ostrow et al.
-    df_ostrow = pd.read_excel("./Fkh12_additional_data/Ostrow_2014_Table_S4.xlsx", header=None)
-    df_ostrow.drop([0,1,2,4],axis=1,inplace=True)
-
-    # separate Fkh1,2 results
-    df_ostrow_fkh1 = df_ostrow[df_ostrow[5] == 'Fkh1'][3].values # these are systematic names
-    df_ostrow_fkh2 = df_ostrow[df_ostrow[5] == 'Fkh2'][3].values
-
-    for target in df_ostrow_fkh1:
-        if target not in gene_sys_names:
-            continue
-
-        row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
-        interactome = update_interactome_regulation(interactome, row_tuple)
-    
-    for target in df_ostrow_fkh2:
-        if target not in gene_sys_names:
-            continue
-
-        row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '24504085')
-        interactome = update_interactome_regulation(interactome, row_tuple)
+    print('Making tuples of 25C UTmax (Venters, 2011) interactions because SGD only contains the ones newly activate due to heat shock.')
 
     # Add additional (Venters, 2011) interactions not in SGD
     df_venters = pd.read_excel('./Fkh12_additional_data/Venters_2011_25C_UTmax.xls', header=0, skiprows=[0,1,2,4,5,6,7,8,9,10,11,12,13], usecols=[0,8,9])
@@ -594,7 +553,6 @@ def find_all_interactions(conn,gene_std_names, gene_sys_names):
 
         row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
-
 
     ### Generate the list of tuples to store from the interactome dictionary
     print('Making tuples out of the interactome to store in SQL.')

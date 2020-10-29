@@ -512,23 +512,46 @@ def main(arguments,output_filename):
     ### GET ALL INTERACTIONS BETWEEN ALL NODES
     ######################################################
     start_final_sql = timeit.default_timer()
-    max_interactions = 25000 # a too high value here seems to make the server run out of memory
+    max_interactions = 10000 # a too high value here seems to make the server run out of memory and this is the most time-expensive step on the server
     placeholders = ', '.join('?' for unused in node_list) # '?, ?, ?, ...'
+    placeholders_primary_nodes = ', '.join('?' for unused in primary_nodes)
 
     # Multiple query options
+    # if there are more than max_interactions satisfying the criteria then ORDEr BY:
+    # - Pick interactions with primary_nodes first
+    # - pick regulations/physical over genetic
+    # - pick more over less: exp, pubs, methods
+    # - Pick regulation over physical when equal in exp/pubs/methods because regulatory interactions are often singular in these. 
     if len(split_types) == 3:
-      query = "SELECT * FROM interactions WHERE ( (source IN (%s) AND target IN (%s)) and num_experiments >= (%s) \
-        and num_publications >= (%s) and num_methods >= (%s)) ORDER BY CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
-        num_experiments DESC, num_publications DESC, num_methods DESC limit (%s)" % (placeholders,placeholders,min_exp,min_pub,min_methods,max_interactions)
-      interactome = pd.read_sql_query(query, conn, params=node_list+node_list)
+      query = "SELECT * FROM interactions \
+        WHERE ( (source IN (%s) AND target IN (%s)) \
+        AND num_experiments >= (%s) AND num_publications >= (%s) AND num_methods >= (%s)) \
+        ORDER BY \
+        CASE WHEN source IN (%s) THEN 1 ELSE 2 END, \
+        CASE WHEN target IN (%s) THEN 1 ELSE 2 END, \
+        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
+        num_experiments DESC, num_publications DESC, num_methods DESC, \
+        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END \
+        limit (%s)" \
+        % (placeholders,placeholders,min_exp,min_pub,min_methods,placeholders_primary_nodes,placeholders_primary_nodes,max_interactions)
+      
+      interactome = pd.read_sql_query(query, conn, params=node_list+node_list+primary_nodes+primary_nodes)
+    
     else:
       placeholders_type = ', '.join('?' for unused in split_types)
-      query = "SELECT * FROM interactions WHERE ( (source IN (%s) AND target IN (%s)) AND type IN (%s) \
+      query = "SELECT * FROM interactions \
+        WHERE ( (source IN (%s) AND target IN (%s)) AND type IN (%s) \
         AND num_experiments >= (%s) and num_publications >= (%s) and num_methods >= (%s)) \
-        ORDER BY CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
-        num_experiments DESC, num_publications DESC, num_methods DESC limit (%s)" % (placeholders, \
-        placeholders,placeholders_type,min_exp,min_pub,min_methods,max_interactions)
-      interactome = pd.read_sql_query(query, conn, params=node_list+node_list+split_types)
+        ORDER BY \
+        CASE WHEN source IN (%s) THEN 1 ELSE 2 END, \
+        CASE WHEN target IN (%s) THEN 1 ELSE 2 END, \
+        CASE type WHEN 'physical' OR 'regulation' THEN 1 WHEN 'genetic' THEN 2 END, \
+        num_experiments DESC, num_publications DESC, num_methods DESC, \
+        CASE type WHEN 'regulation' THEN 1 WHEN 'physical' THEN 2 WHEN 'genetic' THEN 3 END \
+        limit (%s)" \
+        % (placeholders, placeholders,placeholders_type,min_exp,min_pub,min_methods,placeholders_primary_nodes,placeholders_primary_nodes,max_interactions)
+      
+      interactome = pd.read_sql_query(query, conn, params=node_list+node_list+split_types+primary_nodes+primary_nodes)
 
     interactome.columns = ['source','target','type','Evidence','Evidence HTML','#Experiments',\
         '#Publications','#Methods']

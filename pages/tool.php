@@ -54,7 +54,7 @@ $(document).on('click', '.text_data_toggle', function(e){
                                 <input type="text" name="gene" id="gene" style='width:100%;' 
                                     value="<?php echo str_replace('_',', ',$gene); ?>" class="text-input" 
                                     data-toggle="tooltip" data-placement="top" title="Enter comma-separated gene IDs into the 
-                                    field below, e.g. SIC1, ORC1, NTH1. These seed the interactome which will be based on all their interactors and the interactions between the interactors."/>
+                                    field below, e.g. SIC1, FKH1, FKH2. These seed the interactome which will be based on all their interactors and the interactions between the interactors."/>
                                 <label class="error_label" for="gene" id="gene_error">This field is required</label>
                             </div>
                             <div class="col-md-3" data-toggle="tooltip" data-placement="top" 

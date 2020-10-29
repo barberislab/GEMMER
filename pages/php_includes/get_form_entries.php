@@ -5,7 +5,7 @@
 if (isset($_GET['gene'])) {
     $gene = $_GET['gene'];
 }
-else { $gene = 'SIC1, ORC1, NTH1';}
+else { $gene = 'SIC1, FKH1, FKH2';}
 if (isset($_GET['cluster'])) {
     $cluster = $_GET['cluster'];
 }

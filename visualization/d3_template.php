@@ -215,7 +215,7 @@
                 .style("fill","none")
                 .style("stroke-width", function(d) { return 1 + d['#Experiments']/1.5; } )
                 .style("stroke", function (d) { return d_interactions[d.type] })
-                .attr("marker-end", function (d) {if (d.type == "regulation") { return "url(#blue_arrow)" }})
+                //.attr("marker-end", function (d) {if (d.type == "regulation") { return "url(#blue_arrow)" }})
                 .style("stroke-opacity", base_link_opacity)
                 .on("click", fade_link(0));
                 // .on("mouseover", mouseovered_link)

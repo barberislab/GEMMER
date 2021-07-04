@@ -61,10 +61,10 @@ $(document).on('click', '.text_data_toggle', function(e){
                                     title="Cluster nodes on compartment expression (CYCLoPs WT1-3), function (GO term 1,2) or not at all.">
                                 <select name="cluster" id="cluster" class="selectpicker" data-width="100%">
                                     <?php 
-                                        $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No clustering");
+                                        $clusters = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "Peak expression phase", "No clustering");
                                         foreach ($clusters as $value) {
                                             $value_proc = str_replace(' ','_',$value);
-                                            echo '<option value=' . $value_proc . " " . (($value_proc==$cluster)?'selected="selected"':"") . ">$value</option>";
+                                            echo '<option value=' . $value_proc . " " . (($value==$cluster)?'selected="selected"':"") . ">$value</option>";
                                         }
                                     ?>
                                 </select>
@@ -72,10 +72,10 @@ $(document).on('click', '.text_data_toggle', function(e){
                             <div class="col-md-3" data-toggle="tooltip" data-placement="top" title="Color nodes on compartment expression (CYCLoPs WT1-3), function (GO term 1,2) or not at all.">
                                 <select name="color" id="color" class="selectpicker" data-width="100%">
                                     <?php 
-                                        $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "No coloring");
+                                        $colors = array("CYCLoPs WT1", "CYCLoPs WT2", "CYCLoPs WT3", "GO term 1", "GO term 2", "Peak expression phase", "No coloring");
                                         foreach ($colors as $value) {
                                             $value_proc = str_replace(' ','_',$value);
-                                            echo '<option value=' . $value_proc . " " . (($value_proc==$color)?'selected="selected"':"") . ">$value</option>";
+                                            echo '<option value=' . $value_proc . " " . (($value==$color)?'selected="selected"':"") . ">$value</option>";
                                         }
                                     ?>
                                 </select>

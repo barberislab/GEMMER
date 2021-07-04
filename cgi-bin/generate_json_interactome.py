@@ -445,8 +445,6 @@ def main(arguments,output_filename):
     ### Combine the expression columns
     nodes['Expression peak'] = nodes['Expression peak phase'] + " (" + nodes['Expression peak time'].map(str) + " min)"
     nodes['Expression peak'] = nodes['Expression peak'].mask(nodes['Expression peak'].isnull(), "No data")
-    nodes = nodes.drop('Expression peak phase',1)
-    nodes = nodes.drop('Expression peak time',1)
 
     # alphabetize
     nodes = nodes.sort_values(by='Standard name',ascending=True)
@@ -481,7 +479,7 @@ def main(arguments,output_filename):
     elif cluster_by == 'No clustering':
       nodes['cluster'] = ['No clustering' for i in range(len(nodes))]
     else:
-      raise SystemExit(cluster_by,"Unexpected value for clustering variable.")
+      raise SystemExit(cluster_by,f"Unexpected value for clustering variable: {cluster_by}.")
     
     if color_by in ['GO term 1','GO term 2']:
       # set the color based on the color_by variable in a new column of 'nodes' DF
@@ -499,11 +497,17 @@ def main(arguments,output_filename):
 
       # set the color based on the maximum compartment found above in a new column in the nodes DF          
       nodes['color'] = pd.Series(l_max_comps).values
+    elif color_by == "Peak expression phase":
+      nodes['color'] = nodes['Expression peak phase']
     elif color_by == 'No coloring':
       nodes['color'] = ["No data" for i in range(len(nodes))]
     else:
-      print('Unexpected value for color_by',color_by)
+      raise SystemExit(color_by, f'Unexpected value for coloring variable: {color_by}')
 
+    # now we can drop expression peak phase/time as separate fields 
+    nodes = nodes.drop('Expression peak phase',1)
+    nodes = nodes.drop('Expression peak time',1)
+    
     timing['Setting node cluster and color attributes'] = timeit.default_timer() - start
 
     len_nodes_filtered_comp = len(nodes)
@@ -658,10 +662,10 @@ def main(arguments,output_filename):
       filter_message = "Note: this query returned {} nodes and {} interactions. We reduced the network to {} nodes based on {} resulting in {} interactions. \
                       All interactions and nodes are contained in the <i>full</i> Excel file. ".format(len_nodes_filtered_comp,len_interactome,max_nodes,filter_condition,len(interactome))
       s = filter_message
-      print("<!-- Reduction message --><script>create_alert(\""+s+"\",\"alert-warning\");</script>")
+
+      print("<script>create_alert(\""+s+"\",\"alert-warning\");</script>")
 
       timing['filter'] = timeit.default_timer() - start_filter
-
 
       ######################################################
       # Network properties with networkx: 2
@@ -708,7 +712,6 @@ def main(arguments,output_filename):
     # remove the Evidence HTML column
     interactome = interactome.drop('Evidence',1)
     interactome = interactome.rename(columns={'Evidence HTML':'Evidence'})
-
 
     if not excel_flag:
       ######################################################

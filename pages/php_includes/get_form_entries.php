@@ -5,20 +5,20 @@
 if (isset($_GET['gene'])) {
     $gene = $_GET['gene'];
 }
-else { $gene = 'SIC1, FKH1, FKH2';}
+else {$gene = 'SIC1, FKH1, FKH2';}
 if (isset($_GET['cluster'])) {
-    $cluster = $_GET['cluster'];
+    $cluster = str_replace("_"," ",$_GET['cluster']);
 }
-else {$cluster = 'CYCLoPs_WT1';}
+else {$cluster = 'CYCLoPs WT1';}
 if (isset($_GET['color'])) {
-    $color = $_GET['color'];
+    $color = str_replace("_"," ",$_GET['color']);
 }
-else {$color = 'GO_term_1'; }
+else {$color = 'Peak expression phase';}
 if (isset($_GET['int_type'])) {
     $int_type_string = $_GET['int_type']; // the string version
     $int_type = explode(",",$_GET['int_type']); // the array version
 }
-else {$int_type = array('physical','genetic','regulation');}
+else {$int_type = array('physical','regulation');}
 
 //row 2
 if (isset($_GET['experiments'])) {
@@ -62,7 +62,7 @@ else {$max_nodes = 25;}
 if (isset($_GET['filter_condition'])) {
     $filter_condition = str_replace("_"," ",$_GET['filter_condition']);
 }
-else {$filter_condition = 'Degree centrality';}
+else {$filter_condition = 'Eigenvector centrality';}
 
 if (isset($_GET['unique_str'])) {
     $unique_str = $_GET['unique_str'];

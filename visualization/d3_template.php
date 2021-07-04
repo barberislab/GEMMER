@@ -86,6 +86,9 @@
             // green, yellow, blue, purple, orange, snow
             var d_functions = {"Cell cycle":"#2ca02c","Cell division":"#ffe119","DNA replication":"#0080ff",
                             "Signal transduction":"#cc33cc","Metabolism":"#ff7f0e","None":"#F8F8FF"};
+
+            var d_phases = {"G1(P)":"#2ca02c","G1/S":"#c0f9c0","S":"#0080ff","G2":"#e6194b","G2/M":"#ffe119",
+                            "M":"#cc33cc","M/G1":"#ff7f0e","G1":"#BEBEBE","No data":"#F8F8FF"};
             
             var d_interactions = {"genetic":"grey","physical":"#8f0000","regulation":"blue"}
             var color_scheme_interactions = d3.scale.ordinal()
@@ -103,6 +106,12 @@
                 var color = d3.scale.ordinal()
                     .domain(Object.keys(d_compartments))
                     .range(Object.values(d_compartments));
+            }
+            else if (nodes[0].color in d_phases) {
+                var clusters_list = Object.keys(d_phases);
+                var color = d3.scale.ordinal()
+                    .domain(Object.keys(d_phases))
+                    .range(Object.values(d_phases));
             }
             else {
                 console.log("Cannot identify which color scheme to use")

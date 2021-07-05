@@ -94,6 +94,7 @@ if($status == 0) {
     sleep(2);
     $javascript = <<<EOT
 <script>
+    alert('The Excel file has successfully been generated.');
     window.location.href = "{$excel_link}";
 </script>
 EOT;

@@ -57,7 +57,7 @@ else {
 
 $excel_link = $_GET['excel_link'];
 
-$array_of_vars = [$gene,$cluster,$color,$int_type,
+$array_of_vars = [$gene,str_replace(" ","_",$cluster),str_replace(" ","_",$color),$int_type,
 $experiments,$publications,$methods,$method_types,
 $process,$compartment,str_replace(array("(",")"),"",$expression), // Note we remove brackets here due to errors
 $max_nodes,str_replace(" ","_",$filter_condition),

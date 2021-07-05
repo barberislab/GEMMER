@@ -304,7 +304,7 @@ def main(arguments,output_filename):
     df_user_input = df_user_input.reindex(index = arg_names)
     df_user_input.columns = ['user input']
     df_user_input_to_print = df_user_input.to_html(classes=['table','table-condensed','table-bordered'])
-    
+
     ### process arguments 
     primary_nodes,cluster_by,color_by,int_type,\
     min_exp,min_pub,min_methods,method_types,\

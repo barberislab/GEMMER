@@ -95,6 +95,7 @@ def main():
         with open(filename, "w") as text_file:
             text_file.write(result_string)
 
+
         # clean old files
         dir_to_search = SCRIPT_DIR+'/../output'
         for dirpath, dirnames, filenames in os.walk(dir_to_search):
@@ -106,8 +107,10 @@ def main():
 
     except Exception:
         print((traceback.format_exc()))
+        
         # Redirect again the std output to screen
         sys.stdout = old_stdout
+
         # Then, get the stdout like a string and process it
         result_string = result.getvalue()
         print(result_string)

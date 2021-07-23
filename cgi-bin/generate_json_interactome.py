@@ -193,7 +193,7 @@ def write_network_to_json(nodes, interactome, filter_condition, filename, G, cas
     nodes_d3hive['name'] = nodes_d3hive.apply(lambda row: row.cluster + '.' + row['Standard name'], axis=1)
 
     # create list of node names each node interacts with
-    nodes_d3hive = nodes_d3hive.set_index('Standard name') 
+    nodes_d3hive = nodes_d3hive.set_index('Standard name')
 
     def build_import_str(row,df,G):
       # build "imports" as a list of dictionaries
@@ -476,6 +476,8 @@ def main(arguments,output_filename):
       l = nodes['CYCLoPs_dict'].values
       l_max_comps = [ max(l[i][WT_string], key=lambda key: l[i][WT_string][key]) if (type(l[i]) != str and len(l[i][WT_string]) > 0) else 'No data' for i in range(len(nodes))]
       nodes['cluster'] = pd.Series(l_max_comps).values
+    elif cluster_by == "Peak expression phase":
+      nodes['cluster'] = [peak if peak != None else 'No data' for peak in nodes['Expression peak phase']]
     elif cluster_by == 'No clustering':
       nodes['cluster'] = ['No clustering' for i in range(len(nodes))]
     else:
@@ -498,7 +500,8 @@ def main(arguments,output_filename):
       # set the color based on the maximum compartment found above in a new column in the nodes DF          
       nodes['color'] = pd.Series(l_max_comps).values
     elif color_by == "Peak expression phase":
-      nodes['color'] = nodes['Expression peak phase']
+      # nodes['Expression peak phase']
+      nodes['color'] = [peak if peak != None else 'No data' for peak in nodes['Expression peak phase']]
     elif color_by == 'No coloring':
       nodes['color'] = ["No data" for i in range(len(nodes))]
     else:
@@ -638,7 +641,10 @@ def main(arguments,output_filename):
     # # this will include a filtering step for really big networks
     # ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,G,'full',primary_nodes)
+    try:
+      write_network_to_json(nodes_full,interactome_full,filter_condition,output_filename,G,'full',primary_nodes)
+    except Exception:
+      print((traceback.format_exc()))
     timing['json_full'] = timeit.default_timer() - start_json
 
     ######################################################
@@ -701,12 +707,14 @@ def main(arguments,output_filename):
 
       timing['nxviz matrix plot'] = timeit.default_timer() - start
 
-
     ######################################################
     ### Write the network to json
     ######################################################
     start_json = timeit.default_timer()
-    write_network_to_json(nodes,interactome,filter_condition,output_filename,G)
+    try:
+      write_network_to_json(nodes,interactome,filter_condition,output_filename,G)
+    except Exception:
+      print((traceback.format_exc()))
     timing['json'] = timeit.default_timer() - start_json
 
     # remove the Evidence HTML column
@@ -856,7 +864,6 @@ def main(arguments,output_filename):
           </div>
         </div>
         """)
-
 
       ######################################################
       # Show algorithm output in an alert at the bottom of the page

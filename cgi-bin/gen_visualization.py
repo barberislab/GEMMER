@@ -75,9 +75,15 @@ def main():
         print(result_string)
         raise SystemExit
 
+    # set maximum length for genes in filename
+    # assume gene name length = 4, plus 1 separator, max. 10 genes: 50 characters
+    gene_string_used = gene_string
+    if len(gene_string_used) > 50:
+      gene_string_used = gene_string_used[:50]
+    
     # where to save the interactome
     json_output_filename = os.path.abspath(SCRIPT_DIR+'/../output/json_files/interactome_' +
-                                           gene_string + '_' + unique_str + '.json')
+                                           gene_string_used + '_' + unique_str + '.json')
 
     try: # try, except such that on failure php can show us the error
 
@@ -91,7 +97,7 @@ def main():
 
         # Save the python output string as a php page to incorporate in the visualization
         filename = SCRIPT_DIR+'/../output/include_html/include_interactome_' \
-            + gene_string + '_' + unique_str + '.php'
+            + gene_string_used + '_' + unique_str + '.php'
         with open(filename, "w") as text_file:
             text_file.write(result_string)
 

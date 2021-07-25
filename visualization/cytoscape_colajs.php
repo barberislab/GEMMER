@@ -36,6 +36,9 @@ fetch(<?php echo "'$link_to_json'"; ?>, {mode: 'no-cors'})
   var d_functions = {"Cell cycle":"#2ca02c","Cell division":"#ffe119","DNA replication":"#0080ff",
                   "Signal transduction":"#cc33cc","Metabolism":"#ff7f0e","None":"#F8F8FF"};
 
+  var d_phases = {"G1(P)":"#2ca02c","G1/S":"#c0f9c0","S":"#0080ff","G2":"#e6194b","G2/M":"#ffe119",
+                  "M":"#cc33cc","M/G1":"#ff7f0e","G1":"#BEBEBE","No data":"#F8F8FF"};
+
   var cy = window.vis_inner = cytoscape({
     container: document.getElementById('vis_inner'),
 
@@ -58,6 +61,12 @@ fetch(<?php echo "'$link_to_json'"; ?>, {mode: 'no-cors'})
             if (ele.data("color") in d_functions) {
               return d_functions[ele.data("color")]
             } 
+            else if (ele.data("color") in d_compartments) {
+              return d_compartments[ele.data("color")]
+            }
+            else if (ele.data("color") in d_phases) {
+              return d_phases[ele.data("color")]
+            }
             else { 
               return "#e8e406" 
             } 

@@ -33,7 +33,7 @@
             <a href="index.php?id=tool&$php_args&layout=d3_cola" class="alert-link">D3.js with cola</a>
         </td>
         <td>
-            <a href="index.php?id=tool&$php_args&layout=d3_heb" class="alert-link">D3.js hierarchival edge bundles</a>
+            <a href="index.php?id=tool&$php_args&layout=d3_heb" class="alert-link">D3.js hierarchical edge bundles</a>
         </td>
         <td>
             <a href="index.php?id=tool&$php_args&layout=d3_large" class="alert-link">D3.js max. 250 nodes</a>
@@ -72,6 +72,11 @@ EOT;
         echo '</span>';
     }
 
+    # set maximum length for genes in filename
+    # assume gene name length = 4, plus 1 separator, max. 10 genes: 50 characters
+    if (strlen($gene) > 50) {
+        $gene = substr($gene, 0, 50);
+    }
     // relative to the pages/php_includes folder
     $excel_output_link = "../../output/excel_files/interactome_{$gene}_{$unique_str}.xlsx";
 
@@ -82,13 +87,14 @@ EOT;
     <img style="vertical-align:middle" src="img/noun/excel_green.svg" width=12%>';
 
     // Excel for filtered network
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\"> Visualized network</a>";
+    $php_args_excel1 = $php_args_excel . "&filter_flag=1";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel1}\" target=\"blank\"> Visualized network</a>";
 
     // Excel for full network
     // add the filter_flag (i.e. show all results or not) and set it to 0 (i.e. no filtering)
-    $php_args_excel = $php_args_excel . "&filter_flag=0";
+    $php_args_excel2 = $php_args_excel . "&filter_flag=0";
     echo " | ";
-    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel}\" target=\"blank\"> Full network</a></span>";
+    echo "<a href=\"index.php?id=export_excel_file&{$php_args_excel2}\" target=\"blank\"> Full network</a></span>";
 
 
     // json

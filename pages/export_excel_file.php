@@ -16,6 +16,7 @@ ob_implicit_flush(1);
 if (isset($_GET['gene'])) {
     //row1
     $gene = $_GET['gene'];
+
     $cluster = $_GET['cluster'];
     $color = $_GET['color'];
     $int_type = $_GET['int_type'];

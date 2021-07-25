@@ -44,6 +44,12 @@ if (isset($_POST['gene'])) {
         echo "</p>";
 
         if ($status == 0) {
+            # set maximum length for genes in filename
+            # assume gene name length = 4, plus 1 separator, max. 10 genes: 50 characters
+            if (strlen($gene) > 50) {
+                $gene = substr($gene, 0, 50);
+            }
+
             $filename  = $_SERVER["DOCUMENT_ROOT"] . '/output/include_html/include_interactome_' . $gene . '_' . $unique_str . '.php';
             if (file_exists($filename)) {
                 echo "Everything went A-OK.";

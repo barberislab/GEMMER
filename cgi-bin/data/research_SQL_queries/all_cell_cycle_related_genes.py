@@ -28,13 +28,15 @@ print('=== Connection established ===')
 
 # build and execute query
 query = "SELECT standard_name, systematic_name, go_term_1, go_term_2, name_desc, desc, KEGG_description \
-        FROM genes WHERE go_term_1 IN ('Cell cycle', 'Cell division', 'DNA replication') OR go_term_2 IN ('Cell cycle', 'Cell division', 'DNA replication')"
+        FROM genes \
+        WHERE go_term_1 IN ('Cell cycle', 'Cell division', 'DNA replication') OR go_term_2 IN ('Cell cycle', 'Cell division', 'DNA replication')"
 df1 = pd.read_sql_query(query, conn, index_col="systematic_name")
 
 print('\nGO term query returned %i results.' % (df1.shape[0]))
 
 query = "SELECT standard_name, systematic_name, go_term_1, go_term_2, name_desc, desc, KEGG_description \
-        FROM genes WHERE (desc LIKE '%cell cycle%' OR desc LIKE '%cell division%' OR desc LIKE '%DNA replication%') \
+        FROM genes \
+        WHERE (desc LIKE '%cell cycle%' OR desc LIKE '%cell division%' OR desc LIKE '%DNA replication%') \
         OR (KEGG_description LIKE '%cell cycle%' OR KEGG_description LIKE '%cell division%' OR KEGG_description LIKE '%DNA replication%')    "
 df2 = pd.read_sql_query(query, conn, index_col="systematic_name")
 

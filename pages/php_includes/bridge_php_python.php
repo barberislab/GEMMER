@@ -9,7 +9,7 @@ include_once $_SERVER["DOCUMENT_ROOT"] . "/pages/php_includes/post_form_entries.
 if (isset($_POST['gene'])) {
     echo "<p>Submitting query...</p>";
 
-    if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {
+    //if (preg_match("/^[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)*$/",$gene)) {
 
         $dir = $_SERVER["DOCUMENT_ROOT"] . '/cgi-bin/data/DB_genes_and_interactions.db';
         $db = new SQLite3($dir);
@@ -61,10 +61,11 @@ if (isset($_POST['gene'])) {
         if ($status > 0) {
             echo "An error occured in the shell command.";
         }
-    } 
-    else {
-        echo "<h4>Warning:</h4>Gene ID entered contains invalid characters.";
-    }
+    // } 
+    // else {
+    //     echo "<h4>Warning:</h4>Gene IDentered contains invalid characters.";
+    //     echo $gene;
+    // }
 }
 else{
     echo "<h4>Warning:</h4>No gene input given...";

@@ -23,6 +23,7 @@ Dosage Lethality
 Dosage Rescue
 electrophoretic mobility shift assay evidence
 enzymatic activity assay evidence
+expression microarray evidence
 Far Western
 fluorescence in situ hybridization evidence
 FRET
@@ -39,6 +40,7 @@ in vitro phosphatase assay evidence
 in vitro protein kinase assay evidence
 in vitro sumoylation assay evidence
 in vitro ubiquitination assay evidence
+luciferase reporter gene assay evidence
 mass spectrometry evidence
 methylation interference footprinting evidence
 mutant phenotype evidence
@@ -50,13 +52,13 @@ Phenotypic Enhancement
 Phenotypic Suppression
 physical interaction evidence
 Positive Genetic
-protein expression level evidence based on western blot
 protein kinase assay evidence
 protein mass spectrometry evidence
 protein separation followed by direct sequencing evidence
 Protein-peptide
 Protein-RNA
 Proximity Label-MS
+qualitative western immunoblotting evidence
 quantitative mass spectrometry evidence
 quantitative polymerase chain reaction evidence
 quantitative reverse transcription polymerase chain reaction evidence
@@ -72,11 +74,10 @@ Synthetic Growth Defect
 Synthetic Haploinsufficiency
 Synthetic Lethality
 Synthetic Rescue
+transcript expression evidence
 transcriptional activation assay evidence
 translation assay evidence
 tryptic phosphopeptide mapping assay evidence
 two-dimensional polyacrylamide gel electrophoresis evidence
 Two-hybrid
 ubiquitination assay evidence
-Unknown
-western blot evidence

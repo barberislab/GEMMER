@@ -110,7 +110,6 @@ def store_gfp_data(conn,gene_std_names,d={}):
         gfp_data['localization'] = [x if ',' not in x else x.replace(',',', ') for x in gfp_data['localization']]
         gfp_data['abundance'] = [x if x != 'not visualized' else 'no data' for x in gfp_data['abundance']]
 
-
         matches = [g for g in gene_std_names if g in gfp_data['gene name'].values]
         nomatches = [g for g in gene_std_names if g not in gfp_data['gene name'].values]
         for g in nomatches:
@@ -172,7 +171,6 @@ def store_CYCLoPs_data(conn,gene_std_names,CYCLoPs_dict={}):
                 # find the correct row
                 subdf = df[df['Name'] == gene]
                 if len(subdf) == 0:
-
                     continue
                 elif len(subdf) > 1:
                     print("Found multiple hits in CYCLoPs data for",gene,'Taking the first hit.')
@@ -531,9 +529,9 @@ def find_all_interactions(conn,gene_std_names, gene_sys_names):
         interactome = update_interactome_regulation(interactome, row_tuple)
     
     
-    print('Making tuples of 25C UTmax (Venters, 2011) interactions because SGD only contains the ones newly activate due to heat shock.')
-
     # Add additional (Venters, 2011) interactions not in SGD
+    print('Making tuples of 25C UTmax (Venters, 2011) interactions because SGD only contains the ones that newly activate due to heat shock.')
+
     df_venters = pd.read_excel('./Fkh12_additional_data/Venters_2011_25C_UTmax.xls', header=0, skiprows=[0,1,2,4,5,6,7,8,9,10,11,12,13], usecols=[0,8,9])
     df_venters = df_venters.set_index('Factor') # pandas automatically labels the first column with systematic names 'Factor'
 
@@ -849,7 +847,7 @@ def main():
     sql_create_genes_table = """ CREATE TABLE IF NOT EXISTS genes (
                                         standard_name TEXT PRIMARY KEY,
                                         systematic_name TEXT NOT NULL,
-                                        name_desc TEXT NOT NULL,
+                                        name_desc TEXT NULL,
                                         desc TEXT NOT NULL,
                                         go_term_1 TEXT,
                                         go_term_2 TEXT,
@@ -888,10 +886,10 @@ def main():
     conn = create_connection(database)
     print("connection established")
     if conn is not None:
-        # create projects table
+        # create genes table
         create_table(conn, sql_create_genes_table)
         print("Genes table initialised.")
-        # create tasks table
+        # create interactions table
         create_table(conn, sql_create_interactions_table)
         print("Interactions table initialised.")
     else:

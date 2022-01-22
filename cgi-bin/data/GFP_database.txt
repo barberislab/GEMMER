@@ -1125,7 +1125,7 @@ orfid	yORF	gene name	GFP tagged?	GFP visualized?	TAP visualized?	abundance	error
 5697	YER064C		tagged	visualized	TAP visualized	1730	NA	nucleus	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	T	F		
 4179	YER067W		tagged	visualized	TAP visualized	8450	NA	cytoplasm,nucleus	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	T	F	F	F	T	F		
 1271	YER068W	MOT2	tagged	visualized	TAP visualized	4280	NA	cytoplasm	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	T	F	F	F	F	F		
-545	YER069W	ARG5,6	tagged	visualized	TAP visualized	1180	NA	mitochondrion	F	T	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F		
+545	YER069W	ARG56	tagged	visualized	TAP visualized	1180	NA	mitochondrion	F	T	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F		
 505	YER070W	RNR1	tagged	visualized	TAP visualized	293000	NA	ambiguous	T	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F		
 4551	YER071C		tagged	visualized	TAP visualized	799	NA	punctate composite	F	F	F	F	F	T	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F		
 6197	YER072W	VTC1	tagged	visualized	TAP visualized	12100	NA	ER	F	F	F	F	F	F	F	T	F	F	F	F	F	F	F	F	F	F	F	F	F	F	F		

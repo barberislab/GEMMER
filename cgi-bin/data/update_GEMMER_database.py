@@ -66,7 +66,7 @@ def find_metabolic_enzymes(conn,gene_sys_names):
 
 def store_sceptrans_data(conn):
 
-    sceptrans_data = pd.read_excel('./expression_time_phase_primary.xlsx',index_col=False)
+    sceptrans_data = pd.read_excel('./expression_time_phase_primary.xlsx', engine='openpyxl', index_col=False)
     sceptrans_data.columns = ['Systematic name', 'Standard name', 'Phase', 'Time']
 
     sceptrans_data = sceptrans_data.sort_values(['Time'])
@@ -541,16 +541,56 @@ def find_all_interactions(conn,gene_std_names, gene_sys_names):
     for target in venters_fkh1:
         if target not in gene_sys_names:
             continue
-
         row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
-        interactome = update_interactome_regulation(interactome, row_tuple)
-    
+        interactome = update_interactome_regulation(interactome, row_tuple)  
     for target in venters_fkh2:
         if target not in gene_sys_names:
             continue
-
         row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation',"chromatin immunoprecipitation-chip evidence", '21329885')
         interactome = update_interactome_regulation(interactome, row_tuple)
+
+
+    # Add additional (Rossi et al., 2021) interactions not in SGD
+    df_rossi = pd.read_excel('./Fkh12_additional_data/Rossi2021.xlsx', engine='openpyxl', index_col=0)
+
+    Rossi_fkh1  = [g for g in df_rossi.query('Fkh1 == 1').index.tolist()]
+    Rossi_fkh2  = [g for g in df_rossi.query('Fkh2 == 1').index.tolist()]
+
+    for target in Rossi_fkh1:
+        if target not in gene_sys_names:
+            continue
+        row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation','chromatin immunoprecipitation- exonuclease evidence', '33692541')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+    for target in Rossi_fkh2:
+        if target not in gene_sys_names:
+            continue
+        row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation','chromatin immunoprecipitation- exonuclease evidence', '33692541')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
+
+    # Add additional (Lupo et al., 2021) interactions not in SGD
+    df_lupo = pd.read_csv('./Fkh12_additional_data/Lupo2021_SumProm_data.csv', header=0, index_col=1)
+    df_lupo = df_lupo[['cer Fkh1', 'cer Fkh2']] 
+
+    df_lupo['Fkh1_Lupo_zscore'] = (df_lupo['cer Fkh1'] - df_lupo['cer Fkh1'].mean()) / df_lupo['cer Fkh1'].std()
+    df_lupo['Fkh2_Lupo_zscore'] = (df_lupo['cer Fkh2'] - df_lupo['cer Fkh2'].mean()) / df_lupo['cer Fkh2'].std()
+    df_lupo = df_lupo.drop(['cer Fkh1', 'cer Fkh2'],axis=1)
+
+    # define targets as having a z-score > 0
+    lupo_fkh1 = df_lupo.query('Fkh1_Lupo_zscore > 0').index.tolist()
+    lupo_fkh2 = df_lupo.query('Fkh2_Lupo_zscore > 0').index.tolist()
+
+    for target in lupo_fkh1:
+        if target not in gene_sys_names:
+            continue
+        row_tuple = ('FKH1',gene_name_sys_to_std[target],'regulation','ChEC-Seq experiments', '33609368')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+    for target in lupo_fkh2:
+        if target not in gene_sys_names:
+            continue
+        row_tuple = ('FKH2',gene_name_sys_to_std[target],'regulation','ChEC-Seq experiments', '33609368')
+        interactome = update_interactome_regulation(interactome, row_tuple)
+
 
     ### Generate the list of tuples to store from the interactome dictionary
     print('Making tuples out of the interactome to store in SQL.')

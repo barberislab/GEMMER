@@ -5,6 +5,7 @@ Affinity Capture-Western
 beta-galactosidase reporter gene assay evidence
 Biochemical Activity
 caspase assay evidence
+ChEC-Seq experiments
 chromatin immunoprecipitation evidence
 chromatin immunoprecipitation- exonuclease evidence
 chromatin immunoprecipitation-chip evidence
@@ -16,6 +17,7 @@ Co-fractionation
 co-immunoprecipitation evidence
 Co-localization
 Co-purification
+deubiquitination assay evidence
 DNA to cDNA expression microarray evidence
 DNAse footprinting evidence
 Dosage Growth Defect
@@ -27,7 +29,6 @@ expression microarray evidence
 Far Western
 fluorescence in situ hybridization evidence
 FRET
-functional complementation evidence
 green fluorescent protein fusion protein localization evidence
 green fluorescent protein immunolocalization evidence
 green fluorescent protein reporter gene assay evidence
@@ -37,11 +38,12 @@ in vitro assay evidence
 in vitro deubiquitination assay evidence
 in vitro methylation assay evidence
 in vitro phosphatase assay evidence
-in vitro protein kinase assay evidence
 in vitro sumoylation assay evidence
 in vitro ubiquitination assay evidence
 luciferase reporter gene assay evidence
+luciferase reporter gene assay evidence used in manual assertion
 mass spectrometry evidence
+methylation assay evidence
 methylation interference footprinting evidence
 mutant phenotype evidence
 Negative Genetic
@@ -50,6 +52,7 @@ nucleic acid binding evidence
 PCA
 Phenotypic Enhancement
 Phenotypic Suppression
+phosphatase assay evidence
 physical interaction evidence
 Positive Genetic
 protein kinase assay evidence
@@ -62,7 +65,8 @@ qualitative western immunoblotting evidence
 quantitative mass spectrometry evidence
 quantitative polymerase chain reaction evidence
 quantitative reverse transcription polymerase chain reaction evidence
-quantitative reverse transcription polymerase chain reaction evidence used in manual assertion
+quantitative western immunoblotting evidence
+quantitative western immunoblotting evidence used in manual assertion
 Reconstituted Complex
 reporter gene assay evidence
 reverse transcription polymerase chain reaction evidence
@@ -77,6 +81,7 @@ Synthetic Rescue
 transcript expression evidence
 transcriptional activation assay evidence
 translation assay evidence
+transport assay evidence
 tryptic phosphopeptide mapping assay evidence
 two-dimensional polyacrylamide gel electrophoresis evidence
 Two-hybrid
